@@ -1,0 +1,31 @@
+parameters:
+
+services:
+	- App\Router\RouterFactory::createRouter
+
+search:
+	-
+		in: %appDir%
+		classes:
+			- *Factory
+			- *Facade
+
+application:
+	errorPresenter: Error
+	mapping:
+		*: App\*Module\Presenters\*Presenter
+
+
+session:
+	expiration: 14 days
+
+
+di:
+	export:
+		parameters: no
+		tags: no
+#
+#database:
+#	dsn: 'mysql:host=database;dbname=test'
+#	user: test
+#	password: test

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="LattePluginSettings">
+    <option name="variableSettings">
+      <list>
+        <LatteVariableSettings VarName="email" VarType="mixed">
+          <option name="vendor" value="OTHER" />
+        </LatteVariableSettings>
+        <LatteVariableSettings VarName="phone" VarType="mixed">
+          <option name="vendor" value="OTHER" />
+        </LatteVariableSettings>
+        <LatteVariableSettings VarName="praxis_name" VarType="mixed">
+          <option name="vendor" value="OTHER" />
+        </LatteVariableSettings>
+        <LatteVariableSettings VarName="address" VarType="mixed">
+          <option name="vendor" value="OTHER" />
+        </LatteVariableSettings>
+      </list>
+    </option>
+  </component>
+</project>
