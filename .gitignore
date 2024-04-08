@@ -1,3 +1,6 @@
 config/local.neon
 .DS_Store
 .DS_Store
+_design/.DS_Store
+.idea
+www/img/.DS_Store
