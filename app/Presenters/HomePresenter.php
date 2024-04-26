@@ -24,6 +24,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 		'endodontickeOsetreni' => 5850,
 		'korunkaMetalokeramicka' => 7000,
 		'korunkaCelokeramicka' => 9500,
+		'dentalniHygiena' => 1800,
 		];
 
 	const CLINIC_HOURS = '7:00 - 12:30';
