@@ -1,6 +1,6 @@
 {varType string $praxisName}
 {varType array $priceList}
-{varType string $clinicHours}
+{varType array $clinicHours}
 {varType string $email}
 {varType string $phone}
 
@@ -11,7 +11,7 @@
 	<div class="row gx-0">
 		<div class="col-md-6 text-center text-lg-start mb-2 mb-lg-0">
 			<div class="d-inline-flex align-items-center">
-				<small class="py-2"><i class="far fa-clock text-primary-private me-2"></i>Ordinační hodiny: pondělí - středa - pátek : {$clinicHours} </small>
+{*				<small class="py-2"><i class="far fa-clock text-primary-private me-2"></i>Ordinační hodiny: pondělí - středa - pátek : {$clinicHours} </small>*}
 			</div>
 		</div>
 		<div class="col-md-6 text-center text-lg-end">
@@ -55,7 +55,7 @@
 		<div id="header-carousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
 			<div class="carousel-inner">
 				<div class="carousel-item active">
-					<img class="w-100" src="{$basePath}/img/praxis1.jpg" alt="Image">
+					<img class="w-100" src="{$basePath}/img/praxis4.jpg" alt="Image">
 					<div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
 						<div class="p-3" style="max-width: 900px;">
 							<h5 class="text-white text-uppercase mb-3 animated slideInDown">MDDr. </h5>
@@ -123,19 +123,23 @@
 					<div class="section-title mb-4">
 						<h3 class="position-relative d-inline-block text-primary-private text-uppercase">Kontakt</h3>
 					</div>
-					<div class="bg-primary-private d-flex flex-column p-5" style="height: 250px;">
+					<div class="bg-primary-private d-flex flex-column p-5" style="height: 300px;">
 						<h3 class="text-white mb-3">Ordinační hodiny</h3>
 						<div class="d-flex justify-content-between text-white mb-3">
 							<h6 class="text-white mb-0">Pondělí</h6>
-							<p class="mb-0"> {$clinicHours}</p>
+							<p class="mb-0"> {$clinicHours['Monday']}</p>
 						</div>
 						<div class="d-flex justify-content-between text-white mb-3">
 							<h6 class="text-white mb-0">Středa</h6>
-							<p class="mb-0"> {$clinicHours}</p>
+							<p class="mb-0"> {$clinicHours['Wednesday']}</p>
+						</div>
+						<div class="d-flex justify-content-between text-white mb-3">
+							<h6 class="text-white mb-0">Čtvrtek</h6>
+							<p class="mb-0"> {$clinicHours['Thursday']}</p>
 						</div>
 						<div class="d-flex justify-content-between text-white mb-3">
 							<h6 class="text-white mb-0">Pátek</h6>
-							<p class="mb-0"> {$clinicHours}</p>
+							<p class="mb-0"> {$clinicHours['Friday']}</p>
 						</div>
 					</div>
 				</div>
@@ -144,6 +148,9 @@
 						<h3 class="text-white mb-4">Objednejte se </h3>
 						<h4 class="text-white mb-4">{$phone}</h4>
 						<h4 class="text-white mb-4">{$email}</h4>
+						<h4 class="mb-4"></h4>
+						<h4></h4>
+						<h4>Čtvrtek - dentální hygiena</h4>
 					</div>
 				</div>
 			</div>
@@ -360,7 +367,7 @@
 							<div class="row g-5">
 								<div class="col-md-4 service-item wow zoomIn" data-wow-delay="0.3s">
 									<div class="rounded-top overflow-hidden">
-										<img class="img-fluid" src="{$basePath}/img/cert/001.jpg" alt="" style="height: 240px; width: 450px;">
+										<img class="img-fluid" src="{$basePath}/img/cert/001.jpg" alt="" style="height: 240px; width: 350px;">
 									</div>
 								</div>
 								<div class="col-md-4 service-item wow zoomIn" data-wow-delay="0.3s">
@@ -375,7 +382,7 @@
 								</div>
 								<div class="col-md-4 service-item wow zoomIn" data-wow-delay="0.3s">
 									<div class="rounded-top overflow-hidden">
-										<img class="img-fluid" src="{$basePath}/img/cert/004.jpg" alt="" style="height: 240px; width: 500px;">
+										<img class="img-fluid" src="{$basePath}/img/cert/004.jpg" alt="" style="height: 240px; width: 350px;">
 									</div>
 								</div>
 								<div class="col-md-4 service-item wow zoomIn" data-wow-delay="0.3s">

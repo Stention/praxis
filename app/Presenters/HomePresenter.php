@@ -27,7 +27,12 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 		'dentalniHygiena' => 1800,
 		];
 
-	const CLINIC_HOURS = '7:00 - 12:30';
+	const CLINIC_HOURS = [
+		'Monday' => '7:30 – 13:45',
+		'Wednesday' => '7:30 – 13:30',
+		'Thursday' => '7:00 - 13:00 / 12:00 - 17:00',
+		'Friday' => '7:30 – 13:45',
+	];
 
 	protected function beforeRender(): void
 	{
