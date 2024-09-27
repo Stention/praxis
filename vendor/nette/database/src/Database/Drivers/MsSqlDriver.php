@@ -17,10 +17,7 @@ use Nette;
  */
 class MsSqlDriver implements Nette\Database\Driver
 {
-	use Nette\SmartObject;
-
-	/** @var Nette\Database\Connection */
-	private $connection;
+	private Nette\Database\Connection $connection;
 
 
 	public function initialize(Nette\Database\Connection $connection, array $options): void
@@ -73,7 +70,7 @@ class MsSqlDriver implements Nette\Database\Driver
 			throw new Nette\InvalidArgumentException('Negative offset or limit.');
 
 		} elseif ($limit !== null) {
-			$sql = preg_replace('#^\s*(SELECT(\s+DISTINCT|\s+ALL)?|UPDATE|DELETE)#i', '$0 TOP ' . (int) $limit, $sql, 1, $count);
+			$sql = preg_replace('#^\s*(SELECT(\s+DISTINCT|\s+ALL)?|UPDATE|DELETE)#i', '$0 TOP ' . $limit, $sql, 1, $count);
 			if (!$count) {
 				throw new Nette\InvalidArgumentException('SQL query must begin with SELECT, UPDATE or DELETE command.');
 			}
@@ -87,7 +84,8 @@ class MsSqlDriver implements Nette\Database\Driver
 	public function getTables(): array
 	{
 		$tables = [];
-		foreach ($this->connection->query('SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES') as $row) {
+		$rows = $this->connection->query('SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES');
+		while ($row = $rows->fetch()) {
 			$tables[] = [
 				'name' => $row['TABLE_SCHEMA'] . '.' . $row['TABLE_NAME'],
 				'view' => ($row['TABLE_TYPE'] ?? null) === 'VIEW',
@@ -103,7 +101,7 @@ class MsSqlDriver implements Nette\Database\Driver
 		[$table_schema, $table_name] = explode('.', $table);
 		$columns = [];
 
-		$query = "
+		$rows = $this->connection->query(<<<'X'
 			SELECT
 				COLUMN_NAME,
 				DATA_TYPE,
@@ -115,15 +113,16 @@ class MsSqlDriver implements Nette\Database\Driver
 			FROM
 				INFORMATION_SCHEMA.COLUMNS
 			WHERE
-				TABLE_SCHEMA = {$this->connection->quote($table_schema)}
-				AND TABLE_NAME = {$this->connection->quote($table_name)}";
+				TABLE_SCHEMA = ?
+				AND TABLE_NAME = ?
+			X, $table_schema, $table_name);
 
-		foreach ($this->connection->query($query) as $row) {
+		while ($row = $rows->fetch()) {
 			$columns[] = [
 				'name' => $row['COLUMN_NAME'],
 				'table' => $table,
 				'nativetype' => strtoupper($row['DATA_TYPE']),
-				'size' => $row['CHARACTER_MAXIMUM_LENGTH'] ?? ($row['NUMERIC_PRECISION'] ?? null),
+				'size' => $row['CHARACTER_MAXIMUM_LENGTH'] ?? $row['NUMERIC_PRECISION'],
 				'unsigned' => false,
 				'nullable' => $row['IS_NULLABLE'] === 'YES',
 				'default' => $row['COLUMN_DEFAULT'],
@@ -142,7 +141,7 @@ class MsSqlDriver implements Nette\Database\Driver
 		[, $table_name] = explode('.', $table);
 		$indexes = [];
 
-		$query = "
+		$rows = $this->connection->query(<<<'X'
 			SELECT
 				 name_index = ind.name,
 				 id_column = ic.index_column_id,
@@ -155,11 +154,12 @@ class MsSqlDriver implements Nette\Database\Driver
 				INNER JOIN sys.columns col ON ic.object_id = col.object_id and ic.column_id = col.column_id
 				INNER JOIN sys.tables t ON ind.object_id = t.object_id
 			WHERE
-				 t.name = {$this->connection->quote($table_name)}
+				 t.name = ?
 			ORDER BY
-				 t.name, ind.name, ind.index_id, ic.index_column_id";
+				 t.name, ind.name, ind.index_id, ic.index_column_id
+			X, $table_name);
 
-		foreach ($this->connection->query($query) as $row) {
+		while ($row = $rows->fetch()) {
 			$id = $row['name_index'];
 			$indexes[$id]['name'] = $id;
 			$indexes[$id]['unique'] = $row['is_unique'] !== 'False';
@@ -176,7 +176,7 @@ class MsSqlDriver implements Nette\Database\Driver
 		[$table_schema, $table_name] = explode('.', $table);
 		$keys = [];
 
-		$query = "
+		$rows = $this->connection->query(<<<'X'
 			SELECT
 				obj.name AS [fk_name],
 				col1.name AS [column],
@@ -197,13 +197,15 @@ class MsSqlDriver implements Nette\Database\Driver
 				INNER JOIN sys.columns col2
 				ON col2.column_id = referenced_column_id AND col2.object_id = tab2.object_id
 			WHERE
-				tab1.name = {$this->connection->quote($table_name)}";
+				tab1.name = ?
+			X, $table_name);
 
-		foreach ($this->connection->query($query) as $id => $row) {
+		$id = 0;
+		while ($row = $rows->fetch()) {
 			$keys[$id]['name'] = $row['fk_name'];
 			$keys[$id]['local'] = $row['column'];
 			$keys[$id]['table'] = $table_schema . '.' . $row['referenced_table'];
-			$keys[$id]['foreign'] = $row['referenced_column'];
+			$keys[$id++]['foreign'] = $row['referenced_column'];
 		}
 
 		return array_values($keys);
@@ -218,6 +220,6 @@ class MsSqlDriver implements Nette\Database\Driver
 
 	public function isSupported(string $item): bool
 	{
-		return $item === self::SUPPORT_SUBSELECT;
+		return $item === self::SupportSubselect;
 	}
 }

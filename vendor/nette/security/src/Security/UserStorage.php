@@ -15,10 +15,11 @@ namespace Nette\Security;
  */
 interface UserStorage
 {
-	/** Log-out reason */
-	public const
-		LOGOUT_MANUAL = 1,
-		LOGOUT_INACTIVITY = 2;
+	/** @deprecated use User::LogoutManual */
+	public const LOGOUT_MANUAL = 1;
+
+	/** @deprecated use User::LogoutInactivity */
+	public const LOGOUT_INACTIVITY = 2;
 
 	/**
 	 * Sets the authenticated state of user.

@@ -2,6 +2,9 @@ parameters:
 
 services:
 	- App\Router\RouterFactory::createRouter
+	- App\Services\Authenticator
+	- App\Services\UserService
+	- App\Services\ProductService
 
 search:
 	-
@@ -24,8 +27,8 @@ di:
 	export:
 		parameters: no
 		tags: no
-#
-#database:
-#	dsn: 'mysql:host=database;dbname=test'
-#	user: test
-#	password: test
+
+database:
+	dsn: 'mysql:host=database;dbname=test'
+	user: test
+	password: test

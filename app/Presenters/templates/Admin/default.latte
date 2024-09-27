@@ -1,0 +1,108 @@
+{varType array $products}
+{varType ?array $prices}
+
+{block content}
+	<div class="content-wrapper">
+		<div class="container-fluid">
+
+			<div class="row mt-3">
+
+				<div class="col-lg-6">
+
+					<div class="card">
+						<div class="card-body">
+							<div class="card-title">Přidat nový produkt do databáze</div>
+							<hr>
+
+							{form insertProductForm}
+								<div class="form-group">
+									{label productName /}
+									{input productName, type => "text", class => "form-control"}
+								</div>
+								<div class="form-group">
+									{label dentamedUrl /}
+									{input dentamedUrl, type => "text", class => "form-control"}
+								</div>
+								<div class="form-group">
+									{label medplusUrl /}
+									{input medplusUrl, type => "text", class => "form-control"}
+								</div>
+								<div class="form-group">
+									{input submit, type => "submit", class => "btn btn-light px-5"}
+								</div>
+							{/form}
+
+						</div>
+					</div>
+
+					<div class="card">
+						<div class="card-body">
+							<div class="card-title">Seznam produktů</div>
+							<hr>
+
+							<div class="table-responsive" style="max-height: 300px;overflow: scroll;">
+								<table class="table table-hover">
+									<thead>
+									<tr>
+										<th scope="col">Jméno</th>
+										<th scope="col">Dentamed produkt kód</th>
+										<th scope="col">MedPlus produkt kód</th>
+{*										<th scope="col">Dentamed cena</th>*}
+{*										<th scope="col">MedPlus cena</th>*}
+									</tr>
+									</thead>
+									<tbody>
+
+									{foreach $products as $product}
+										<tr>
+											<td>{$product->product_name}</td>
+											<td><a href="{$product->dentamed_url}" target="_blank">{$product->dentamed_product_code}</a></td>
+											<td><a href="{$product->medplus_url}" target="_blank">{$product->medplus_product_code}</a></td>
+										</tr>
+									{/foreach}
+
+									</tbody>
+								</table>
+							</div>
+
+						</div>
+					</div>
+
+				</div>
+
+				<div class="col-lg-6">
+					<div class="card">
+						<div class="card-body">
+							<div class="card-title">Srovnej ceny</div>
+							<hr>
+
+							{form searchForPrice}
+								<div class="form-group">
+									{label productName /}
+									{input productName, type => "text", class => "form-control"}
+								</div>
+								<div class="form-group">
+									{input submit, type => "submit", class => "btn btn-light px-5"}
+								</div>
+							{/form}
+
+						</div>
+					</div>
+
+					<div n:if="$prices" class="card">
+						<div class="card-body">
+							{foreach $prices as $price}
+								<div>{$price->partner} {$price->amount} Kč</div>
+							{/foreach}
+						</div>
+					</div>
+
+				</div>
+
+			</div><!--End Row-->
+		</div>
+		<!-- End container-fluid-->
+	</div><!--End wrapper-->
+
+
+{/block}

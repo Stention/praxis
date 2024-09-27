@@ -17,8 +17,6 @@ use Nette;
  */
 class OdbcDriver implements Nette\Database\Driver
 {
-	use Nette\SmartObject;
-
 	public function initialize(Nette\Database\Connection $connection, array $options): void
 	{
 	}
@@ -110,6 +108,6 @@ class OdbcDriver implements Nette\Database\Driver
 
 	public function isSupported(string $item): bool
 	{
-		return $item === self::SUPPORT_SUBSELECT;
+		return $item === self::SupportSubselect;
 	}
 }

@@ -27,15 +27,12 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 	use Nette\ComponentModel\ArrayAccess;
 
 	/** @var array<callable(self): void>  Occurs when component is attached to presenter */
-	public $onAnchor = [];
-
-	/** @var array */
-	protected $params = [];
+	public array $onAnchor = [];
+	protected array $params = [];
 
 
 	/**
 	 * Returns the presenter where this component belongs to.
-	 * @return Presenter
 	 */
 	public function getPresenter(): ?Presenter
 	{
@@ -44,7 +41,7 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 			$throw = func_get_arg(0);
 		}
 
-		return $this->lookup(Presenter::class, $throw ?? true);
+		return $this->lookup(Presenter::class, throw: $throw ?? true);
 	}
 
 
@@ -53,14 +50,14 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 	 */
 	public function getPresenterIfExists(): ?Presenter
 	{
-		return $this->lookup(Presenter::class, false);
+		return $this->lookup(Presenter::class, throw: false);
 	}
 
 
 	/** @deprecated */
 	public function hasPresenter(): bool
 	{
-		return (bool) $this->lookup(Presenter::class, false);
+		return (bool) $this->lookup(Presenter::class, throw: false);
 	}
 
 
@@ -70,16 +67,19 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 	 */
 	public function getUniqueId(): string
 	{
-		return $this->lookupPath(Presenter::class, true);
+		return $this->lookupPath(Presenter::class);
 	}
 
 
 	protected function createComponent(string $name): ?Nette\ComponentModel\IComponent
 	{
+		if (method_exists($this, $method = 'createComponent' . $name)) {
+			(new AccessPolicy($this, new \ReflectionMethod($this, $method)))->checkAccess();
+		}
 		$res = parent::createComponent($name);
 		if ($res && !$res instanceof SignalReceiver && !$res instanceof StatePersistent) {
-			$type = get_class($res);
-			trigger_error("It seems that component '$name' of type $type is not intended to be used in the Presenter.", E_USER_NOTICE);
+			$type = $res::class;
+			trigger_error("It seems that component '$name' of type $type is not intended to be used in the Presenter.");
 		}
 
 		return $res;
@@ -98,48 +98,36 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 
 	/**
 	 * Calls public method if exists.
-	 * @return bool  does method exist?
 	 */
 	protected function tryCall(string $method, array $params): bool
 	{
 		$rc = $this->getReflection();
-		if ($rc->hasMethod($method)) {
-			$rm = $rc->getMethod($method);
-			if ($rm->isPrivate()) {
-				throw new Nette\InvalidStateException('Method ' . $rm->getName() . '() can not be called because it is private.');
-			}
-
-			if (!$rm->isAbstract() && !$rm->isStatic()) {
-				$this->checkRequirements($rm);
-				try {
-					$args = $rc->combineArgs($rm, $params);
-				} catch (Nette\InvalidArgumentException $e) {
-					throw new Nette\Application\BadRequestException($e->getMessage());
-				}
-
-				$rm->invokeArgs($this, $args);
-				return true;
-			}
+		if (!$rc->hasMethod($method)) {
+			return false;
+		} elseif (!$rc->hasCallableMethod($method)) {
+			$this->error('Method ' . Nette\Utils\Reflection::toString($rc->getMethod($method)) . ' is not callable.');
 		}
 
-		return false;
+		$rm = $rc->getMethod($method);
+		(new AccessPolicy($this, $rm))->checkAccess();
+		$this->checkRequirements($rm);
+		try {
+			$args = ParameterConverter::toArguments($rm, $params);
+		} catch (Nette\InvalidArgumentException $e) {
+			$this->error($e->getMessage());
+		}
+
+		$rm->invokeArgs($this, $args);
+		return true;
 	}
 
 
 	/**
-	 * Checks for requirements such as authorization.
+	 * Descendant can override this method to check for permissions.
+	 * It is called with the presenter class and the render*(), action*(), and handle*() methods.
 	 */
-	public function checkRequirements($element): void
+	public function checkRequirements(\ReflectionClass|\ReflectionMethod $element): void
 	{
-		if (
-			$element instanceof \ReflectionMethod
-			&& substr($element->getName(), 0, 6) === 'handle'
-			&& !ComponentReflection::parseAnnotation($element, 'crossOrigin')
-			&& (PHP_VERSION_ID < 80000 || !$element->getAttributes(Nette\Application\Attributes\CrossOrigin::class))
-			&& !$this->getPresenter()->getHttpRequest()->isSameSite()
-		) {
-			$this->getPresenter()->detectedCsrf();
-		}
 	}
 
 
@@ -156,20 +144,20 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 
 
 	/**
-	 * Loads state informations.
+	 * Loads state information.
 	 */
 	public function loadState(array $params): void
 	{
 		$reflection = $this->getReflection();
-		foreach ($reflection->getPersistentParams() as $name => $meta) {
+		foreach ($reflection->getParameters() as $name => $meta) {
 			if (isset($params[$name])) { // nulls are ignored
-				if (!$reflection->convertType($params[$name], $meta['type'])) {
-					throw new Nette\Application\BadRequestException(sprintf(
+				if (!ParameterConverter::convertType($params[$name], $meta['type'])) {
+					$this->error(sprintf(
 						"Value passed to persistent parameter '%s' in %s must be %s, %s given.",
 						$name,
 						$this instanceof Presenter ? 'presenter ' . $this->getName() : "component '{$this->getUniqueId()}'",
 						$meta['type'],
-						is_object($params[$name]) ? get_class($params[$name]) : gettype($params[$name])
+						get_debug_type($params[$name]),
 					));
 				}
 
@@ -184,19 +172,57 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 
 
 	/**
-	 * Saves state informations for next request.
+	 * Saves state information for next request.
 	 */
 	public function saveState(array &$params): void
 	{
-		$this->getReflection()->saveState($this, $params);
+		$this->saveStatePartial($params, static::getReflection());
+	}
+
+
+	/**
+	 * @internal used by presenter
+	 */
+	public function saveStatePartial(array &$params, ComponentReflection $reflection): void
+	{
+		$tree = Nette\Application\Helpers::getClassesAndTraits(static::class);
+
+		foreach ($reflection->getPersistentParams() as $name => $meta) {
+			if (isset($params[$name])) {
+				// injected value
+
+			} elseif (
+				array_key_exists($name, $params) // nulls are skipped
+				|| (isset($meta['since']) && !isset($tree[$meta['since']])) // not related
+				|| !isset($this->$name)
+			) {
+				continue;
+
+			} else {
+				$params[$name] = $this->$name; // object property value
+			}
+
+			if (!ParameterConverter::convertType($params[$name], $meta['type'])) {
+				throw new InvalidLinkException(sprintf(
+					"Value passed to persistent parameter '%s' in %s must be %s, %s given.",
+					$name,
+					$this instanceof Presenter ? 'presenter ' . $this->getName() : "component '{$this->getUniqueId()}'",
+					$meta['type'],
+					get_debug_type($params[$name]),
+				));
+			}
+
+			if ($params[$name] === $meta['def'] || ($meta['def'] === null && $params[$name] === '')) {
+				$params[$name] = null; // value transmit is unnecessary
+			}
+		}
 	}
 
 
 	/**
 	 * Returns component param.
-	 * @return mixed
 	 */
-	final public function getParameter(string $name)
+	final public function getParameter(string $name): mixed
 	{
 		if (func_num_args() > 1) {
 			$default = func_get_arg(1);
@@ -220,7 +246,7 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 	final public function getParameterId(string $name): string
 	{
 		$uid = $this->getUniqueId();
-		return $uid === '' ? $name : $uid . self::NAME_SEPARATOR . $name;
+		return $uid === '' ? $name : $uid . self::NameSeparator . $name;
 	}
 
 
@@ -264,7 +290,7 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 			$args = func_num_args() < 3 && is_array($args)
 				? $args
 				: array_slice(func_get_args(), 1);
-			return $this->getPresenter()->createRequest($this, $destination, $args, 'link');
+			return $this->getPresenter()->getLinkGenerator()->link($destination, $args, $this, 'link');
 
 		} catch (InvalidLinkException $e) {
 			return $this->getPresenter()->handleInvalidLink($e);
@@ -288,7 +314,7 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 
 	/**
 	 * Determines whether it links to the current page.
-	 * @param  string   $destination in format "[//] [[[module:]presenter:]action | signal! | this] [#fragment]"
+	 * @param  ?string   $destination in format "[[[module:]presenter:]action | signal! | this]"
 	 * @param  array|mixed  $args
 	 * @throws InvalidLinkException
 	 */
@@ -298,7 +324,7 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 			$args = func_num_args() < 3 && is_array($args)
 				? $args
 				: array_slice(func_get_args(), 1);
-			$this->getPresenter()->createRequest($this, $destination, $args, 'test');
+			$this->getPresenter()->getLinkGenerator()->createRequest($this, $destination, $args, 'test');
 		}
 
 		return $this->getPresenter()->getLastCreatedRequestFlag('current');
@@ -318,7 +344,8 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 			? $args
 			: array_slice(func_get_args(), 1);
 		$presenter = $this->getPresenter();
-		$presenter->redirectUrl($presenter->createRequest($this, $destination, $args, 'redirect'));
+		$presenter->saveGlobalState();
+		$presenter->redirectUrl($presenter->getLinkGenerator()->link($destination, $args, $this, 'redirect'));
 	}
 
 
@@ -336,8 +363,8 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 			: array_slice(func_get_args(), 1);
 		$presenter = $this->getPresenter();
 		$presenter->redirectUrl(
-			$presenter->createRequest($this, $destination, $args, 'redirect'),
-			Nette\Http\IResponse::S301_MOVED_PERMANENTLY
+			$presenter->getLinkGenerator()->link($destination, $args, $this, 'redirect'),
+			Nette\Http\IResponse::S301_MovedPermanently,
 		);
 	}
 
@@ -346,7 +373,7 @@ abstract class Component extends Nette\ComponentModel\Container implements Signa
 	 * Throws HTTP error.
 	 * @throws Nette\Application\BadRequestException
 	 */
-	public function error(string $message = '', int $httpCode = Nette\Http\IResponse::S404_NOT_FOUND): void
+	public function error(string $message = '', int $httpCode = Nette\Http\IResponse::S404_NotFound): void
 	{
 		throw new Nette\Application\BadRequestException($message, $httpCode);
 	}

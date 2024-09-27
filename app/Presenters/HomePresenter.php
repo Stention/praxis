@@ -6,11 +6,11 @@ use JetBrains\PhpStorm\NoReturn;
 use Latte\Essential\RawPhpExtension;
 use Nette;
 use Nette\Application\AbortException;
+use Nette\Application\UI\Presenter;
 
 //use Nette\Database\Explorer;
 
-
-final class HomePresenter extends Nette\Application\UI\Presenter
+final class HomePresenter extends Presenter
 {
     const PRAXIS_NAME = 'Zubní Štěpánská';
 

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   php:
     container_name: praxis
@@ -11,30 +9,30 @@ services:
       - '8080:80'
     environment:
       - NETTE_DEBUG=1
-#      - COMPOSER_AUTH=${COMPOSER_AUTH}
-#    links:
-#      - database
+      - COMPOSER_AUTH=${COMPOSER_AUTH}
+    links:
+      - database
 
-#  database:
-#    container_name: praxis_db
-#    image: praxis_db
-#    build: build/database
-#    ports:
-#      - '3306:3306'
-#    environment:
-#      MYSQL_ROOT_PASSWORD: root
-#      MYSQL_USER: test
-#      MYSQL_PASSWORD: test
-#      MYSQL_DATABASE: test
-#    volumes:
-#      - ./build/database/01_create.sql:/docker-entrypoint-initdb.d/01_create.sql
-#
-#  phpmyadmin:
-#    container_name: praxis_myadmin
-#    image: phpmyadmin
-#    ports:
-#      - '8100:80'
-#    environment:
-#      - PMA_HOST=database
-#      - PMA_USER=test
-#      - PMA_PASSWORD=test
+  database:
+    container_name: praxis_db
+    image: praxis_db
+    build: build/database
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_DATABASE: test
+    volumes:
+      - ./build/database/01_create.sql:/docker-entrypoint-initdb.d/01_create.sql
+
+  phpmyadmin:
+    container_name: praxis_phpmyadmin
+    image: phpmyadmin
+    ports:
+      - '8100:80'
+    environment:
+      - PMA_HOST=database
+      - PMA_USER=test
+      - PMA_PASSWORD=test

@@ -9,16 +9,12 @@ declare(strict_types=1);
 
 namespace Nette\Mail;
 
-use Nette;
-
 
 /**
  * Sends emails via the SMTP server.
  */
 class SmtpMailer implements Mailer
 {
-	use Nette\SmartObject;
-
 	public const
 		EncryptionSSL = 'ssl',
 		EncryptionTLS = 'tls';
@@ -35,6 +31,7 @@ class SmtpMailer implements Mailer
 	public function __construct(
 		private string $host,
 		private string $username,
+		#[\SensitiveParameter]
 		private string $password,
 		private ?int $port = null,
 		private ?string $encryption = null,
@@ -72,6 +69,10 @@ class SmtpMailer implements Mailer
 	{
 		$tmp = clone $mail;
 		$tmp->setHeader('Bcc', null);
+		if (!$tmp->getHeader('To') && !$tmp->getHeader('Cc')) {
+			// missing recipient headers make some mailers (e.g., sendmail) nervous -> set 'To' like many MTAs do
+			$tmp->setHeader('To', 'undisclosed-recipients: ;');
+		}
 
 		$data = $this->signer
 			? $this->signer->generateSignedMessage($tmp)
@@ -167,7 +168,7 @@ class SmtpMailer implements Mailer
 				$authMechanisms = explode(' ', trim($matches[1]));
 			}
 
-			if (in_array('PLAIN', $authMechanisms, true)) {
+			if (in_array('PLAIN', $authMechanisms, strict: true)) {
 				$credentials = $this->username . "\0" . $this->username . "\0" . $this->password;
 				$this->write('AUTH PLAIN ' . base64_encode($credentials), 235, 'PLAIN credentials');
 			} else {
@@ -200,7 +201,7 @@ class SmtpMailer implements Mailer
 		fwrite($this->connection, $line . Message::EOL);
 		if ($expectedCode) {
 			$response = $this->read();
-			if (!in_array((int) $response, (array) $expectedCode, true)) {
+			if (!in_array((int) $response, (array) $expectedCode, strict: true)) {
 				throw new SmtpException('SMTP server did not accept ' . ($message ?: $line) . ' with error: ' . trim($response));
 			}
 		}
@@ -212,14 +213,26 @@ class SmtpMailer implements Mailer
 	 */
 	protected function read(): string
 	{
-		$s = '';
-		while (($line = fgets($this->connection, 1000)) != null) { // intentionally ==
-			$s .= $line;
-			if (substr($line, 3, 1) === ' ') {
+		$data = '';
+		$endtime = $this->timeout > 0 ? time() + $this->timeout : 0;
+
+		while (is_resource($this->connection) && !feof($this->connection)) {
+			$line = @fgets($this->connection); // @ is escalated to exception
+			if ($line === '' || $line === false) {
+				$info = stream_get_meta_data($this->connection);
+				if ($info['timed_out'] || ($endtime && time() > $endtime)) {
+					throw new SmtpException('Connection timed out.');
+				} elseif ($info['eof']) {
+					throw new SmtpException('Connection has been closed unexpectedly.');
+				}
+			}
+
+			$data .= $line;
+			if (preg_match('#^.{3}(?:[ \r\n]|$)#D', $line)) {
 				break;
 			}
 		}
 
-		return $s;
+		return $data;
 	}
 }

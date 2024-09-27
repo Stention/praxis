@@ -1,0 +1,73 @@
+services:
+	one1:
+		create: Ipsum
+		alteration: yes
+	one2:
+		create: Ipsum
+		arguments: [2]
+	one3:
+		create: Ipsum(2)
+	one4:
+		arguments: [2]
+	one5:
+		create: IpsumFactory::create
+	one6:
+		create: IpsumFactory::create
+		arguments: [2]
+	one7:
+		create: IpsumFactory::create(2)
+	one8!:
+		create: Ipsum
+	one9:
+		type: Ipsum
+	one10:
+		class: Ipsum
+
+	two1:
+		create: Ipsum
+	two2:
+		create: Ipsum
+		arguments: [2]
+	two3:
+		create: Ipsum(2)
+	two4:
+		arguments: [2]
+	two5:
+		create: IpsumFactory::create
+	two6:
+		create: IpsumFactory::create
+		arguments: [2]
+	two7:
+		create: IpsumFactory::create(2)
+	two8:
+		arguments: [1: new]
+	two9:
+		arguments!: [new]
+	two10:
+		create: Factory::createLorem(2)
+		arguments: [1: new]
+	two11:
+		type: Ipsum
+	two12:
+		class: Ipsum
+
+	three1:
+		create: Ipsum
+	three2:
+		create: Ipsum
+		arguments: [2]
+	three3:
+		create: Ipsum(2)
+	three4:
+		arguments: [2]
+	three5:
+		create: IpsumFactory::create
+	three6:
+		create: IpsumFactory::create
+		arguments: [2]
+	three7:
+		create: IpsumFactory::create(2)
+	three8:
+		type: Ipsum
+	three9:
+		class: Ipsum

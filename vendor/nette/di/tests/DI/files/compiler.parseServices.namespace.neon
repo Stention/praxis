@@ -1,0 +1,7 @@
+services:
+	comments: MyBlog\CommentsModel(@connection, @extension.articles)
+	articlesList:
+		create: MyBlog\Components\ArticlesList()
+	commentsControl:
+		create: MyBlog\Components\CommentsControl
+		arguments: [@extension.comments()] #factory syntax

@@ -157,7 +157,7 @@ class TestHandler
 
 		return array_map(
 			fn(string $item): Test => $test->withArguments(['dataprovider' => "$item|$dataFile"]),
-			array_keys($data)
+			array_keys($data),
 		);
 	}
 
@@ -166,7 +166,7 @@ class TestHandler
 	{
 		return array_map(
 			fn(int $i): Test => $test->withArguments(['multiple' => $i]),
-			range(0, (int) $count - 1)
+			range(0, (int) $count - 1),
 		);
 	}
 
@@ -228,8 +228,10 @@ class TestHandler
 		}
 
 		return array_map(
-			fn(string $method): Test => $test->withArguments(['method' => $method]),
-			$methods
+			fn(string $method): Test => $test
+				->withTitle("$test->title $method")
+				->withArguments(['method' => $method]),
+			$methods,
 		);
 	}
 

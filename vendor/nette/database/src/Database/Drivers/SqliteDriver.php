@@ -17,13 +17,8 @@ use Nette;
  */
 class SqliteDriver implements Nette\Database\Driver
 {
-	use Nette\SmartObject;
-
-	/** @var Nette\Database\Connection */
-	private $connection;
-
-	/** @var string  Datetime format */
-	private $fmtDateTime;
+	private Nette\Database\Connection $connection;
+	private string $fmtDateTime;
 
 
 	public function initialize(Nette\Database\Connection $connection, array $options): void
@@ -41,21 +36,21 @@ class SqliteDriver implements Nette\Database\Driver
 			return Nette\Database\DriverException::from($e);
 
 		} elseif (
-			strpos($msg, 'must be unique') !== false
-			|| strpos($msg, 'is not unique') !== false
-			|| strpos($msg, 'UNIQUE constraint failed') !== false
+			str_contains($msg, 'must be unique')
+			|| str_contains($msg, 'is not unique')
+			|| str_contains($msg, 'UNIQUE constraint failed')
 		) {
 			return Nette\Database\UniqueConstraintViolationException::from($e);
 
 		} elseif (
-			strpos($msg, 'may not be null') !== false
-			|| strpos($msg, 'NOT NULL constraint failed') !== false
+			str_contains($msg, 'may not be null')
+			|| str_contains($msg, 'NOT NULL constraint failed')
 		) {
 			return Nette\Database\NotNullConstraintViolationException::from($e);
 
 		} elseif (
-			strpos($msg, 'foreign key constraint failed') !== false
-			|| strpos($msg, 'FOREIGN KEY constraint failed') !== false
+			str_contains($msg, 'foreign key constraint failed')
+			|| str_contains($msg, 'FOREIGN KEY constraint failed')
 		) {
 			return Nette\Database\ForeignKeyConstraintViolationException::from($e);
 
@@ -111,15 +106,21 @@ class SqliteDriver implements Nette\Database\Driver
 	public function getTables(): array
 	{
 		$tables = [];
-		foreach ($this->connection->query("
-			SELECT name, type = 'view' as view FROM sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%'
+		$rows = $this->connection->query(<<<'X'
+			SELECT name, type = 'view' as view
+			FROM sqlite_master
+			WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%'
 			UNION ALL
-			SELECT name, type = 'view' as view FROM sqlite_temp_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%'
+			SELECT name, type = 'view' as view
+			FROM sqlite_temp_master
+			WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%'
 			ORDER BY name
-		") as $row) {
+			X);
+
+		while ($row = $rows->fetch()) {
 			$tables[] = [
-				'name' => $row->name,
-				'view' => (bool) $row->view,
+				'name' => $row['name'],
+				'view' => (bool) $row['view'],
 			];
 		}
 
@@ -129,25 +130,30 @@ class SqliteDriver implements Nette\Database\Driver
 
 	public function getColumns(string $table): array
 	{
-		$meta = $this->connection->query("
-			SELECT sql FROM sqlite_master WHERE type = 'table' AND name = {$this->connection->quote($table)}
+		$createSql = $this->connection->query(<<<'X'
+			SELECT sql
+			FROM sqlite_master
+			WHERE type = 'table' AND name = ?
 			UNION ALL
-			SELECT sql FROM sqlite_temp_master WHERE type = 'table' AND name = {$this->connection->quote($table)}
-		")->fetch();
+			SELECT sql
+			FROM sqlite_temp_master
+			WHERE type = 'table' AND name = ?
+			X, $table, $table)->fetch();
 
 		$columns = [];
-		foreach ($this->connection->query("PRAGMA table_info({$this->delimite($table)})") as $row) {
+		$rows = $this->connection->query("PRAGMA table_info({$this->delimite($table)})");
+		while ($row = $rows->fetch()) {
 			$column = $row['name'];
 			$pattern = "/(\"$column\"|`$column`|\\[$column\\]|$column)\\s+[^,]+\\s+PRIMARY\\s+KEY\\s+AUTOINCREMENT/Ui";
-			$type = explode('(', $row['type']);
+			$typeInfo = Nette\Database\Helpers::parseColumnType($row['type']);
 			$columns[] = [
 				'name' => $column,
 				'table' => $table,
-				'nativetype' => strtoupper($type[0]),
-				'size' => isset($type[1]) ? (int) $type[1] : null,
-				'nullable' => $row['notnull'] === 0,
+				'nativetype' => strtoupper($typeInfo['type']),
+				'size' => $typeInfo['length'],
+				'nullable' => $row['notnull'] == 0,
 				'default' => $row['dflt_value'],
-				'autoincrement' => $meta && preg_match($pattern, (string) $meta['sql']),
+				'autoincrement' => $createSql && preg_match($pattern, $createSql['sql']),
 				'primary' => $row['pk'] > 0,
 				'vendor' => (array) $row,
 			];
@@ -160,7 +166,8 @@ class SqliteDriver implements Nette\Database\Driver
 	public function getIndexes(string $table): array
 	{
 		$indexes = [];
-		foreach ($this->connection->query("PRAGMA index_list({$this->delimite($table)})") as $row) {
+		$rows = $this->connection->query("PRAGMA index_list({$this->delimite($table)})");
+		while ($row = $rows->fetch()) {
 			$id = $row['name'];
 			$indexes[$id]['name'] = $id;
 			$indexes[$id]['unique'] = (bool) $row['unique'];
@@ -176,7 +183,7 @@ class SqliteDriver implements Nette\Database\Driver
 
 		$columns = $this->getColumns($table);
 		foreach ($indexes as $index => $values) {
-			$column = $indexes[$index]['columns'][0];
+			$column = $values['columns'][0];
 			foreach ($columns as $info) {
 				if ($column === $info['name']) {
 					$indexes[$index]['primary'] = (bool) $info['primary'];
@@ -206,7 +213,8 @@ class SqliteDriver implements Nette\Database\Driver
 	public function getForeignKeys(string $table): array
 	{
 		$keys = [];
-		foreach ($this->connection->query("PRAGMA foreign_key_list({$this->delimite($table)})") as $row) {
+		$rows = $this->connection->query("PRAGMA foreign_key_list({$this->delimite($table)})");
+		while ($row = $rows->fetch()) {
 			$id = $row['id'];
 			$keys[$id]['name'] = $id;
 			$keys[$id]['local'] = $row['from'];
@@ -225,7 +233,7 @@ class SqliteDriver implements Nette\Database\Driver
 		for ($col = 0; $col < $count; $col++) {
 			$meta = $statement->getColumnMeta($col);
 			if (isset($meta['sqlite:decl_type'])) {
-				$types[$meta['name']] = in_array($meta['sqlite:decl_type'], ['DATE', 'DATETIME'], true)
+				$types[$meta['name']] = $this->fmtDateTime === 'U' && in_array($meta['sqlite:decl_type'], ['DATE', 'DATETIME'], strict: true)
 					? Nette\Database\IStructure::FIELD_UNIX_TIMESTAMP
 					: Nette\Database\Helpers::detectType($meta['sqlite:decl_type']);
 			} elseif (isset($meta['native_type'])) {
@@ -239,6 +247,6 @@ class SqliteDriver implements Nette\Database\Driver
 
 	public function isSupported(string $item): bool
 	{
-		return $item === self::SUPPORT_MULTI_INSERT_AS_SELECT || $item === self::SUPPORT_SUBSELECT || $item === self::SUPPORT_MULTI_COLUMN_AS_OR_COND;
+		return $item === self::SupportMultiInsertAsSelect || $item === self::SupportSubselect || $item === self::SupportMultiColumnAsOrCond;
 	}
 }

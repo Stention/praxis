@@ -1,0 +1,51 @@
+{block content}
+
+	<!-- Start wrapper-->
+
+		<div class="card card-authentication1 mx-auto my-5">
+			<div class="card-body">
+				<div class="card-content p-2">
+					<div class="text-center">
+						<img src="{$basePath}/assets/images/logo-icon.png" alt="logo icon">
+					</div>
+					<div class="card-title text-uppercase text-center py-3">Přihlášení</div>
+
+					{form loginForm}
+						<div class="form-group">
+							{label username, class => "sr-only" /}
+							<div class="position-relative has-icon-right">
+								{input username, type => "text", class => "form-control input-shadow", placeholder => "Email"}
+								<div class="form-control-position">
+									<i class="icon-user"></i>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							{label password, class => "sr-only" /}
+							<div class="position-relative has-icon-right">
+								{input password, type => "password", class => "form-control input-shadow", placeholder => "Heslo"}
+								<div class="form-control-position">
+									<i class="icon-lock"></i>
+								</div>
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group col-6">
+								<div class="icheck-material-white">
+									<input type="checkbox" id="user-checkbox" checked="" />
+									<label for="user-checkbox">Zapamatovat</label>
+								</div>
+							</div>
+{*							<div class="form-group col-6 text-right">*}
+{*								<a href="reset-password.html">Reset Password</a>*}
+{*							</div>*}
+						</div>
+						{input send, type => "submit", class => "btn btn-light btn-block"}
+					{/form}
+
+				</div>
+			</div>
+		</div>
+	</div><!--wrapper-->
+
+{/block}

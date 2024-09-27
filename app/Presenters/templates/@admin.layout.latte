@@ -1,0 +1,54 @@
+{import Admin/login.latte}
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+	<meta name="description" content=""/>
+	<meta name="author" content=""/>
+	<title>Dashtreme Admin - Free Dashboard for Bootstrap 4 by Codervent</title>
+	<!--favicon-->
+	<link rel="icon" href="{$basePath}/assets/images/favicon.ico" type="image/x-icon">
+	<!-- Bootstrap core CSS-->
+	<link href="{$basePath}/assets/css/bootstrap.min.css" rel="stylesheet"/>
+	<!-- animate CSS-->
+	<link href="{$basePath}/assets/css/animate.css" rel="stylesheet" type="text/css"/>
+	<!-- Icons CSS-->
+	<link href="{$basePath}/assets/css/icons.css" rel="stylesheet" type="text/css"/>
+	<!-- Custom Style-->
+	<link href="{$basePath}/assets/css/app-style.css" rel="stylesheet"/>
+
+</head>
+
+<body class="bg-theme bg-theme1">
+
+<div class="col-lg-3">
+	<div n:if="$flashes" n:foreach="$flashes as $flash" class="alert alert-{$flash->type} alert-dismissible" role="alert">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+		<div class="alert-icon">
+			<i class="icon-info"></i>
+		</div>
+		<div class="alert-message">
+			<span>{$flash->message}</span>
+		</div>
+	</div>
+</div>
+
+
+{include content}
+
+<!-- Bootstrap core JavaScript-->
+<script src="{$basePath}/assets/js/jquery.min.js"></script>
+<script src="{$basePath}/assets/js/popper.min.js"></script>
+<script src="{$basePath}/assets/js/bootstrap.min.js"></script>
+
+<!-- sidebar-menu js -->
+<script src="{$basePath}/assets/js/sidebar-menu.js"></script>
+
+<!-- Custom scripts -->
+<script src="{$basePath}/assets/js/app-script.js"></script>
+
+</body>
+</html>

@@ -17,13 +17,8 @@ use Nette;
  */
 class OciDriver implements Nette\Database\Driver
 {
-	use Nette\SmartObject;
-
-	/** @var Nette\Database\Connection */
-	private $connection;
-
-	/** @var string  Datetime format */
-	private $fmtDateTime;
+	private Nette\Database\Connection $connection;
+	private string $fmtDateTime;
 
 
 	public function initialize(Nette\Database\Connection $connection, array $options): void
@@ -36,13 +31,13 @@ class OciDriver implements Nette\Database\Driver
 	public function convertException(\PDOException $e): Nette\Database\DriverException
 	{
 		$code = $e->errorInfo[1] ?? null;
-		if (in_array($code, [1, 2299, 38911], true)) {
+		if (in_array($code, [1, 2299, 38911], strict: true)) {
 			return Nette\Database\UniqueConstraintViolationException::from($e);
 
-		} elseif (in_array($code, [1400], true)) {
+		} elseif (in_array($code, [1400], strict: true)) {
 			return Nette\Database\NotNullConstraintViolationException::from($e);
 
-		} elseif (in_array($code, [2266, 2291, 2292], true)) {
+		} elseif (in_array($code, [2266, 2291, 2292], strict: true)) {
 			return Nette\Database\ForeignKeyConstraintViolationException::from($e);
 
 		} else {
@@ -102,7 +97,8 @@ class OciDriver implements Nette\Database\Driver
 	public function getTables(): array
 	{
 		$tables = [];
-		foreach ($this->connection->query('SELECT * FROM cat') as $row) {
+		$rows = $this->connection->query('SELECT * FROM cat');
+		while ($row = $rows->fetch()) {
 			if ($row[1] === 'TABLE' || $row[1] === 'VIEW') {
 				$tables[] = [
 					'name' => $row[0],
@@ -141,6 +137,6 @@ class OciDriver implements Nette\Database\Driver
 
 	public function isSupported(string $item): bool
 	{
-		return $item === self::SUPPORT_SEQUENCE || $item === self::SUPPORT_SUBSELECT;
+		return $item === self::SupportSequence || $item === self::SupportSubselect;
 	}
 }

@@ -20,11 +20,14 @@ final class PhpExtension extends Nette\DI\CompilerExtension
 {
 	public function getConfigSchema(): Nette\Schema\Schema
 	{
-		return Expect::arrayOf(Expect::scalar()->dynamic());
+		return Expect::arrayOf(
+			Expect::type('scalar|null')->dynamic(),
+			Expect::string(),
+		);
 	}
 
 
-	public function loadConfiguration()
+	public function loadConfiguration(): void
 	{
 		foreach ($this->getConfig() as $name => $value) {
 			if (!function_exists('ini_set')) {

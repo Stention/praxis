@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Nette\Database\Conventions;
 
-use Nette;
 use Nette\Database\Conventions;
 
 
@@ -18,29 +17,17 @@ use Nette\Database\Conventions;
  */
 class StaticConventions implements Conventions
 {
-	use Nette\SmartObject;
-
-	/** @var string */
-	protected $primary;
-
-	/** @var string */
-	protected $foreign;
-
-	/** @var string */
-	protected $table;
-
-
 	/**
 	 * Create static conventional structure.
 	 * @param  string  $primary  %s stands for table name
 	 * @param  string  $foreign  %1$s stands for key used after ->, %2$s for table name
 	 * @param  string  $table  %1$s stands for key used after ->, %2$s for table name
 	 */
-	public function __construct(string $primary = 'id', string $foreign = '%s_id', string $table = '%s')
-	{
-		$this->primary = $primary;
-		$this->foreign = $foreign;
-		$this->table = $table;
+	public function __construct(
+		protected readonly string $primary = 'id',
+		protected readonly string $foreign = '%s_id',
+		protected readonly string $table = '%s',
+	) {
 	}
 
 

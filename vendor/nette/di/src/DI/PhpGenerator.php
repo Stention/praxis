@@ -13,7 +13,6 @@ use Nette;
 use Nette\DI\Definitions\Reference;
 use Nette\DI\Definitions\Statement;
 use Nette\PhpGenerator as Php;
-use Nette\Utils\Strings;
 
 
 /**
@@ -21,13 +20,8 @@ use Nette\Utils\Strings;
  */
 class PhpGenerator
 {
-	use Nette\SmartObject;
-
-	/** @var ContainerBuilder */
-	private $builder;
-
-	/** @var string */
-	private $className;
+	private ContainerBuilder $builder;
+	private ?string $className = null;
 
 
 	public function __construct(ContainerBuilder $builder)
@@ -44,14 +38,12 @@ class PhpGenerator
 		$this->className = $className;
 		$class = new Php\ClassType($this->className);
 		$class->setExtends(Container::class);
-		$class->addMethod('__construct')
-			->addBody('parent::__construct($params);')
-			->addParameter('params', [])
-				->setType('array');
+		$class->inheritMethod('__construct')
+			->addBody('parent::__construct($params);');
 
 		foreach ($this->builder->exportMeta() as $key => $value) {
-			$class->addProperty($key)
-				->setProtected()
+			$class->inheritProperty($key)
+				->setComment(null)
 				->setValue($value);
 		}
 
@@ -63,10 +55,9 @@ class PhpGenerator
 		}
 
 		$class->getMethod(Container::getMethodName(ContainerBuilder::ThisContainer))
-			->setReturnType($className)
 			->setBody('return $this;');
 
-		$class->addMethod('initialize');
+		$class->inheritMethod('initialize');
 
 		return $class;
 	}
@@ -118,7 +109,7 @@ declare(strict_types=1);
 		$arguments = $statement->arguments;
 
 		switch (true) {
-			case is_string($entity) && Strings::contains($entity, '?'): // PHP literal
+			case is_string($entity) && str_contains($entity, '?'): // PHP literal
 				return $this->formatPhp($entity, $arguments);
 
 			case is_string($entity): // create class
@@ -130,7 +121,7 @@ declare(strict_types=1);
 				switch (true) {
 					case $entity[1][0] === '$': // property getter, setter or appender
 						$name = substr($entity[1], 1);
-						if ($append = (substr($name, -2) === '[]')) {
+						if ($append = (str_ends_with($name, '[]'))) {
 							$name = substr($name, 0, -2);
 						}
 
@@ -143,7 +134,7 @@ declare(strict_types=1);
 
 					case $entity[0] instanceof Statement:
 						$inner = $this->formatPhp('?', [$entity[0]]);
-						if (substr($inner, 0, 4) === 'new ') {
+						if (str_starts_with($inner, 'new ')) {
 							$inner = "($inner)";
 						}
 
@@ -170,6 +161,12 @@ declare(strict_types=1);
 	 */
 	public function formatPhp(string $statement, array $args): string
 	{
+		return (new Php\Dumper)->format($statement, ...$this->convertArguments($args));
+	}
+
+
+	public function convertArguments(array $args): array
+	{
 		array_walk_recursive($args, function (&$val): void {
 			if ($val instanceof Statement) {
 				$val = new Php\Literal($this->formatStatement($val));
@@ -183,32 +180,15 @@ declare(strict_types=1);
 				} else {
 					$val = ContainerBuilder::literal('$this->getService(?)', [$name]);
 				}
+			} elseif (
+				is_object($val)
+				&& !$val instanceof Php\Literal && !$val instanceof \DateTimeInterface
+				&& (new \ReflectionObject($val))->getProperties(\ReflectionProperty::IS_PRIVATE | \ReflectionProperty::IS_PROTECTED)
+			) {
+				trigger_error(sprintf('Nette DI: suspicious dumping of objects %s when generating the container', $val::class));
 			}
 		});
-		return (new Php\Dumper)->format($statement, ...$args);
-	}
-
-
-	/**
-	 * Converts parameters from Definition to PhpGenerator.
-	 * @return Php\Parameter[]
-	 */
-	public function convertParameters(array $parameters): array
-	{
-		$res = [];
-		foreach ($parameters as $k => $v) {
-			$tmp = explode(' ', is_int($k) ? $v : $k);
-			$param = $res[] = new Php\Parameter(end($tmp));
-			if (!is_int($k)) {
-				$param->setDefaultValue($v);
-			}
-
-			if (isset($tmp[1])) {
-				$param->setType($tmp[0]);
-			}
-		}
-
-		return $res;
+		return $args;
 	}
 
 
