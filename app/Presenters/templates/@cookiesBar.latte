@@ -1,16 +1,25 @@
-{*{varType bool $cookiesAccepted}*}
+{varType string $language}
 
 {block cookiesBar}
-{*<div class="eu-cookies-overlay" n:if="$cookiesAccepted === false">*}
-{*	<div class="eu-cookies container-fluid p-0 py-5 wow text-xl-center">*}
-{*		<p>Tento web používá k poskytování služeb, personalizaci reklam a analýze*}
-{*			návštěvnosti soubory cookie.</p>*}
-{*		<p>Používáním tohoto webu udělujete souhlas s jejich užíváním.</p>*}
-	<div class="container-fluid p-0 py-5 wow text-xl-center" style="font-size: 20px; color: white; background-color: var(--primary)">
-		<p>Vážení klienti, ve dnech 28. 08. 2024 a 30. 08. 2024 čerpám dovolenou. Děkuji Vám za pochopení.</p>
-		<p>V případě akutních problémů se prosím obraťte na Zubní pohotovost, Na Františku 8  (https://www.nnfp.cz/department/zubni-pohotovost/)</p>
-		<p>nebo Zubní pohotovost, Spálená 12 (https://www.prahamp.cz/zubni-pohotovost)</p>
-{*		<a n:href="Home:cookie"  class="eu-cookies-button m-3">Rozumím</a>*}
+
+{if $language === 'cz'}
+	<div class="eu-cookies-overlay">
+		<div class="eu-cookies container-fluid p-0 py-5 wow text-xl-center">
+			<p>Tento web používá k poskytování služeb, personalizaci reklam a analýze
+				návštěvnosti soubory cookie.</p>
+			<p>Používáním tohoto webu udělujete souhlas s jejich užíváním.</p>
+			<button onclick="setCookie()" class="btn btn-primary">Rozumím</button>
+		</div>
 	</div>
-{*</div>*}
+{else}
+	<div class="eu-cookies-overlay">
+		<div class="eu-cookies container-fluid p-0 py-5 wow text-xl-center">
+			<p>This website uses cookies to provide services, personalize ads, and analyze traffic.</p>
+			<p>By using this website, you agree to their use.</p>
+			<button onclick="setCookie()" class="btn btn-primary">I understand</button>
+		</div>
+	</div>
+
+{/if}
+
 {/block}

@@ -1,5 +1,7 @@
 {import 'Home/default.latte'}
 {import '@cookiesBar.latte'}
+{import '@holidayInfoBar.latte'}
+{varType bool $cookiesAccepted}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -37,9 +39,26 @@
 
 <body>
 
-{*{include cookiesBar}*}
+{*{include holidayInfoBar}*}
+
+{if $cookiesAccepted === false}
+	{include cookiesBar}
+{/if}
 
 {include content}
+
+<!-- Cookies script -->
+<script>
+	function setCookie() {
+		// 30 days
+		let date = new Date();
+		date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
+		let expires = "; expires=" + date.toUTCString();
+
+		document.cookie = "accept_ZS_cookies=" + ("true" || "") + expires + "; path=/";
+		window.location.reload();
+	}
+</script>
 
 <!-- JavaScript Libraries -->
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>

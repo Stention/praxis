@@ -1,0 +1,19 @@
+{varType string $language}
+
+{block holidayInfoBar}
+
+{if $language === 'cz'}
+	<div class="container-fluid p-0 py-5 wow text-xl-center" style="font-size: 20px; color: white; background-color: var(--primary)">
+		<p>Vážení klienti, ve dnech 28. 08. 2024 a 30. 08. 2024 čerpám dovolenou. Děkuji Vám za pochopení.</p>
+		<p>V případě akutních problémů se prosím obraťte na Zubní pohotovost, Na Františku 8  (https://www.nnfp.cz/department/zubni-pohotovost/)</p>
+		<p>nebo Zubní pohotovost, Spálená 12 (https://www.prahamp.cz/zubni-pohotovost)</p>
+	</div>
+{else}
+	<div class="container-fluid p-0 py-5 wow text-xl-center" style="font-size: 20px; color: white; background-color: var(--primary)">
+		<p>Dear clients, I will be on vacation on August 28, 2024, and August 30, 2024. Thank you for your understanding.</p>
+		<p>In case of urgent issues, please contact the Dental Emergency, Na Františku 8 (https://www.nnfp.cz/department/zubni-pohotovost/)</p>
+		<p>or the Dental Emergency, Spálená 12 (https://www.prahamp.cz/zubni-pohotovost)</p>
+	</div>
+{/if}
+
+{/block}
