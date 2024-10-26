@@ -5,3 +5,4 @@ _design/.DS_Store
 www/img/.DS_Store
 .docker/.env
 .docker/build/database/01_create.sql
+_design/*
