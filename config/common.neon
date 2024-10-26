@@ -32,4 +32,3 @@ database:
 	dsn: 'mysql:host=database;dbname=test'
 	user: test
 	password: test
-    	
