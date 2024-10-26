@@ -5,8 +5,6 @@ namespace App\Presenters;
 use Latte\Essential\RawPhpExtension;
 use Nette\Application\UI\Presenter;
 
-//use Nette\Database\Explorer;
-
 final class HomePresenter extends Presenter
 {
     const PRAXIS_NAME = 'Zubní Štěpánská';
@@ -25,10 +23,11 @@ final class HomePresenter extends Presenter
 		];
 
 	const CLINIC_HOURS = [
-		'Monday' => '7:30 – 13:45',
-		'Wednesday' => '7:30 – 13:30',
+		'Monday' => '7:00 – 12:00',
+		'Tuesday' => '7:30 – 12:30',
+		'Wednesday' => '7:30 – 15:00',
 		'Thursday' => '7:00 - 13:00 / 12:00 - 17:00',
-		'Friday' => '7:30 – 13:45',
+		'Friday' => '7:00 – 12:00',
 	];
 
     public function startup(): void
@@ -37,12 +36,18 @@ final class HomePresenter extends Presenter
 
 		$this->setLayout('layout');
         $this->getTemplate()->getLatte()->addExtension(new RawPhpExtension());
+
+		$cookiesAccepted = false;
+		$cookiesAcceptedValue = $this->getHttpRequest()->getCookie('accept_ZS_cookies');
+		if ($cookiesAcceptedValue === 'true')
+			$cookiesAccepted = true;
+
+		$this->template->cookiesAccepted = $cookiesAccepted;
     }
 
 	public function renderDefault(): void
 	{
-		$cookiesAccepted = $this->getHttpRequest()->getCookie('accept_ZS_cookies');
-		$this->template->cookiesAccepted = $cookiesAccepted === 'true';
+
 	}
 
     public function actionDefault(string $language = 'cz'): void

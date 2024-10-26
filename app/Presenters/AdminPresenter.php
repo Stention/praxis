@@ -3,7 +3,6 @@
 namespace App\Presenters;
 
 use App\Services\ProductService;
-use JetBrains\PhpStorm\NoReturn;
 use Nette\Application\AbortException;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\Presenter;
@@ -32,16 +31,12 @@ class AdminPresenter extends Presenter
 	public function actionLogin(): void
 	{}
 
-	public function actionDefault(?int $productId = null): void
+	public function actionDefault(?array $prices = null): void
 	{
 		$this->template->products = $this->productService->getProducts();
 
-		if ($productId) {
-			$product = $this->productService->getProductById($productId);
-			$this->template->prices = $product->related('prices');
-		} else {
-			$this->template->prices = null;
-		}
+		if ($prices)
+			$this->template->prices = $prices;
 	}
 
 	protected function createComponentLoginForm(): Form
@@ -79,15 +74,11 @@ class AdminPresenter extends Presenter
 		$form->onSuccess[] = function (Form $form): void {
 			$values = $form->getValues();
 
-			[$dentamedProductCode, $dentamedPrice] = $this->scrape($values->dentamedUrl, 'dentamed');
-			[$medplusProductCode, $medplusPrice] = $this->scrape($values->medplusUrl,'medplus');
+			$dentamedProductCode = $this->scrape($values->dentamedUrl, 'dentamed');
+			$medplusProductCode = $this->scrape($values->medplusUrl,'medplus');
 
 			// Save product
-			$product = $this->productService->saveProduct($values->productName, $values->dentamedUrl, $dentamedProductCode, $values->medplusUrl, $medplusProductCode, $values->productName);
-
-			// Save prices
-			$this->productService->savePrices($product->id, 'dentamed', (float) $dentamedPrice);
-			$this->productService->savePrices($product->id, 'medplus', (float) $medplusPrice);
+			$this->productService->saveProduct($values->productName, $values->dentamedUrl, $dentamedProductCode, $values->medplusUrl, $medplusProductCode, $values->productName);
 
 			$this->flashMessage('Produkt byl úspěšně uložen.', 'success');
 			$this->redirect('Admin:default');
@@ -96,53 +87,7 @@ class AdminPresenter extends Presenter
 		return $form;
 	}
 
-	public function scrape(string $url, string $partner): array
-	{
-		$html = $this->fetchHtml($url);
-
-		if ($partner === 'dentamed') {
-			//$this->saveImages($html);
-			$productCode = $this->extract($html,'@class', 'manNumber');
-			$price = $this->extract($html, '@class', 'price');
-		} else {
-			//$this->saveImages($html);
-			$productCode = $this->extract($html, '@itemprop', 'sku');
-			$price = $this->extract($html, '@itemprop', 'price');
-		}
-
-		return [$productCode, $price];
-	}
-
-	private function saveImages(string $html): void
-	{
-		$imagesDir = __DIR__ . '/../../www/img/products';
-		if (!is_dir($imagesDir))
-			mkdir($imagesDir, 0777, true);
-
-		preg_match_all('/<img[^>]+src="([^">]+)"/i', $html, $matches);
-
-		foreach ($matches[1] as $src)
-			if (filter_var($src, FILTER_VALIDATE_URL)) {
-				$imageContent = file_get_contents($src);
-				$imageName = basename($src);
-				file_put_contents($imagesDir . '/' . $imageName, $imageContent);
-			}
-	}
-
-	private function extract(string $html, string $tag, string $class): string
-	{
-		$dom = new \DOMDocument();
-		@$dom->loadHTML($html);
-		$xpath = new \DOMXPath($dom);
-		$nodes = $xpath->query("//*[contains($tag, '$class')]");
-
-		if ($class === 'sku' or $class === 'manNumber')
-			return $nodes[0]->textContent;
-		else
-			return $nodes[1]->getAttribute('content');
-		}
-
-	private function fetchHtml(string $url): string
+	public function scrape(string $url, string $partner): string
 	{
 		$ch = curl_init();
 
@@ -153,20 +98,76 @@ class AdminPresenter extends Presenter
 		$html = curl_exec($ch);
 		curl_close($ch);
 
-		return $html;
+		return $partner === 'dentamed' ? $this->extract($html,'manNumber') : str_replace('Kód: ', '', $this->extract($html, 'js-product-catnum'));
+	}
+
+	private function extract(string $html, string $class): string
+	{
+		$dom = new \DOMDocument();
+		@$dom->loadHTML($html);
+		$xpath = new \DOMXPath($dom);
+		$nodes = $xpath->query("//*[contains(@class, '$class')]");
+
+		if ($class === 'js-product-catnum' or $class === 'manNumber')
+			return $nodes[0]->textContent;
+		else
+			return $nodes[1]->getAttribute('content');
 	}
 
 	protected function createComponentSearchForPrice(): Form
 	{
+		$products = $this->productService->getProducts();
+
+		$productList = [0 => 'Zadej jméno produktu'];
+		foreach ($products as $product)
+			$productList[$product->id] = $product->product_name;
+
 		$form = new Form;
-		$form->addText('productName', 'Zadej jméno produktu')->setRequired('Prosím vyplň jméno produktu');
+		$form->addSelect('productId', 'Zadej jméno produktu', $productList)->setRequired('Prosím vyplň jméno produktu');
 		$form->addSubmit('submit', 'Hledej');
 
 		$form->onSuccess[] = function (Form $form): void {
 			$values = $form->getValues();
-			$product = $this->productService->getProductByName($values->productName);
+			$product = $this->productService->getProductById($values->productId);
 
-			$this->redirect('Admin:default', ['productId' => $product->id]);
+			$url = 'http://heraldhunt.cz/api/price';
+
+			$data = [
+				'dentamed_product_code' => $product->dentamed_product_code,
+				'medplus_url' => $product->medplus_url,
+			];
+			$jsonData = json_encode($data);
+
+			$ch = curl_init();
+
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData); // Send data as URL-encoded
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return the response as a string
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+				'Content-Type: application/json',
+				'Content-Length: ' . strlen($jsonData)
+			));
+
+			$response = curl_exec($ch);
+
+			if (str_starts_with($response, '"'))
+				$response = substr($response, 1);
+			$parts = explode(",", $response);
+
+			$prices = [
+				'dentamed_price' => floatval(trim(str_replace(" Kč", "", $parts[0]))),
+				'medplus_price' => floatval(trim(str_replace(" Kč", "", $parts[1]))),
+			];
+
+			if (curl_errno($ch)) {
+				echo 'Error:' . curl_error($ch);
+			} else {
+				//$prices = json_decode($response, true);
+				$this->redirect('Admin:default', ['prices' => $prices]);
+			}
+
+			curl_close($ch);
 		};
 
 		return $form;

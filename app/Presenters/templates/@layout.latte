@@ -1,7 +1,7 @@
 {import 'Home/default.latte'}
-{import '@cookiesBar.latte'}
 {import '@holidayInfoBar.latte'}
 {varType bool $cookiesAccepted}
+{varType string $language}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -25,7 +25,6 @@
 	<!-- Libraries Stylesheet -->
 	<link href="{$basePath}/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 	<link href="{$basePath}/lib/animate/animate.min.css" rel="stylesheet">
-	<link href="{$basePath}/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
 	<link href="{$basePath}/lib/twentytwenty/twentytwenty.css" rel="stylesheet" />
 
 	<!-- Customized Bootstrap Stylesheet -->
@@ -41,9 +40,40 @@
 
 {*{include holidayInfoBar}*}
 
-{if $cookiesAccepted === false}
-	{include cookiesBar}
-{/if}
+<!-- Cookie modal -->
+<div class="modal fade" id="cookieModal" tabindex="-1" aria-labelledby="cookieModalArea" aria-hidden="true">
+	<div class="modal-dialog" style="border: whitesmoke 2px solid">
+		<div class="modal-content">
+			{if $language === 'cz'}
+				<div class="eu-cookies wow text-center">
+					<div class="modal-header justify-content-center">
+						<strong>Tento web používá k poskytování služeb, personalizaci reklam a analýze návštěvnosti soubory cookie.</strong>
+					</div>
+					<div class="modal-body" style="background-color: whitesmoke; color: black;">
+						<p>Používáním tohoto webu udělujete souhlas s jejich užíváním.</p>
+					</div>
+					<div class="modal-footer justify-content-center align-content-center">
+						<button onclick="setCookie()" class="btn btn-primary" style="border: white 2px solid">Rozumím</button>
+					</div>
+				</div>
+			{else}
+				<div class="eu-cookies wow text-center">
+					<div class="modal-header justify-content-center">
+						<strong>This website uses cookies to provide services, personalize ads, and analyze traffic.</strong>
+					</div>
+					<div class="modal-body" style="background-color: whitesmoke; color: black;">
+						<p>By using this website, you agree to their use.</p>
+					</div>
+					<div class="modal-footer justify-content-center align-content-center">
+						<button onclick="setCookie()" class="btn btn-primary" style="border: white 2px solid">I understand</button>
+					</div>
+				</div>
+			{/if}
+
+		</div>
+	</div>
+</div>
+<!-- Cookie modal -->
 
 {include content}
 
@@ -60,21 +90,26 @@
 	}
 </script>
 
-<!-- JavaScript Libraries -->
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="{$basePath}/assets/js/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script n:if="!$cookiesAccepted">
+	var myModal = new bootstrap.Modal(document.getElementById("cookieModal"), {});
+	document.onreadystatechange = function () {
+		myModal.show();
+	};
+</script>
+
+<!-- JavaScript Libraries -->
 <script src="{$basePath}/lib/wow/wow.min.js"></script>
 <script src="{$basePath}/lib/easing/easing.min.js"></script>
 <script src="{$basePath}/lib/waypoints/waypoints.min.js"></script>
 <script src="{$basePath}/lib/owlcarousel/owl.carousel.min.js"></script>
-<script src="{$basePath}/lib/tempusdominus/js/moment.min.js"></script>
-<script src="{$basePath}/lib/tempusdominus/js/moment-timezone.min.js"></script>
-<script src="{$basePath}/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 <script src="{$basePath}/lib/twentytwenty/jquery.event.move.js"></script>
 <script src="{$basePath}/lib/twentytwenty/jquery.twentytwenty.js"></script>
 
 <!-- Template Javascript -->
 <script src="{$basePath}/js/main.js"></script>
+
 </body>
 
 </html>

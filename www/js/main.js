@@ -66,18 +66,8 @@
         return false;
     });
 
-
-    // Date and time picker
-    $('.date').datetimepicker({
-        format: 'L'
-    });
-    $('.time').datetimepicker({
-        format: 'LT'
-    });
-
-
-    // Image comparison
-    $(".twentytwenty-container").twentytwenty({});
+    // // Image comparison
+    // $(".twentytwenty-container").twentytwenty({});
 
 
     // Price carousel
