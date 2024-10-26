@@ -15,7 +15,8 @@ final class HomePresenter extends Presenter
 
     const ADDRESS = 'Štěpánská 55, Praha 1, 110 00';
 
-	const PRICE_LIST = ['fotokompozitniVypln' => 2210,
+	const PRICE_LIST = [
+		'fotokompozitniVypln' => 2210,
 		'endodontickeOsetreni' => 5850,
 		'korunkaMetalokeramicka' => 7000,
 		'korunkaCelokeramicka' => 9500,
@@ -46,9 +47,7 @@ final class HomePresenter extends Presenter
     }
 
 	public function renderDefault(): void
-	{
-
-	}
+	{}
 
     public function actionDefault(string $language = 'cz'): void
     {

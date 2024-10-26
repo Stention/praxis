@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Nette\Database\Explorer;
-use Nette\DI\Attributes\Inject;
 use Nette\Security\AuthenticationException;
 use Nette\Security\IIdentity;
 use Nette\Security\Passwords;
@@ -17,10 +16,10 @@ class Authenticator implements \Nette\Security\Authenticator
 	)
 	{}
 
-	public function authenticate(string $username, string $password): IIdentity
+	public function authenticate(string $user, string $password): IIdentity
 	{
 		$user = $this->database->table('users')
-			->where('username', $username)
+			->where('username', $user)
 			->fetch();
 
 		if ($user === null)

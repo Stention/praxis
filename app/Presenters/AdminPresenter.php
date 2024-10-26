@@ -163,7 +163,6 @@ class AdminPresenter extends Presenter
 			if (curl_errno($ch)) {
 				echo 'Error:' . curl_error($ch);
 			} else {
-				//$prices = json_decode($response, true);
 				$this->redirect('Admin:default', ['prices' => $prices]);
 			}
 
