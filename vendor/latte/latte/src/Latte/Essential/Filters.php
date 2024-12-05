@@ -222,12 +222,12 @@ final class Filters
 			$xlt = ['' => \IntlDateFormatter::NONE, 'full' => \IntlDateFormatter::FULL, 'long' => \IntlDateFormatter::LONG, 'medium' => \IntlDateFormatter::MEDIUM, 'short' => \IntlDateFormatter::SHORT,
 				'relative-full' => \IntlDateFormatter::RELATIVE_FULL, 'relative-long' => \IntlDateFormatter::RELATIVE_LONG, 'relative-medium' => \IntlDateFormatter::RELATIVE_MEDIUM, 'relative-short' => \IntlDateFormatter::RELATIVE_SHORT];
 			$date ??= $time === null ? 'long' : null;
-			$options = [$xlt[$date], $xlt[$time]];
+			$formatter = new \IntlDateFormatter($this->locale, $xlt[$date], $xlt[$time]);
 		} else {
-			$options = (new \IntlDatePatternGenerator($this->locale))->getBestPattern($format);
+			$formatter = new \IntlDateFormatter($this->locale, pattern: (new \IntlDatePatternGenerator($this->locale))->getBestPattern($format));
 		}
 
-		$res = \IntlDateFormatter::formatObject($value, $options, $this->locale);
+		$res = $formatter->format($value);
 		$res = preg_replace('~(\d\.) ~', "\$1\u{a0}", $res);
 		return $res;
 	}
@@ -603,6 +603,24 @@ final class Filters
 			$keys,
 			$groups,
 		));
+	}
+
+
+	/**
+	 * Filters elements according to a given $predicate. Maintains original keys.
+	 * @template K
+	 * @template V
+	 * @param  iterable<K, V>  $iterable
+	 * @param  callable(V, K, iterable<K, V>): bool  $predicate
+	 * @return iterable<K, V>
+	 */
+	public static function filter(iterable $iterable, callable $predicate): iterable
+	{
+		foreach ($iterable as $k => $v) {
+			if ($predicate($v, $k, $iterable)) {
+				yield $k => $v;
+			}
+		}
 	}
 
 

@@ -101,12 +101,11 @@ test('array items', function () {
 });
 
 
-test('default value must be readonly', function () {
-	Assert::exception(
-		fn() => Expect::structure([])->default([]),
-		Nette\InvalidStateException::class,
-	);
-});
+testException(
+	'default value must be readonly',
+	fn() => Expect::structure([])->default([]),
+	Nette\InvalidStateException::class,
+);
 
 
 test('with indexed item', function () {
@@ -157,9 +156,15 @@ test('with indexed item', function () {
 		$processor->process($schema, ['key1' => 'newval', 'newval3']),
 	);
 
-	checkValidationErrors(function () use ($processor, $schema) {
-		$processor->processMultiple($schema, [['key1' => 'newval', 'newval3'], ['key2' => 'newval', 'newval4']]);
-	}, ["Unexpected item '1'."]);
+	Assert::equal(
+		(object) [
+			'key1' => 'newval',
+			'key2' => 'newval',
+			'newval4',
+			'arr' => [],
+		],
+		$processor->processMultiple($schema, [['key1' => 'newval', 'newval3'], ['key2' => 'newval', 'newval4']]),
+	);
 });
 
 
@@ -500,5 +505,28 @@ test('processing without default values skipped on structure', function () {
 			'foo2' => ['bar' => 'baz'],
 		],
 		$processor->process($schema, []),
+	);
+});
+
+
+test('extend', function () {
+	$schema = Expect::structure(['a' => Expect::string(), 'b' => Expect::string()]);
+
+	Assert::equal(
+		Expect::structure(['a' => Expect::int(), 'b' => Expect::string(), 'c' => Expect::int()]),
+		$schema->extend(['a' => Expect::int(), 'c' => Expect::int()]),
+	);
+
+	Assert::equal(
+		Expect::structure(['a' => Expect::int(), 'b' => Expect::string(), 'c' => Expect::int()]),
+		$schema->extend(Expect::structure(['a' => Expect::int(), 'c' => Expect::int()])),
+	);
+});
+
+
+test('getShape', function () {
+	Assert::equal(
+		['a' => Expect::int(), 'b' => Expect::string()],
+		Expect::structure(['a' => Expect::int(), 'b' => Expect::string()])->getShape(),
 	);
 });

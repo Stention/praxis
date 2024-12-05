@@ -310,12 +310,11 @@ test('arrayOf() & keys II.', function () {
 });
 
 
-test('arrayOf() error', function () {
-	Assert::exception(
-		fn() => Expect::arrayOf(['a' => Expect::string()]),
-		TypeError::class,
-	);
-});
+testException(
+	'arrayOf() error',
+	fn() => Expect::arrayOf(['a' => Expect::string()]),
+	TypeError::class,
+);
 
 
 test('type[]', function () {
@@ -332,4 +331,19 @@ test('type[]', function () {
 	}, ['The item expects to be int[], array given.']);
 
 	Assert::same(['key' => 1], (new Processor)->process($schema, ['key' => 1]));
+});
+
+
+test('array shape', function () {
+	$schema = Expect::array([
+		'a' => Expect::string(),
+		'b' => Expect::string('string'),
+		'c' => Expect::anyOf(1, 2),
+	]);
+
+	Assert::type(Nette\Schema\Elements\Structure::class, $schema);
+	Assert::equal(
+		['a' => null, 'b' => 'string', 'c' => null],
+		(new Processor)->process($schema, []),
+	);
 });
