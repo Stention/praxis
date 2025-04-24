@@ -1,0 +1,28 @@
+<?php declare(strict_types=1);
+
+namespace App\Presenters;
+
+class PricesPresenter extends BaseFrontendPresenter
+{
+	const PRICE_LIST = [
+		'fotokompozitniVypln' => 2210,
+		'endodontickeOsetreni' => 5850,
+		'korunkaMetalokeramicka' => 7000,
+		'korunkaCelokeramicka' => 9500,
+		'dentalniHygiena' => 1800,
+	];
+
+	public function actionDefault(string $language = 'cz'): void
+	{
+		$this->template->title = $language === 'cz' ?
+			'Ceník zubní péče - MDDr. Eliška Kremlová' :
+			'Dental Care Pricing - MDDr. Eliška Kremlová';
+		$this->template->metaDescription = $language === 'cz' ?
+			'Orientační ceník zubních zákroků a ošetření. Přijímáme platby hotově i kartou. Podrobný ceník na vyžádání v ordinaci.' :
+			'Overview of dental procedure pricing. Payments accepted in cash or by card. Detailed price list available upon request at the clinic.';
+		$this->template->language = $language;
+
+		$this->template->priceList = self::PRICE_LIST;
+	}
+
+}

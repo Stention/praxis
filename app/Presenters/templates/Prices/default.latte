@@ -1,0 +1,249 @@
+{block content}
+	{if $language === 'cz'}
+	<!-- Pricing Start -->
+	<div id="pricing">
+		<div class="container-fluid py-5">
+			<div class="container">
+				<div class="row g-5">
+					<div class="col-lg-5">
+						<div class="section-title mb-4">
+							<h1 class="position-relative d-inline-block text-primary-private text-uppercase">Ceník</h1>
+						</div>
+						<p class="mb-4">V ordinaci je v současné době možné platit hotově či kartou. Podrobný ceník je dostupný na vyžádání v ordinaci.</p>
+						<h3 class="text-uppercase text-primary-private">Objednejte se </h3>
+						<h1>{$phone}</h1>
+					</div>
+					<div class="col-lg-7">
+						<div class="owl-carousel price-carousel">
+							<div class="price-item pb-4">
+								<div class="position-relative">
+									<img class="img-fluid rounded-top" src="{$basePath}/img/price-entrance-check.jpeg" alt="Initial dental examination" style="height: 240px">
+								</div>
+								<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+									<h4>Vstupní vyšetření</h4>
+									<hr class="text-primary-private w-50 mx-auto mt-0">
+									<div class="d-flex justify-content-around"><i class="fa fa-check text-primary-private pt-1"></i><span>Hrazeno zdravotní pojišťovnou</span></div>
+								</div>
+							</div>
+							<div class="price-item pb-4">
+								<div class="position-relative">
+									<img class="img-fluid rounded-top" src="{$basePath}/img/price-prevence.jpg" alt="Preventive dental check-up" style="height: 240px">
+								</div>
+								<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+									<h4>Preventivní prohlídka</h4>
+									<hr class="text-primary-private w-50 mx-auto mt-0">
+									<div class="d-flex justify-content-around"><i class="fa fa-check text-primary-private pt-1"></i><span>Hrazeno zdravotní pojišťovnou</span></div>
+								</div>
+							</div>
+							<div class="price-item pb-4">
+								<div class="position-relative">
+									<img class="img-fluid rounded-top" src="{$basePath}/img/price-opg.jpeg" alt="Intraoral X-ray Panoramic X-ray" style="height: 240px ">
+								</div>
+								<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+									<h4>Intraorální RTG Panoramatický RTG</h4>
+									<hr class="text-primary-private w-50 mx-auto mt-0">
+									<div class="d-flex justify-content-around"><i class="fa fa-check text-primary-private pt-1"></i><span>Hrazeno zdravotní pojišťovnou</span></div>
+								</div>
+							</div>
+							<div class="price-item pb-4">
+								<div class="position-relative">
+									<img class="img-fluid rounded-top" src="{$basePath}/img/price-anestezie.jpeg" alt="Anesthesia" style="height: 240px">
+								</div>
+								<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+									<h4>Anestezie</h4>
+									<hr class="text-primary-private w-50 mx-auto mt-0">
+									<div class="d-flex justify-content-around"><i class="fa fa-check text-primary-private pt-1"></i><span>Hrazeno zdravotní pojišťovnou</span></div>
+								</div>
+							</div>
+							<div class="price-item pb-4">
+								<div class="position-relative">
+									<img class="img-fluid rounded-top" src="{$basePath}/img/price-fotokomp-vypln.png" alt="Composite (White) Filling" style="height: 240px">
+									<div class="d-flex align-items-center justify-content-center bg-primary-private rounded pt-2 px-3 position-absolute top-100 start-50 translate-middle" style="z-index: 2;">
+										<h4 class="text-white m-0">od {$priceList['fotokompozitniVypln']} Kč</h4>
+									</div>
+								</div>
+								<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+									<h4>Fotokompozitní (bílá) výplň</h4>
+									<hr class="text-primary-private w-50 mx-auto mt-0">
+								</div>
+							</div>
+							<div class="price-item pb-4">
+								<div class="position-relative">
+									<img class="img-fluid rounded-top" src="{$basePath}/img/price-endodontie.jpeg" alt="Endodontic Treatment" style="height: 240px">
+									<div class="d-flex align-items-center justify-content-center bg-primary-private rounded pt-2 px-3 position-absolute top-100 start-50 translate-middle" style="z-index: 2;">
+										<h4 class="text-white m-0">od {$priceList['endodontickeOsetreni']} Kč</h4>
+									</div>
+								</div>
+								<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+									<h4>Endodontické ošetření</h4>
+									<hr class="text-primary-private w-50 mx-auto mt-0">
+								</div>
+							</div>
+							<div class="price-item pb-4">
+								<div class="position-relative">
+									<img class="img-fluid rounded-top" src="{$basePath}/img/service-dental-hygiene.jpeg" alt="Dental Hygiene" style="height: 240px">
+									<div class="d-flex align-items-center justify-content-center bg-primary-private rounded pt-2 px-3 position-absolute top-100 start-50 translate-middle" style="z-index: 2;">
+										<h4 class="text-white m-0">{$priceList['dentalniHygiena']} Kč</h4>
+									</div>
+								</div>
+								<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+									<h4>Dentální hygiena</h4>
+									<hr class="text-primary-private w-50 mx-auto mt-0">
+								</div>
+							</div>
+							<div class="price-item pb-4">
+								<div class="position-relative">
+									<img class="img-fluid rounded-top" src="{$basePath}/img/price-metaloceramic.jpeg" alt="Metal-Ceramic Crown" style="height: 240px">
+									<div class="d-flex align-items-center justify-content-center bg-primary-private rounded pt-2 px-3 position-absolute top-100 start-50 translate-middle" style="z-index: 2;">
+										<h4 class="text-white m-0">od {$priceList['korunkaMetalokeramicka']} Kč</h4>
+									</div>
+								</div>
+								<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+									<h4>Metalokeramická korunka</h4>
+									<hr class="text-primary-private w-50 mx-auto mt-0">
+								</div>
+							</div>
+							<div class="price-item pb-4">
+								<div class="position-relative">
+									<img class="img-fluid rounded-top" src="{$basePath}/img/price-ceramic.png" alt="Full-Ceramic Crown" style="height: 240px">
+									<div class="d-flex align-items-center justify-content-center bg-primary-private rounded pt-2 px-3 position-absolute top-100 start-50 translate-middle" style="z-index: 2;">
+										<h4 class="text-white m-0">od {$priceList['korunkaCelokeramicka']} Kč</h4>
+									</div>
+								</div>
+								<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+									<h4>Celokeramická korunka</h4>
+									<hr class="text-primary-private w-50 mx-auto mt-0">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Pricing End -->
+	{else}
+		<!-- Pricing Start -->
+		<div id="pricing">
+			<div class="container-fluid py-5">
+				<div class="container">
+					<div class="row g-5">
+						<div class="col-lg-5">
+							<div class="section-title mb-4">
+								<h1 class="position-relative d-inline-block text-primary-private text-uppercase">Price List</h1>
+							</div>
+							<p class="mb-4">Currently, payments can be made in cash or by card at the clinic. A detailed price list is available upon request at the clinic.</p>
+							<h3 class="text-uppercase text-primary-private">Book an Appointment</h3>
+							<h1>{$phone}</h1>
+						</div>
+						<div class="col-lg-7">
+							<div class="owl-carousel price-carousel">
+								<div class="price-item pb-4">
+									<div class="position-relative">
+										<img class="img-fluid rounded-top" src="{$basePath}/img/price-entrance-check.jpeg" alt="Initial dental examination" style="height: 240px">
+									</div>
+									<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+										<h4>Initial Examination</h4>
+										<hr class="text-primary-private w-50 mx-auto mt-0">
+										<div class="d-flex justify-content-around"><i class="fa fa-check text-primary-private pt-1"></i><span>Covered by Health Insurance</span></div>
+									</div>
+								</div>
+								<div class="price-item pb-4">
+									<div class="position-relative">
+										<img class="img-fluid rounded-top" src="{$basePath}/img/price-prevence.jpg" alt="Preventive dental check-up" style="height: 240px">
+									</div>
+									<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+										<h4>Preventive Check-up</h4>
+										<hr class="text-primary-private w-50 mx-auto mt-0">
+										<div class="d-flex justify-content-around"><i class="fa fa-check text-primary-private pt-1"></i><span>Covered by Health Insurance</span></div>
+									</div>
+								</div>
+								<div class="price-item pb-4">
+									<div class="position-relative">
+										<img class="img-fluid rounded-top" src="{$basePath}/img/price-opg.jpeg" alt="Intraoral X-ray Panoramic X-ray" style="height: 240px">
+									</div>
+									<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+										<h4>Intraoral X-ray Panoramic X-ray</h4>
+										<hr class="text-primary-private w-50 mx-auto mt-0">
+										<div class="d-flex justify-content-around"><i class="fa fa-check text-primary-private pt-1"></i><span>Covered by Health Insurance</span></div>
+									</div>
+								</div>
+								<div class="price-item pb-4">
+									<div class="position-relative">
+										<img class="img-fluid rounded-top" src="{$basePath}/img/price-anestezie.jpeg" alt="Anesthesia" style="height: 240px">
+									</div>
+									<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+										<h4>Anesthesia</h4>
+										<hr class="text-primary-private w-50 mx-auto mt-0">
+										<div class="d-flex justify-content-around"><i class="fa fa-check text-primary-private pt-1"></i><span>Covered by Health Insurance</span></div>
+									</div>
+								</div>
+								<div class="price-item pb-4">
+									<div class="position-relative">
+										<img class="img-fluid rounded-top" src="{$basePath}/img/price-fotokomp-vypln.png" alt="Composite (White) Filling" style="height: 240px">
+										<div class="d-flex align-items-center justify-content-center bg-primary-private rounded pt-2 px-3 position-absolute top-100 start-50 translate-middle" style="z-index: 2;">
+											<h5 class="text-white m-0">from {$priceList['fotokompozitniVypln']} CZK</h5>
+										</div>
+									</div>
+									<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+										<h4>Composite (White) Filling</h4>
+										<hr class="text-primary-private w-50 mx-auto mt-0">
+									</div>
+								</div>
+								<div class="price-item pb-4">
+									<div class="position-relative">
+										<img class="img-fluid rounded-top" src="{$basePath}/img/price-endodontie.jpeg" alt="Endodontic Treatment" style="height: 240px">
+										<div class="d-flex align-items-center justify-content-center bg-primary-private rounded pt-2 px-3 position-absolute top-100 start-50 translate-middle" style="z-index: 2;">
+											<h5 class="text-white m-0">from {$priceList['endodontickeOsetreni']} CZK</h5>
+										</div>
+									</div>
+									<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+										<h4>Endodontic Treatment</h4>
+										<hr class="text-primary-private w-50 mx-auto mt-0">
+									</div>
+								</div>
+								<div class="price-item pb-4">
+									<div class="position-relative">
+										<img class="img-fluid rounded-top" src="{$basePath}/img/service-dental-hygiene.jpeg" alt="Dental Hygiene" style="height: 240px">
+										<div class="d-flex align-items-center justify-content-center bg-primary-private rounded pt-2 px-3 position-absolute top-100 start-50 translate-middle" style="z-index: 2;">
+											<h5 class="text-white m-0">{$priceList['dentalniHygiena']} CZK</h5>
+										</div>
+									</div>
+									<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+										<h4>Dental Hygiene</h4>
+										<hr class="text-primary-private w-50 mx-auto mt-0">
+									</div>
+								</div>
+								<div class="price-item pb-4">
+									<div class="position-relative">
+										<img class="img-fluid rounded-top" src="{$basePath}/img/price-metaloceramic.jpeg" alt="Metal-Ceramic Crown" style="height: 240px">
+										<div class="d-flex align-items-center justify-content-center bg-primary-private rounded pt-2 px-3 position-absolute top-100 start-50 translate-middle" style="z-index: 2;">
+											<h5 class="text-white m-0">from {$priceList['korunkaMetalokeramicka']} CZK</h5>
+										</div>
+									</div>
+									<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+										<h4>Metal-Ceramic Crown</h4>
+										<hr class="text-primary-private w-50 mx-auto mt-0">
+									</div>
+								</div>
+								<div class="price-item pb-4">
+									<div class="position-relative">
+										<img class="img-fluid rounded-top" src="{$basePath}/img/price-ceramic.png" alt="Full-Ceramic Crown" style="height: 240px">
+										<div class="d-flex align-items-center justify-content-center bg-primary-private rounded pt-2 px-3 position-absolute top-100 start-50 translate-middle" style="z-index: 2;">
+											<h5 class="text-white m-0">from {$priceList['korunkaCelokeramicka']} CZK</h5>
+										</div>
+									</div>
+									<div class="position-relative text-center bg-light-private border-bottom border-primary-private py-5 p-4" style="height: 200px">
+										<h4>Full-Ceramic Crown</h4>
+										<hr class="text-primary-private w-50 mx-auto mt-0">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Pricing End -->
+	{/if}
+{/block}

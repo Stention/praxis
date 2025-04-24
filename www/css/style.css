@@ -263,3 +263,8 @@ h6,
 .price-carousel .owl-nav .owl-next:hover {
     background: var(--secondary);
 }
+
+.cm__btn {
+    background-color: var(--primary) !important;
+    border:1px solid var(--primary);
+}

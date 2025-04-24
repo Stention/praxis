@@ -1,18 +1,20 @@
 {import 'Home/default.latte'}
 {import '@holidayInfoBar.latte'}
+{import '@footer.latte'}
 {varType bool $cookiesAccepted}
 {varType string $language}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 
 <head>
 	<meta charset="utf-8">
-	<title>Zubní Štěpánská</title>
-	<meta content="width=device-width, initial-scale=1.0" name="viewport">
+	<title>{$title}</title>
+	<meta name="description" content="{$metaDescription}">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<!-- Favicon -->
-	<link href="{$basePath}/favicon.ico" rel="icon">
+	<link href="{$basePath}/img/icon.png" rel="icon">
 
 	<!-- Google Web Fonts -->
 	<link rel="preconnect" href="https://fonts.gstatic.com">
@@ -30,7 +32,7 @@
 	<!-- Customized Bootstrap Stylesheet -->
 	<link href="{$basePath}/css/bootstrap.min.css" rel="stylesheet">
 
-	<!-- Template Stylesheet -->
+	<link href="{$basePath}/utils/cookie_consent/cookieconsent-3.1.0/dist/cookieconsent.css" rel="stylesheet">
 	<link href="{$basePath}/css/style.css" rel="stylesheet">
 
 	<meta http-equiv="refresh" content="900">
@@ -38,69 +40,97 @@
 
 <body>
 
-{*{include holidayInfoBar}*}
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/cs_CZ/sdk.js#xfbml=1&version=v22.0"></script>
 
-<!-- Cookie modal -->
-<div class="modal fade" id="cookieModal" tabindex="-1" aria-labelledby="cookieModalArea" aria-hidden="true">
-	<div class="modal-dialog" style="border: whitesmoke 2px solid">
-		<div class="modal-content">
-			{if $language === 'cz'}
-				<div class="eu-cookies wow text-center">
-					<div class="modal-header justify-content-center">
-						<strong>Tento web používá k poskytování služeb, personalizaci reklam a analýze návštěvnosti soubory cookie.</strong>
-					</div>
-					<div class="modal-body" style="background-color: whitesmoke; color: black;">
-						<p>Používáním tohoto webu udělujete souhlas s jejich užíváním.</p>
-					</div>
-					<div class="modal-footer justify-content-center align-content-center">
-						<button onclick="setCookie()" class="btn btn-primary" style="border: white 2px solid">Rozumím</button>
-					</div>
+<!-- Topbar Start -->
+	<div class="container-fluid bg-light-private ps-5 pe-0 d-none d-lg-block">
+	<div class="row gx-0">
+		<div class="col-md-6 text-center text-lg-start mb-2 mb-lg-0">
+			<div class="d-inline-flex align-items-center">
+				{*				<small class="py-2"><i class="far fa-clock text-primary-private me-2"></i>Ordinační hodiny: pondělí - středa - pátek : {$clinicHours} </small>*}
+			</div>
+		</div>
+		<div class="col-md-6 text-center text-lg-end">
+			<div class="position-relative d-inline-flex align-items-center bg-primary-private text-white top-shape px-5">
+				<div class="me-3 pe-3 border-end py-2">
+					<p class="m-0"><i class="fa fa-envelope-open me-2"></i>{$email}</p>
 				</div>
-			{else}
-				<div class="eu-cookies wow text-center">
-					<div class="modal-header justify-content-center">
-						<strong>This website uses cookies to provide services, personalize ads, and analyze traffic.</strong>
-					</div>
-					<div class="modal-body" style="background-color: whitesmoke; color: black;">
-						<p>By using this website, you agree to their use.</p>
-					</div>
-					<div class="modal-footer justify-content-center align-content-center">
-						<button onclick="setCookie()" class="btn btn-primary" style="border: white 2px solid">I understand</button>
-					</div>
+				<div class="py-2">
+					<p class="m-0"><i class="fa fa-phone-alt me-2"></i>{$phone}</p>
 				</div>
-			{/if}
-
+			</div>
 		</div>
 	</div>
 </div>
-<!-- Cookie modal -->
+<!-- Topbar End -->
+
+<!-- CZ -->
+<!-- Navbar Start -->
+{if $language === 'cz'}
+	<nav class="navbar navbar-expand-lg bg-white navbar-light shadow-sm px-5 py-3 py-lg-0">
+		<a n:href="Home:default" class="navbar-brand p-0">
+			<h1 class="m-0 text-primary-private"><i class="fa fa-tooth me-2"></i>{$praxisName}</h1>
+		</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarCollapse">
+			<div class="navbar-nav ms-auto py-0">
+				<a n:href="Home:default, language: $language" class="nav-item nav-link active">O nás</a>
+				<a n:href="Services:default, language: $language" class="nav-item nav-link">Naše služby</a>
+				<a n:href="Prices:default, language: $language" class="nav-item nav-link">Ceník</a>
+				<a n:href="Insurance:default, language: $language" class="nav-item nav-link">Vaše pojišťovny</a>
+				<a n:href="ChildStomatology:default, language: $language" class="nav-item nav-link">Dětská stomatologie</a>
+				<a n:href="Certificates:default, language: $language" class="nav-item nav-link">Diplomy a certifikáty</a>
+			</div>
+			<a n:href="{$presenter->getName()}:default, language: 'en'" style="border: 2px solid black; border-radius: 70%; padding: 5px; display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; text-decoration: none; margin-left: 30px; overflow: hidden;">
+				<img src="{$basePath}/img/flag_uk.jpg" style="width: 65px; height: 65px; object-fit: cover;">
+			</a>
+		</div>
+	</nav>
+	<div class="bg-primary-private d-flex align-content-center justify-content-center">
+		<h1 class="m-2 text-white">Aktuálně přijímáme nové pacienty</h1>
+	</div>
+{else}
+	<nav class="navbar navbar-expand-lg bg-white navbar-light shadow-sm px-5 py-3 py-lg-0">
+		<a n:href="Home:default" class="navbar-brand p-0">
+			<h1 class="m-0 text-primary-private"><i class="fa fa-tooth me-2"></i>{$praxisName}</h1>
+		</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarCollapse">
+			<div class="navbar-nav ms-auto py-0">
+				<a n:href="Home:default, language: $language" class="nav-item nav-link active">About Us</a>
+				<a n:href="Services:default, language: $language" class="nav-item nav-link">Our Services</a>
+				<a n:href="Prices:default, language: $language" class="nav-item nav-link">Pricing</a>
+				<a n:href="Insurance:default, language: $language" class="nav-item nav-link">Your Insurances</a>
+				<a href="#" class="nav-item nav-link">Children stomatology</a>
+				<a n:href="Certificates:default, language: $language" class="nav-item nav-link">Diploms and certificates</a>
+			</div>
+			<a n:href="{$presenter->getName()}:default, language: 'cz'" style="border: 2px solid black; border-radius: 70%; padding: 5px; display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; text-decoration: none; margin-left: 30px; overflow: hidden;">
+				<img src="{$basePath}/img/flag_cz.jpg" style="width: 65px; height: 65px; object-fit: cover;">
+			</a>
+		</div>
+	</nav>
+	<div class="bg-primary-private d-flex align-content-center justify-content-center">
+		<h1 class="m-2 text-white">We are currently accepting new clients.</h1>
+	</div>
+{/if}
+	<!-- Navbar End -->
+
+{*{include holidayInfoBar}*}
 
 {include content}
 
-<!-- Cookies script -->
-<script>
-	function setCookie() {
-		// 30 days
-		let date = new Date();
-		date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
-		let expires = "; expires=" + date.toUTCString();
-
-		document.cookie = "accept_ZS_cookies=" + ("true" || "") + expires + "; path=/";
-		window.location.reload();
-	}
-</script>
+{include footer}
 
 <script src="{$basePath}/assets/js/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-<script n:if="!$cookiesAccepted">
-	var myModal = new bootstrap.Modal(document.getElementById("cookieModal"), {});
-	document.onreadystatechange = function () {
-		myModal.show();
-	};
-</script>
 
 <!-- JavaScript Libraries -->
-<script src="{$basePath}/lib/wow/wow.min.js"></script>
+<script src="{$basePath}/lib/wow/wow.min.js"></script> <!-- delete? -->
 <script src="{$basePath}/lib/easing/easing.min.js"></script>
 <script src="{$basePath}/lib/waypoints/waypoints.min.js"></script>
 <script src="{$basePath}/lib/owlcarousel/owl.carousel.min.js"></script>
@@ -109,6 +139,12 @@
 
 <!-- Template Javascript -->
 <script src="{$basePath}/js/main.js"></script>
+
+<script src="{$basePath}/utils/cookie_consent/cookieconsent-3.1.0/dist/cookieconsent.umd.js"></script>
+<script>
+	const language = {$language};
+</script>
+<script type="module" src="{$basePath}/utils/cookie_consent/cookieconsent-config.js"></script>
 
 </body>
 
