@@ -84,14 +84,6 @@ h6,
     font-size:18px;
 }
 
-.back-to-top {
-    position: fixed;
-    display: none;
-    right: 45px;
-    bottom: 45px;
-    z-index: 99;
-}
-
 .top-shape::before {
     position: absolute;
     content: "";
