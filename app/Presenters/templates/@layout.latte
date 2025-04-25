@@ -46,12 +46,12 @@
 <!-- Topbar Start -->
 <div class="container-fluid bg-light-private px-3 px-lg-5">
 	<div class="row gx-0">
-		<div class="col text-lg-end">
-			<div class="d-inline-flex align-items-center bg-primary-private text-white px-5">
-				<div class="me-3 pe-3 border-end py-2">
+		<div class="col">
+			<div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-lg-end bg-primary-private text-white px-4 py-2 ms-auto text-lg-end">
+				<div class="me-lg-3 pe-lg-3 border-0 border-lg-end">
 					<p class="m-0"><i class="fa fa-envelope-open me-2"></i>{$email}</p>
 				</div>
-				<div class="py-2">
+				<div class="pt-2 pt-lg-0">
 					<p class="m-0"><i class="fa fa-phone-alt me-2"></i>{$phone}</p>
 				</div>
 			</div>
@@ -72,20 +72,20 @@
 		</button>
 		<div class="collapse navbar-collapse" id="navbarCollapse">
 			<div class="navbar-nav ms-auto py-0">
-				<a n:href="Home:default, language: $language" class="nav-item nav-link active">O nás</a>
-				<a n:href="Services:default, language: $language" class="nav-item nav-link">Naše služby</a>
-				<a n:href="Prices:default, language: $language" class="nav-item nav-link">Ceník</a>
-				<a n:href="Insurance:default, language: $language" class="nav-item nav-link">Vaše pojišťovny</a>
-				<a n:href="ChildStomatology:default, language: $language" class="nav-item nav-link">Dětská stomatologie</a>
-				<a n:href="Certificates:default, language: $language" class="nav-item nav-link">Diplomy a certifikáty</a>
+				<a n:href="Home:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Home'}active{/if}">O nás</a>
+				<a n:href="Services:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Services'}active{/if}">Naše služby</a>
+				<a n:href="Prices:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Prices'}active{/if}">Ceník</a>
+				<a n:href="Insurance:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Insurance'}active{/if}">Vaše pojišťovny</a>
+				<a n:href="ChildStomatology:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'ChildStomatology'}active{/if}">Dětská stomatologie</a>
+				<a n:href="Certificates:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Certificates'}active {/if}">Diplomy a certifikáty</a>
 			</div>
 			<a n:href="{$presenter->getName()}:default, language: 'en'" style="border: 2px solid black; border-radius: 70%; padding: 5px; display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; text-decoration: none; margin-left: 30px; overflow: hidden;">
 				<img src="{$basePath}/img/flag_uk.jpg" style="width: 65px; height: 65px; object-fit: cover;">
 			</a>
 		</div>
 	</nav>
-	<div class="bg-primary-private d-flex align-content-center justify-content-center">
-		<h1 class="m-2 text-white">Aktuálně přijímáme nové pacienty</h1>
+	<div class="bg-primary-private d-flex align-items-center justify-content-center">
+		<h1 class="m-2 text-white text-center w-100">Aktuálně přijímáme nové pacienty</h1>
 	</div>
 {else}
 	<nav class="navbar navbar-expand-lg bg-white navbar-light shadow-sm px-5 py-3 py-lg-0">
@@ -109,8 +109,8 @@
 			</a>
 		</div>
 	</nav>
-	<div class="bg-primary-private d-flex align-content-center justify-content-center">
-		<h1 class="m-2 text-white">We are currently accepting new clients.</h1>
+	<div class="bg-primary-private d-flex align-items-center justify-content-center">
+		<h1 class="m-2 text-white text-center w-100">We are currently accepting new clients.</h1>
 	</div>
 {/if}
 	<!-- Navbar End -->

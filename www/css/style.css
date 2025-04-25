@@ -260,3 +260,10 @@ h6,
     background-color: var(--primary) !important;
     border:1px solid var(--primary);
 }
+
+.nav-item {
+    color: var(--secondary) !important;
+}
+.nav-item.active {
+    color: var(--primary) !important;
+}
