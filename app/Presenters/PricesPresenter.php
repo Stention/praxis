@@ -5,7 +5,7 @@ namespace App\Presenters;
 class PricesPresenter extends BaseFrontendPresenter
 {
 	const PRICE_LIST = [
-		'fotokompozitniVyplnMin' => 1710,
+		'fotokompozitniVyplnMin' => 2280,
 		'fotokompozitniVyplnMax' => 3900,
 		'endodontickeOsetreni' => 5850,
 		'korunkaMetalokeramicka' => 7000,
