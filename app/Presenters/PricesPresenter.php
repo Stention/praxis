@@ -5,11 +5,16 @@ namespace App\Presenters;
 class PricesPresenter extends BaseFrontendPresenter
 {
 	const PRICE_LIST = [
-		'fotokompozitniVypln' => 2210,
+		'fotokompozitniVyplnMin' => 1710,
+		'fotokompozitniVyplnMax' => 3900,
 		'endodontickeOsetreni' => 5850,
 		'korunkaMetalokeramicka' => 7000,
 		'korunkaCelokeramicka' => 9500,
 		'dentalniHygiena' => 1800,
+		'dentalniHygienaDiteMin' => 960,
+		'dentalniHygienaDiteMax' => 1200,
+		'vyplnNaDocasnemZubuMin' => 680,
+		'vyplnNaDocasnemZubuMax' => 1710,
 	];
 
 	public function actionDefault(string $language = 'cz'): void

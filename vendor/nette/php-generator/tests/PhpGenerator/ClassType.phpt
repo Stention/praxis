@@ -39,7 +39,7 @@ $trait2 = $class->addTrait('AnotherTrait')
 $class->addConstant('ROLE', 'admin');
 $class->addConstant('ACTIVE', false)
 	->setFinal()
-	->setType('bool');
+	->setType('?bool');
 Assert::true($class->hasConstant('ROLE'));
 Assert::false($class->hasConstant('xxx'));
 
@@ -177,8 +177,7 @@ Assert::same($parameters, $method->getParameters());
 
 Assert::exception(
 	fn() => (new ClassType)->addMethod('method')->setVisibility('unknown'),
-	Nette\InvalidArgumentException::class,
-	'Argument must be public|protected|private.',
+	ValueError::class,
 );
 
 

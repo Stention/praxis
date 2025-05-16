@@ -235,6 +235,9 @@ class SqlBuilder
 	/********************* SQL selectors ****************d*g**/
 
 
+	/**
+	 * Adds SELECT clause, more calls append to the end.
+	 */
 	public function addSelect(string $columns, ...$params): void
 	{
 		$this->select[] = $columns;
@@ -255,12 +258,18 @@ class SqlBuilder
 	}
 
 
+	/**
+	 * Adds WHERE condition, more calls append with AND.
+	 */
 	public function addWhere(string|array $condition, ...$params): bool
 	{
 		return $this->addCondition($condition, $params, $this->where, $this->parameters['where']);
 	}
 
 
+	/**
+	 * Adds JOIN condition.
+	 */
 	public function addJoinCondition(string $tableChain, string|array $condition, ...$params): bool
 	{
 		$this->parameters['joinConditionSorted'] = null;
@@ -343,18 +352,11 @@ class SqlBuilder
 						}
 					}
 
-					if ($this->driver->isSupported(Driver::SupportSubselect)) {
-						$arg = null;
-						$subSelectPlaceholderCount = substr_count($clone->getSql(), '?');
-						$replace = $match[2][0] . '(' . $clone->getSql() . (!$subSelectPlaceholderCount && count($clone->getSqlBuilder()->getParameters()) === 1 ? ' ?' : '') . ')';
-						if (count($clone->getSqlBuilder()->getParameters())) {
-							array_unshift($params, ...$clone->getSqlBuilder()->getParameters());
-						}
-					} else {
-						$arg = [];
-						foreach ($clone as $row) {
-							$arg[] = array_values(iterator_to_array($row));
-						}
+					$arg = null;
+					$subSelectPlaceholderCount = substr_count($clone->getSql(), '?');
+					$replace = $match[2][0] . '(' . $clone->getSql() . (!$subSelectPlaceholderCount && count($clone->getSqlBuilder()->getParameters()) === 1 ? ' ?' : '') . ')';
+					if (count($clone->getSqlBuilder()->getParameters())) {
+						array_unshift($params, ...$clone->getSqlBuilder()->getParameters());
 					}
 				}
 
@@ -409,7 +411,7 @@ class SqlBuilder
 
 
 	/**
-	 * Adds alias.
+	 * Adds alias AS.
 	 */
 	public function addAlias(string $chain, string $alias): void
 	{
@@ -440,6 +442,9 @@ class SqlBuilder
 	}
 
 
+	/**
+	 * Adds ORDER BY clause, more calls append to the end.
+	 */
 	public function addOrder(string|array $columns, ...$params): void
 	{
 		$this->order[] = $columns;
@@ -460,6 +465,9 @@ class SqlBuilder
 	}
 
 
+	/**
+	 * Sets LIMIT/OFFSET clause.
+	 */
 	public function setLimit(?int $limit, ?int $offset): void
 	{
 		$this->limit = $limit;
@@ -479,6 +487,9 @@ class SqlBuilder
 	}
 
 
+	/**
+	 * Sets GROUP BY and HAVING clause.
+	 */
 	public function setGroup(string|array $columns, ...$params): void
 	{
 		$this->group = $columns;
@@ -808,7 +819,7 @@ class SqlBuilder
 		array &$conditionsParameters,
 	): bool
 	{
-		if ($this->driver->isSupported(Driver::SupportMultiColumnAsOrCond)) {
+		if ($this->driver->isSupported(Driver::SupportMultiColumnAsOrCondition)) {
 			$conditionFragment = '(' . implode(' = ? AND ', $columns) . ' = ?) OR ';
 			$condition = substr(str_repeat($conditionFragment, count($parameters)), 0, -4);
 			return $this->addCondition($condition, [Nette\Utils\Arrays::flatten($parameters)], $conditions, $conditionsParameters);
@@ -824,7 +835,7 @@ class SqlBuilder
 			if ($parameter instanceof Selection) {
 				$parameter = $this->getConditionHash($parameter->getSql(), $parameter->getSqlBuilder()->getParameters());
 			} elseif ($parameter instanceof SqlLiteral) {
-				$parameter = $this->getConditionHash($parameter->__toString(), $parameter->getParameters());
+				$parameter = $this->getConditionHash($parameter->getSql(), $parameter->getParameters());
 			} elseif ($parameter instanceof \Stringable) {
 				$parameter = $parameter->__toString();
 			} elseif (is_array($parameter) || $parameter instanceof \ArrayAccess) {
