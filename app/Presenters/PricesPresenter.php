@@ -7,7 +7,6 @@ class PricesPresenter extends BaseFrontendPresenter
 	const PRICE_LIST = [
 		'fotokompozitniVyplnMin' => 2280,
 		'fotokompozitniVyplnMax' => 3900,
-		'endodontickeOsetreni' => 5850,
 		'korunkaMetalokeramicka' => 7000,
 		'korunkaCelokeramicka' => 9500,
 		'dentalniHygiena' => 1800,
@@ -15,6 +14,9 @@ class PricesPresenter extends BaseFrontendPresenter
 		'dentalniHygienaDiteMax' => 1200,
 		'vyplnNaDocasnemZubuMin' => 680,
 		'vyplnNaDocasnemZubuMax' => 1710,
+		'primarniEndodontickeOsetreni' => '3135 - 3990',
+		'definitivniPlneni' => '3135 - 3990',
+		'konzultace' => 570,
 	];
 
 	public function actionDefault(string $language = 'cz'): void
