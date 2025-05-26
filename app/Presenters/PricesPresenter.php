@@ -12,7 +12,7 @@ class PricesPresenter extends BaseFrontendPresenter
 		'dentalniHygiena' => 1800,
 		'dentalniHygienaDiteMin' => 960,
 		'dentalniHygienaDiteMax' => 1200,
-		'vyplnNaDocasnemZubuMin' => 680,
+		'vyplnNaDocasnemZubuMin' => 855,
 		'vyplnNaDocasnemZubuMax' => 1710,
 		'primarniEndodontickeOsetreni' => '3135 - 3990',
 		'definitivniPlneni' => '3135 - 3990',
