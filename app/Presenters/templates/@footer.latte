@@ -58,7 +58,17 @@
 		<div class="container">
 			<div class="row g-0">
 				<div class="col-md-6 text-center text-md-start">
-					<p class="mb-md-0">&copy; <a class="text-white border-bottom" href="#">{$praxisName}</a>. All Rights Reserved.</p>
+					<div class="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-start gap-3">
+						<p class="mb-0">&copy; <a class="text-white border-bottom" href="#">{$praxisName}</a>. All Rights Reserved.</p>
+						<a href="{$basePath}/files/gdpr.pdf"
+						   class="text-white text-decoration-none"
+						   target="_blank"
+						   rel="noopener noreferrer">
+							<i class="bi bi-file-earmark-text text-secondary-private me-1"></i>
+							Zásady zpracování osobních údajů
+						</a>
+					</div>
+
 				</div>
 			</div>
 		</div>
@@ -119,15 +129,25 @@
 			</div>
 		</div>
 	</div>
-	<div class="container-fluid text-light py-4" style="background: #051225;">
-		<div class="container">
-			<div class="row g-0">
-				<div class="col-md-6 text-center text-md-start">
-					<p class="mb-md-0">&copy; <a class="text-white border-bottom" href="#">{$praxisName}</a>. All Rights Reserved.</p>
+		<div class="container-fluid text-light py-4" style="background: #051225;">
+			<div class="container">
+				<div class="row g-0">
+					<div class="col-md-6 text-center text-md-start">
+						<div class="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-start gap-3">
+							<p class="mb-0">&copy; <a class="text-white border-bottom" href="#">{$praxisName}</a>. All Rights Reserved.</p>
+							<a href="{$basePath}/files/gdpr.pdf"
+							   class="text-white text-decoration-none"
+							   target="_blank"
+							   rel="noopener noreferrer">
+								<i class="bi bi-file-earmark-text text-secondary-private me-1"></i>
+								Privacy Policy (in Czech)
+							</a>
+						</div>
+
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
 	<!-- Footer End -->
 	{/if}
 {/block}
