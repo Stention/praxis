@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace Tester\CodeCoverage\Generators;
 
 use Tester\Helpers;
+use function in_array, is_array;
+use const ARRAY_FILTER_USE_KEY, STDOUT;
 
 
 /**
@@ -68,7 +70,10 @@ abstract class AbstractGenerator
 			throw new \Exception("Unable to write to file '$file'.");
 		}
 
-		ob_start(function (string $buffer) use ($handle) { fwrite($handle, $buffer); }, 4096);
+		ob_start(function (string $buffer) use ($handle) {
+			fwrite($handle, $buffer);
+			return '';
+		}, 4096);
 		try {
 			$this->renderSelf();
 		} catch (\Throwable $e) {
@@ -107,7 +112,7 @@ abstract class AbstractGenerator
 		return new \CallbackFilterIterator(
 			$iterator,
 			fn(\SplFileInfo $file): bool => $file->getBasename()[0] !== '.'  // . or .. or .gitignore
-				&& in_array($file->getExtension(), $this->acceptFiles, true)
+				&& in_array($file->getExtension(), $this->acceptFiles, true),
 		);
 	}
 

@@ -12,12 +12,13 @@ namespace Latte\Compiler\Nodes\Php\Expression;
 use Latte\Compiler\Nodes\Php\ExpressionNode;
 use Latte\Compiler\Position;
 use Latte\Compiler\PrintContext;
+use function count, in_array, strtolower;
 
 
 class BinaryOpNode extends ExpressionNode
 {
-	private const Ops = ['||', '&&', 'or', 'and', 'xor', '&', '^', '.', '+', '-', '*', '/', '%', '<<', '>>', '**',
-		'==', '!=', '===', '!==', '<=>', '<', '<=', '>', '>=', '??', ];
+	private const Ops = ['||', '&&', 'or', 'and', 'xor', '|', '&', '^', '.', '+', '-', '*', '/', '%', '<<', '>>', '**',
+		'==', '!=', '===', '!==', '<=>', '<', '<=', '>', '>=', '??', '|>'];
 
 
 	public function __construct(

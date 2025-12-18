@@ -20,6 +20,7 @@ use Latte\Compiler\PrintContext;
 use Latte\Compiler\Tag;
 use Latte\Compiler\TagParser;
 use Latte\Compiler\TemplateParser;
+use function in_array;
 
 
 /**
@@ -51,7 +52,9 @@ class IfNode extends StatementNode
 				: $tag->parser->parseExpression();
 		}
 
-		[$node->then, $nextTag] = yield $node->capture ? ['else'] : ['else', 'elseif', 'elseifset'];
+		[$node->then, $nextTag] = yield $node->capture
+			? ['else']
+			: ['else', 'elseif', 'elseifset'];
 
 		if ($nextTag?->name === 'else') {
 			if ($nextTag->parser->stream->is('if')) {
@@ -83,7 +86,7 @@ class IfNode extends StatementNode
 			$name = $parser->parseUnquotedStringOrExpression();
 			$list[] = $block || $name instanceof StringNode
 				? new Expression\AuxiliaryNode(
-					fn(PrintContext $context, ExpressionNode $name) => '$this->hasBlock(' . $name->print($context) . ')',
+					fn(PrintContext $context, ExpressionNode $name) => '$this->hasBlock(' . $context->ensureString($name, 'Block name') . ')',
 					[$name],
 				)
 				: new Expression\IssetNode([$name]);

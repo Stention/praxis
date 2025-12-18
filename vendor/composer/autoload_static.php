@@ -11,9 +11,22 @@ class ComposerStaticInitbaffb8a8445739b6af190f33738c6458
     );
 
     public static $prefixLengthsPsr4 = array (
+        'T' => 
+        array (
+            'Tracy\\' => 6,
+            'Tester\\' => 7,
+        ),
         'S' => 
         array (
             'Symfony\\Thanks\\' => 15,
+        ),
+        'N' => 
+        array (
+            'Nette\\' => 6,
+        ),
+        'L' => 
+        array (
+            'Latte\\' => 6,
         ),
         'A' => 
         array (
@@ -22,9 +35,40 @@ class ComposerStaticInitbaffb8a8445739b6af190f33738c6458
     );
 
     public static $prefixDirsPsr4 = array (
+        'Tracy\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/tracy/tracy/src',
+        ),
+        'Tester\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/nette/tester/src',
+        ),
         'Symfony\\Thanks\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/thanks/src',
+        ),
+        'Nette\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/nette/security/src',
+            1 => __DIR__ . '/..' . '/nette/mail/src',
+            2 => __DIR__ . '/..' . '/nette/forms/src',
+            3 => __DIR__ . '/..' . '/nette/database/src',
+            4 => __DIR__ . '/..' . '/nette/bootstrap/src',
+            5 => __DIR__ . '/..' . '/nette/application/src',
+            6 => __DIR__ . '/..' . '/nette/routing/src',
+            7 => __DIR__ . '/..' . '/nette/di/src',
+            8 => __DIR__ . '/..' . '/nette/caching/src',
+            9 => __DIR__ . '/..' . '/nette/schema/src',
+            10 => __DIR__ . '/..' . '/nette/robot-loader/src',
+            11 => __DIR__ . '/..' . '/nette/php-generator/src',
+            12 => __DIR__ . '/..' . '/nette/neon/src',
+            13 => __DIR__ . '/..' . '/nette/component-model/src',
+            14 => __DIR__ . '/..' . '/nette/http/src',
+            15 => __DIR__ . '/..' . '/nette/utils/src',
+        ),
+        'Latte\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/latte/latte/src/Latte',
         ),
         'App\\' => 
         array (
@@ -39,6 +83,7 @@ class ComposerStaticInitbaffb8a8445739b6af190f33738c6458
         'Latte\\Bridges\\Tracy\\BlueScreenPanel' => __DIR__ . '/..' . '/latte/latte/src/Bridges/Tracy/BlueScreenPanel.php',
         'Latte\\Bridges\\Tracy\\LattePanel' => __DIR__ . '/..' . '/latte/latte/src/Bridges/Tracy/LattePanel.php',
         'Latte\\Bridges\\Tracy\\TracyExtension' => __DIR__ . '/..' . '/latte/latte/src/Bridges/Tracy/TracyExtension.php',
+        'Latte\\Cache' => __DIR__ . '/..' . '/latte/latte/src/Latte/Cache.php',
         'Latte\\CompileException' => __DIR__ . '/..' . '/latte/latte/src/Latte/exceptions.php',
         'Latte\\Compiler\\Block' => __DIR__ . '/..' . '/latte/latte/src/Latte/Compiler/Block.php',
         'Latte\\Compiler\\Escaper' => __DIR__ . '/..' . '/latte/latte/src/Latte/Compiler/Escaper.php',
@@ -117,6 +162,7 @@ class ComposerStaticInitbaffb8a8445739b6af190f33738c6458
         'Latte\\Compiler\\Nodes\\Php\\SuperiorTypeNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Compiler/Nodes/Php/SuperiorTypeNode.php',
         'Latte\\Compiler\\Nodes\\Php\\UnionTypeNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Compiler/Nodes/Php/UnionTypeNode.php',
         'Latte\\Compiler\\Nodes\\Php\\VarLikeIdentifierNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Compiler/Nodes/Php/VarLikeIdentifierNode.php',
+        'Latte\\Compiler\\Nodes\\PrintNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Compiler/Nodes/PrintNode.php',
         'Latte\\Compiler\\Nodes\\StatementNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Compiler/Nodes/StatementNode.php',
         'Latte\\Compiler\\Nodes\\TemplateNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Compiler/Nodes/TemplateNode.php',
         'Latte\\Compiler\\Nodes\\TextNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Compiler/Nodes/TextNode.php',
@@ -165,7 +211,6 @@ class ComposerStaticInitbaffb8a8445739b6af190f33738c6458
         'Latte\\Essential\\Nodes\\NElseNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Essential/Nodes/NElseNode.php',
         'Latte\\Essential\\Nodes\\NTagNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Essential/Nodes/NTagNode.php',
         'Latte\\Essential\\Nodes\\ParametersNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Essential/Nodes/ParametersNode.php',
-        'Latte\\Essential\\Nodes\\PrintNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Essential/Nodes/PrintNode.php',
         'Latte\\Essential\\Nodes\\RawPhpNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Essential/Nodes/RawPhpNode.php',
         'Latte\\Essential\\Nodes\\RollbackNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Essential/Nodes/RollbackNode.php',
         'Latte\\Essential\\Nodes\\SpacelessNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Essential/Nodes/SpacelessNode.php',
@@ -198,9 +243,12 @@ class ComposerStaticInitbaffb8a8445739b6af190f33738c6458
         'Latte\\Runtime\\FilterInfo' => __DIR__ . '/..' . '/latte/latte/src/Latte/Runtime/FilterInfo.php',
         'Latte\\Runtime\\Filters' => __DIR__ . '/..' . '/latte/latte/src/Latte/Runtime/Filters.php',
         'Latte\\Runtime\\FunctionExecutor' => __DIR__ . '/..' . '/latte/latte/src/Latte/Runtime/FunctionExecutor.php',
+        'Latte\\Runtime\\Helpers' => __DIR__ . '/..' . '/latte/latte/src/Latte/Runtime/Helpers.php',
         'Latte\\Runtime\\Html' => __DIR__ . '/..' . '/latte/latte/src/Latte/Runtime/Html.php',
+        'Latte\\Runtime\\HtmlHelpers' => __DIR__ . '/..' . '/latte/latte/src/Latte/Runtime/HtmlHelpers.php',
         'Latte\\Runtime\\HtmlStringable' => __DIR__ . '/..' . '/latte/latte/src/Latte/Runtime/HtmlStringable.php',
         'Latte\\Runtime\\Template' => __DIR__ . '/..' . '/latte/latte/src/Latte/Runtime/Template.php',
+        'Latte\\Runtime\\XmlHelpers' => __DIR__ . '/..' . '/latte/latte/src/Latte/Runtime/XmlHelpers.php',
         'Latte\\Sandbox\\Nodes\\FunctionCallNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Sandbox/Nodes/FunctionCallNode.php',
         'Latte\\Sandbox\\Nodes\\FunctionCallableNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Sandbox/Nodes/FunctionCallableNode.php',
         'Latte\\Sandbox\\Nodes\\MethodCallNode' => __DIR__ . '/..' . '/latte/latte/src/Latte/Sandbox/Nodes/MethodCallNode.php',
@@ -214,6 +262,7 @@ class ComposerStaticInitbaffb8a8445739b6af190f33738c6458
         'Latte\\Sandbox\\SandboxExtension' => __DIR__ . '/..' . '/latte/latte/src/Latte/Sandbox/SandboxExtension.php',
         'Latte\\Sandbox\\SecurityPolicy' => __DIR__ . '/..' . '/latte/latte/src/Latte/Sandbox/SecurityPolicy.php',
         'Latte\\SecurityViolationException' => __DIR__ . '/..' . '/latte/latte/src/Latte/exceptions.php',
+        'Latte\\TemplateNotFoundException' => __DIR__ . '/..' . '/latte/latte/src/Latte/exceptions.php',
         'Latte\\Tools\\Linter' => __DIR__ . '/..' . '/latte/latte/src/Tools/Linter.php',
         'NetteModule\\ErrorPresenter' => __DIR__ . '/..' . '/nette/application/src/Application/ErrorPresenter.php',
         'NetteModule\\MicroPresenter' => __DIR__ . '/..' . '/nette/application/src/Application/MicroPresenter.php',
@@ -286,6 +335,7 @@ class ComposerStaticInitbaffb8a8445739b6af190f33738c6458
         'Nette\\Bridges\\ApplicationLatte\\LatteFactory' => __DIR__ . '/..' . '/nette/application/src/Bridges/ApplicationLatte/LatteFactory.php',
         'Nette\\Bridges\\ApplicationLatte\\Nodes\\ControlNode' => __DIR__ . '/..' . '/nette/application/src/Bridges/ApplicationLatte/Nodes/ControlNode.php',
         'Nette\\Bridges\\ApplicationLatte\\Nodes\\IfCurrentNode' => __DIR__ . '/..' . '/nette/application/src/Bridges/ApplicationLatte/Nodes/IfCurrentNode.php',
+        'Nette\\Bridges\\ApplicationLatte\\Nodes\\LinkBaseNode' => __DIR__ . '/..' . '/nette/application/src/Bridges/ApplicationLatte/Nodes/LinkBaseNode.php',
         'Nette\\Bridges\\ApplicationLatte\\Nodes\\LinkNode' => __DIR__ . '/..' . '/nette/application/src/Bridges/ApplicationLatte/Nodes/LinkNode.php',
         'Nette\\Bridges\\ApplicationLatte\\Nodes\\NNonceNode' => __DIR__ . '/..' . '/nette/application/src/Bridges/ApplicationLatte/Nodes/NNonceNode.php',
         'Nette\\Bridges\\ApplicationLatte\\Nodes\\SnippetAreaNode' => __DIR__ . '/..' . '/nette/application/src/Bridges/ApplicationLatte/Nodes/SnippetAreaNode.php',
@@ -301,7 +351,6 @@ class ComposerStaticInitbaffb8a8445739b6af190f33738c6458
         'Nette\\Bridges\\ApplicationTracy\\RoutingPanel' => __DIR__ . '/..' . '/nette/application/src/Bridges/ApplicationTracy/RoutingPanel.php',
         'Nette\\Bridges\\CacheDI\\CacheExtension' => __DIR__ . '/..' . '/nette/caching/src/Bridges/CacheDI/CacheExtension.php',
         'Nette\\Bridges\\CacheLatte\\CacheExtension' => __DIR__ . '/..' . '/nette/caching/src/Bridges/CacheLatte/CacheExtension.php',
-        'Nette\\Bridges\\CacheLatte\\CacheMacro' => __DIR__ . '/..' . '/nette/caching/src/Bridges/CacheLatte/CacheMacro.php',
         'Nette\\Bridges\\CacheLatte\\Nodes\\CacheNode' => __DIR__ . '/..' . '/nette/caching/src/Bridges/CacheLatte/Nodes/CacheNode.php',
         'Nette\\Bridges\\CacheLatte\\Runtime' => __DIR__ . '/..' . '/nette/caching/src/Bridges/CacheLatte/Runtime.php',
         'Nette\\Bridges\\DITracy\\ContainerPanel' => __DIR__ . '/..' . '/nette/di/src/Bridges/DITracy/ContainerPanel.php',
@@ -656,6 +705,7 @@ class ComposerStaticInitbaffb8a8445739b6af190f33738c6458
         'Tester\\FileMock' => __DIR__ . '/..' . '/nette/tester/src/Framework/FileMock.php',
         'Tester\\FileMutator' => __DIR__ . '/..' . '/nette/tester/src/Framework/FileMutator.php',
         'Tester\\Helpers' => __DIR__ . '/..' . '/nette/tester/src/Framework/Helpers.php',
+        'Tester\\HttpAssert' => __DIR__ . '/..' . '/nette/tester/src/Framework/HttpAssert.php',
         'Tester\\Runner\\CliTester' => __DIR__ . '/..' . '/nette/tester/src/Runner/CliTester.php',
         'Tester\\Runner\\CommandLine' => __DIR__ . '/..' . '/nette/tester/src/Runner/CommandLine.php',
         'Tester\\Runner\\InterruptException' => __DIR__ . '/..' . '/nette/tester/src/Runner/exceptions.php',

@@ -12,6 +12,7 @@ namespace Nette\Database;
 use JetBrains\PhpStorm\Language;
 use Nette;
 use Nette\Database\Conventions\StaticConventions;
+use function class_exists;
 
 
 /**
@@ -81,6 +82,7 @@ class Explorer
 
 	/**
 	 * Returns table selection.
+	 * @return Table\Selection<Table\ActiveRow>
 	 */
 	public function table(string $table): Table\Selection
 	{

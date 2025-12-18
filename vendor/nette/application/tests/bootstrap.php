@@ -13,6 +13,7 @@ if (@!include __DIR__ . '/../vendor/autoload.php') {
 
 // configure environment
 Tester\Environment::setup();
+Tester\Environment::setupFunctions();
 date_default_timezone_set('Europe/Prague');
 Mockery::setLoader(new Mockery\Loader\RequireLoader(getTempDir()));
 
@@ -27,9 +28,9 @@ function getTempDir(): string
 {
 	$dir = __DIR__ . '/tmp/' . getmypid();
 
-	if (empty($GLOBALS['\\lock'])) {
+	if (empty($GLOBALS['\lock'])) {
 		// garbage collector
-		$GLOBALS['\\lock'] = $lock = fopen(__DIR__ . '/lock', 'w');
+		$GLOBALS['\lock'] = $lock = fopen(__DIR__ . '/lock', 'w');
 		if (rand(0, 100)) {
 			flock($lock, LOCK_SH);
 			@mkdir(dirname($dir));
@@ -44,11 +45,9 @@ function getTempDir(): string
 }
 
 
-function test(string $title, Closure $function): void
-{
-	$function();
+tearDown(function () {
 	Mockery::close();
-}
+});
 
 
 class Notes

@@ -6,6 +6,10 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Tracy\\' => array($vendorDir . '/tracy/tracy/src'),
+    'Tester\\' => array($vendorDir . '/nette/tester/src'),
     'Symfony\\Thanks\\' => array($vendorDir . '/symfony/thanks/src'),
+    'Nette\\' => array($vendorDir . '/nette/security/src', $vendorDir . '/nette/mail/src', $vendorDir . '/nette/forms/src', $vendorDir . '/nette/database/src', $vendorDir . '/nette/bootstrap/src', $vendorDir . '/nette/application/src', $vendorDir . '/nette/routing/src', $vendorDir . '/nette/di/src', $vendorDir . '/nette/caching/src', $vendorDir . '/nette/schema/src', $vendorDir . '/nette/robot-loader/src', $vendorDir . '/nette/php-generator/src', $vendorDir . '/nette/neon/src', $vendorDir . '/nette/component-model/src', $vendorDir . '/nette/http/src', $vendorDir . '/nette/utils/src'),
+    'Latte\\' => array($vendorDir . '/latte/latte/src/Latte'),
     'App\\' => array($baseDir . '/app'),
 );

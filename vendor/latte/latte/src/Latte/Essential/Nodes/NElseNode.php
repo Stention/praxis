@@ -17,6 +17,7 @@ use Latte\Compiler\Nodes\StatementNode;
 use Latte\Compiler\NodeTraverser;
 use Latte\Compiler\PrintContext;
 use Latte\Compiler\Tag;
+use function array_splice, count, trim;
 
 
 /**
@@ -60,7 +61,7 @@ final class NElseNode extends StatementNode
 
 					array_splice($node->children, $i, 1);
 					$prev = $node->children[--$i] ?? null;
-					if ($prev instanceof Nodes\TextNode && trim($prev->content) === '') {
+					while ($prev instanceof Nodes\TextNode && trim($prev->content) === '') {
 						array_splice($node->children, $i, 1);
 						$prev = $node->children[--$i] ?? null;
 					}

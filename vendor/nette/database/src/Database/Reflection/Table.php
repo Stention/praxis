@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Nette\Database\Reflection;
 
 use Nette\Database\Reflection;
+use function array_filter, array_map, array_values, is_string;
 
 
 /**
@@ -34,6 +35,7 @@ final class Table
 		public readonly string $name,
 		public readonly bool $view = false,
 		public readonly ?string $fullName = null,
+		public readonly ?string $comment = null,
 	) {
 		unset($this->columns, $this->indexes, $this->primaryKey, $this->foreignKeys);
 	}
@@ -53,7 +55,7 @@ final class Table
 	{
 		$res = [];
 		foreach ($this->reflection->getDriver()->getColumns($this->name) as $row) {
-			$res[$row['name']] = new Column($row['name'], $this, $row['nativetype'], $row['size'], $row['nullable'], $row['default'], $row['autoincrement'], $row['primary'], $row['vendor']);
+			$res[$row['name']] = new Column($row['name'], $this, $row['nativetype'], $row['size'], $row['nullable'], $row['default'], $row['autoincrement'], $row['primary'], $row['comment'] ?? null, $row['vendor']);
 		}
 		$this->columns = $res;
 	}

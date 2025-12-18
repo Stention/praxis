@@ -2,7 +2,7 @@
 {import '@holidayInfoBar.latte'}
 {import '@footer.latte'}
 {varType bool $cookiesAccepted}
-{varType string $language}
+{varType string $locale}
 
 <!DOCTYPE html>
 <html lang="cs">
@@ -35,6 +35,11 @@
 	<link href="{$basePath}/utils/cookie_consent/cookieconsent-3.1.0/dist/cookieconsent.css" rel="stylesheet">
 	<link href="{$basePath}/css/style.css" rel="stylesheet">
 
+	<link rel="canonical" href="{$baseUrl}{if $locale === 'en'}/en{/}/{$presenter->getName()|lower}/" />
+	<link rel="alternate" hreflang="cs" href="{$baseUrl}/{$presenter->getName()|lower}/" />
+	<link rel="alternate" hreflang="en" href="{$baseUrl}/en/{$presenter->getName()|lower}/" />
+	<link rel="alternate" hreflang="x-default" href="{$baseUrl}/" />
+
 	<meta http-equiv="refresh" content="900">
 </head>
 
@@ -62,9 +67,9 @@
 
 <!-- CZ -->
 <!-- Navbar Start -->
-{if $language === 'cz'}
+{if $locale === 'cs'}
 	<nav class="navbar navbar-expand-lg bg-white navbar-light shadow-sm px-5 py-3 py-lg-0">
-		<a n:href="Home:default" class="navbar-brand p-0">
+		<a n:href="Home:default, locale: $locale" class="navbar-brand p-0">
 			<h1 class="m-0 text-primary-private"><i class="fa fa-tooth me-2"></i>{$praxisName}</h1>
 		</a>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -72,14 +77,14 @@
 		</button>
 		<div class="collapse navbar-collapse" id="navbarCollapse">
 			<div class="navbar-nav ms-auto py-0">
-				<a n:href="Home:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Home'}active{/if}">O nás</a>
-				<a n:href="Services:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Services'}active{/if}">Naše služby</a>
-				<a n:href="Prices:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Prices'}active{/if}">Ceník</a>
-				<a n:href="Insurance:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Insurance'}active{/if}">Zdravotní pojišťovny</a>
-				<a n:href="ChildStomatology:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'ChildStomatology'}active{/if}">Dětská stomatologie</a>
-				<a n:href="Certificates:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Certificates'}active {/if}">Diplomy a certifikáty</a>
+				<a n:href="Home:default, locale: $locale" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Home'}active{/if}">O nás</a>
+				<a n:href="Services:default, locale: $locale" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Services'}active{/if}">Naše služby</a>
+				<a n:href="Prices:default, locale: $locale" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Prices'}active{/if}">Ceník</a>
+				<a n:href="Insurance:default, locale: $locale" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Insurance'}active{/if}">Zdravotní pojišťovny</a>
+				<a n:href="ChildStomatology:default, locale: $locale" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'ChildStomatology'}active{/if}">Dětská stomatologie</a>
+				<a n:href="Certificates:default, locale: $locale" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Certificates'}active {/if}">Diplomy a certifikáty</a>
 			</div>
-			<a n:href="{$presenter->getName()}:default, language: 'en'" style="border: 2px solid black; border-radius: 70%; padding: 5px; display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; text-decoration: none; margin-left: 30px; overflow: hidden;">
+			<a n:href="{$presenter->getName()}:default, locale: 'en'" style="border: 2px solid black; border-radius: 70%; padding: 5px; display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; text-decoration: none; margin-left: 30px; overflow: hidden;">
 				<img src="{$basePath}/img/flag_uk.jpg" style="width: 65px; height: 65px; object-fit: cover;">
 			</a>
 		</div>
@@ -87,9 +92,15 @@
 	<div class="bg-primary-private d-flex align-items-center justify-content-center">
 		<h1 class="m-2 text-white text-center w-100">Aktuálně přijímáme nové pacienty</h1>
 	</div>
+{*	<div class="bg-white d-flex align-items-center justify-content-center">*}
+{*		<h1 class="m-3 text-primary-private text-center w-100 fw-bold" style="font-size: 2.2rem;">*}
+{*			Z důvodu nemoci neordinujeme. Všem pacientům se omlouváme, <br>*}
+{*			budeme vás kontaktovat s novými termíny co nejdříve po návratu do ordinace.*}
+{*		</h1>*}
+{*	</div>*}
 {else}
 	<nav class="navbar navbar-expand-lg bg-white navbar-light shadow-sm px-5 py-3 py-lg-0">
-		<a n:href="Home:default" class="navbar-brand p-0">
+		<a n:href="Home:default, locale: $locale" class="navbar-brand p-0">
 			<h1 class="m-0 text-primary-private"><i class="fa fa-tooth me-2"></i>{$praxisName}</h1>
 		</a>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -97,14 +108,14 @@
 		</button>
 		<div class="collapse navbar-collapse" id="navbarCollapse">
 			<div class="navbar-nav ms-auto py-0">
-				<a n:href="Home:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Home'}active{/if}">About Us</a>
-				<a n:href="Services:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Services'}active{/if}">Our Services</a>
-				<a n:href="Prices:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Prices'}active{/if}">Pricing</a>
-				<a n:href="Insurance:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Insurance'}active{/if}">Insurance companies</a>
-				<a n:href="ChildStomatology:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'ChildStomatology'}active{/if}">Children stomatology</a>
-				<a n:href="Certificates:default, language: $language" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Certificates'}active{/if}">Diploms and certificates</a>
+				<a n:href="Home:default, locale: $locale" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Home'}active{/if}">About Us</a>
+				<a n:href="Services:default, locale: $locale" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Services'}active{/if}">Our Services</a>
+				<a n:href="Prices:default, locale: $locale" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Prices'}active{/if}">Pricing</a>
+				<a n:href="Insurance:default, locale: $locale" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Insurance'}active{/if}">Insurance companies</a>
+				<a n:href="ChildStomatology:default, locale: $locale" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'ChildStomatology'}active{/if}">Children stomatology</a>
+				<a n:href="Certificates:default, locale: $locale" class="nav-item nav-link {if $presenter->getPresenter()->getName() === 'Certificates'}active{/if}">Diploms and certificates</a>
 			</div>
-			<a n:href="{$presenter->getName()}:default, language: 'cz'" style="border: 2px solid black; border-radius: 70%; padding: 5px; display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; text-decoration: none; margin-left: 30px; overflow: hidden;">
+			<a n:href="{$presenter->getName()}:default, locale: 'cs'" style="border: 2px solid black; border-radius: 70%; padding: 5px; display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; text-decoration: none; margin-left: 30px; overflow: hidden;">
 				<img src="{$basePath}/img/flag_cz.jpg" style="width: 65px; height: 65px; object-fit: cover;">
 			</a>
 		</div>
@@ -112,6 +123,12 @@
 	<div class="bg-primary-private d-flex align-items-center justify-content-center">
 		<h1 class="m-2 text-white text-center w-100">We are currently accepting new clients.</h1>
 	</div>
+{*	<div class="bg-white d-flex align-items-center justify-content-center">*}
+{*		<h1 class="m-3 text-primary-private text-center w-100 fw-bold" style="font-size: 2.2rem;">*}
+{*			Due to illness, we are currently not providing consultations. We apologize to all patients,<br>*}
+{*			and will contact you with new appointment dates as soon as possible after returning to the clinic.*}
+{*		</h1>*}
+{*	</div>*}
 {/if}
 	<!-- Navbar End -->
 

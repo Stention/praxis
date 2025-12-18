@@ -15,7 +15,13 @@ final class RouterFactory
 	public static function createRouter(): RouteList
 	{
 		$router = new RouteList;
-		$router->addRoute('<presenter>/<action>[/<id>]', 'Home:default');
+		//$router->addRoute('<presenter>/<action>[/<id>]', 'Home:default');
+		$router->addRoute('[<locale=cs cs|en>/]<presenter>/<action>[/<id>]', [
+			'presenter' => 'Home',
+			'action' => 'default',
+			'locale' => 'cs',
+		]);
+
 		return $router;
 	}
 }

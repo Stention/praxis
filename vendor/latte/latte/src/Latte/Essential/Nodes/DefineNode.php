@@ -20,7 +20,9 @@ use Latte\Compiler\PrintContext;
 use Latte\Compiler\Tag;
 use Latte\Compiler\TemplateParser;
 use Latte\Compiler\Token;
+use Latte\Helpers;
 use Latte\Runtime\Template;
+use function is_string;
 
 
 /**
@@ -112,8 +114,8 @@ class DefineNode extends StatementNode
 		$this->block->content = $this->content->print($context); // must be compiled after is added
 
 		return $context->format(
-			'$this->addBlock(%node, %dump, [[$this, %dump]], %dump);',
-			new AssignNode(new VariableNode('ʟ_nm'), $this->block->name),
+			'$this->addBlock(%raw, %dump, [[$this, %dump]], %dump);',
+			$context->ensureString($this->block->name, 'Block name'),
 			$context->getEscaper()->export(),
 			$this->block->method,
 			$this->block->layer,
@@ -127,6 +129,7 @@ class DefineNode extends StatementNode
 		foreach ($this->block->parameters as &$param) {
 			yield $param;
 		}
+		Helpers::removeNulls($this->block->parameters);
 
 		yield $this->content;
 	}

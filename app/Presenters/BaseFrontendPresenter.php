@@ -6,6 +6,8 @@ use Nette\Application\UI\Presenter;
 
 class BaseFrontendPresenter extends Presenter
 {
+	protected string $lang = 'cs';
+
 	const PRAXIS_NAME = 'Zubní Štěpánská';
 
 	const EMAIL = 'zubni.stepanska@seznam.cz';
@@ -17,6 +19,9 @@ class BaseFrontendPresenter extends Presenter
 	public function startup(): void
 	{
 		parent::startup();
+
+		$locale = $this->getParameter('locale');
+		$this->template->locale = $locale;
 
 		$this->setLayout('layout');
 

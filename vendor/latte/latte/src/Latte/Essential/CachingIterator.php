@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Latte\Essential;
 
+use function get_debug_type, is_array, max, method_exists, sprintf;
+
 
 /**
  * Smarter caching iterator.
@@ -34,7 +36,7 @@ class CachingIterator extends \CachingIterator implements \Countable
 	public function __construct(mixed $iterator, ?self $parent = null)
 	{
 		if (is_array($iterator) || $iterator instanceof \stdClass) {
-			$iterator = new \ArrayIterator($iterator);
+			$iterator = new \ArrayIterator((array) $iterator);
 
 		} elseif ($iterator instanceof \IteratorAggregate) {
 			do {

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Nette\Database\Table;
 
 use Nette;
+use function array_intersect_key, array_key_exists, array_keys, implode, is_array, iterator_to_array;
 
 
 /**
@@ -121,7 +122,7 @@ class ActiveRow implements \IteratorAggregate, IRow
 	 */
 	public function related(string $key, ?string $throughColumn = null): GroupedSelection
 	{
-		$groupedSelection = $this->table->getReferencingTable($key, $throughColumn, $this[$this->table->getPrimary()]);
+		$groupedSelection = $this->table->getReferencingTable($key, $throughColumn, $this->__get($this->table->getPrimary()));
 		if (!$groupedSelection) {
 			throw new Nette\MemberAccessException("No reference found for \${$this->table->getName()}->related($key).");
 		}
@@ -284,6 +285,7 @@ class ActiveRow implements \IteratorAggregate, IRow
 			$this->dataRefreshed = true;
 		}
 
+		$key ??= '';
 		return isset($this->data[$key]) || array_key_exists($key, $this->data);
 	}
 

@@ -16,6 +16,7 @@ use Latte\Compiler\Nodes\Php\Expression;
 use Latte\Compiler\Nodes\Php\ExpressionNode;
 use Latte\Compiler\Nodes\Php\NameNode;
 use Latte\Compiler\Nodes\Php\Scalar;
+use function count, is_int, ord, preg_match, preg_replace, preg_replace_callback, str_contains, strlen, strtolower, substr;
 
 
 /**
@@ -42,7 +43,7 @@ final class TagParser extends TagParserData
 
 	public function __construct(array $tokens)
 	{
-		$this->offsetDelta = $tokens[0]->position->offset ?? 0;
+		$this->offsetDelta = $tokens[0]->position->offset;
 		$tokens = $this->filterTokens($tokens);
 		$this->stream = new TokenStream(new \ArrayIterator($tokens));
 	}
@@ -107,7 +108,7 @@ final class TagParser extends TagParserData
 	{
 		$kind = [
 			Token::Php_Identifier, Token::Php_Constant, Token::Php_Ellipsis, Token::Php_Array, Token::Php_Integer,
-			Token::Php_NameFullyQualified, Token::Php_NameQualified, Token::Php_Null, Token::Php_False,
+			Token::Php_NameFullyQualified, Token::Php_NameQualified, Token::Php_Null, Token::Php_False, Token::Php_FilterPipe,
 			'(', ')', '<', '>', '[', ']', '|', '&', '{', '}', ':', ',', '=', '?',
 		];
 		$res = null;
@@ -359,7 +360,7 @@ final class TagParser extends TagParserData
 		$newParts = [];
 		foreach ($parts as $i => $part) {
 			if ($part instanceof Node\InterpolatedStringPartNode) {
-				$isLast = $i === \count($parts) - 1;
+				$isLast = $i === count($parts) - 1;
 				$part->value = $this->stripIndentation(
 					$part->value,
 					$indentation,
@@ -404,7 +405,7 @@ final class TagParser extends TagParserData
 		return preg_replace_callback(
 			$regex,
 			function ($matches) use ($indentation, $position) {
-				$indentLen = \strlen($indentation);
+				$indentLen = strlen($indentation);
 				$prefix = substr($matches[1], 0, $indentLen);
 				if (str_contains($prefix, $indentation[0] === ' ' ? "\t" : ' ')) {
 					throw new CompileException('Invalid indentation - tabs and spaces cannot be mixed', $position);
@@ -424,7 +425,7 @@ final class TagParser extends TagParserData
 
 	public function convertArrayToList(Expression\ArrayNode $array): Node\ListNode
 	{
-		$this->shortArrays->detach($array);
+		unset($this->shortArrays[$array]);
 		$items = [];
 		foreach ($array->items as $item) {
 			$value = $item->value;
@@ -433,7 +434,7 @@ final class TagParser extends TagParserData
 			}
 			$value = match (true) {
 				$value instanceof Expression\TemporaryNode => $value->value,
-				$value instanceof Expression\ArrayNode && $this->shortArrays->contains($value) => $this->convertArrayToList($value),
+				$value instanceof Expression\ArrayNode && isset($this->shortArrays[$value]) => $this->convertArrayToList($value),
 				default => $value,
 			};
 			$items[] = $value

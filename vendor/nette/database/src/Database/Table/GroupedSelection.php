@@ -12,6 +12,7 @@ namespace Nette\Database\Table;
 use Nette;
 use Nette\Database\Conventions;
 use Nette\Database\Explorer;
+use function array_keys, count, iterator_to_array, preg_match, reset;
 
 
 /**
@@ -80,6 +81,13 @@ class GroupedSelection extends Selection
 		}
 
 		return parent::order($columns, ...$params);
+	}
+
+
+	public function refreshData(): void
+	{
+		unset($this->refCache['referencing'][$this->getGeneralCacheKey()][$this->getSpecificCacheKey()]);
+		$this->data = $this->rows = null;
 	}
 
 

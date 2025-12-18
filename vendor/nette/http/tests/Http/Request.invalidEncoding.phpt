@@ -44,27 +44,27 @@ $_FILES = [
 	INVALID => [
 		'name' => 'readme.txt',
 		'type' => 'text/plain',
-		'tmp_name' => 'C:\\PHP\\temp\\php1D5B.tmp',
+		'tmp_name' => 'C:\PHP\temp\php1D5B.tmp',
 		'error' => 0,
 		'size' => 209,
 	],
 	CONTROL_CHARACTERS => [
 		'name' => 'readme.txt',
 		'type' => 'text/plain',
-		'tmp_name' => 'C:\\PHP\\temp\\php1D5B.tmp',
+		'tmp_name' => 'C:\PHP\temp\php1D5B.tmp',
 		'error' => 0,
 		'size' => 209,
 	],
 	'file1' => [
 		'name' => INVALID,
 		'type' => 'text/plain',
-		'tmp_name' => 'C:\\PHP\\temp\\php1D5B.tmp',
+		'tmp_name' => 'C:\PHP\temp\php1D5B.tmp',
 		'error' => 0,
 		'size' => 209,
 	],
 ];
 
-test('unfiltered data', function () {
+test('binary data preservation with invalid encoding', function () {
 	$factory = new Http\RequestFactory;
 	$factory->setBinary();
 	$request = $factory->fromGlobals();
@@ -93,7 +93,7 @@ test('unfiltered data', function () {
 });
 
 
-test('filtered data', function () {
+test('invalid encoding sanitization by default', function () {
 	$factory = new Http\RequestFactory;
 	$request = $factory->fromGlobals();
 

@@ -14,6 +14,8 @@ use Latte\Compiler\Nodes\Php\ArrayItemNode;
 use Latte\Compiler\Nodes\Php\ExpressionNode;
 use Latte\Compiler\Position;
 use Latte\Compiler\PrintContext;
+use Latte\Helpers;
+use const PHP_VERSION_ID;
 
 
 class ArrayNode extends ExpressionNode
@@ -41,9 +43,7 @@ class ArrayNode extends ExpressionNode
 			$res = '[';
 			$merge = false;
 			foreach ($this->items as $item) {
-				if ($item === null) {
-					$res .= ', ';
-				} elseif ($item->unpack) {
+				if ($item->unpack) {
 					$res .= '], ' . $item->value->print($context) . ', [';
 					$merge = true;
 				} else {
@@ -64,5 +64,6 @@ class ArrayNode extends ExpressionNode
 		foreach ($this->items as &$item) {
 			yield $item;
 		}
+		Helpers::removeNulls($this->items);
 	}
 }

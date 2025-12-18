@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Nette\Database;
 
 use Nette\Database\Reflection\Table;
+use function array_values;
 
 
 /**
@@ -84,7 +85,7 @@ final class Reflection
 	{
 		$res = [];
 		foreach ($this->driver->getTables() as $row) {
-			$res[$row['fullName'] ?? $row['name']] = new Table($this, $row['name'], $row['view'], $row['fullName'] ?? null);
+			$res[$row['fullName'] ?? $row['name']] = new Table($this, $row['name'], $row['view'], $row['fullName'] ?? null, $row['comment'] ?? null);
 		}
 		$this->tables = $res;
 	}

@@ -16,9 +16,9 @@ function getTempDir(): string
 {
 	$dir = __DIR__ . '/tmp/' . getmypid();
 
-	if (empty($GLOBALS['\\lock'])) {
+	if (empty($GLOBALS['\lock'])) {
 		// garbage collector
-		$GLOBALS['\\lock'] = $lock = fopen(__DIR__ . '/lock', 'w');
+		$GLOBALS['\lock'] = $lock = fopen(__DIR__ . '/lock', 'w');
 		if (rand(0, 100)) {
 			flock($lock, LOCK_SH);
 			@mkdir(dirname($dir));
@@ -62,7 +62,7 @@ function exportNode(Node $node): string
 {
 	$exporters = [
 		Position::class => function (Position $pos, Tracy\Dumper\Value $value) {
-			$value->value = $pos->line . ':' . $pos->column . ' (offset ' . $pos->offset . ')';
+			$value->value = $pos->line . ':' . $pos->column;
 		},
 	];
 	$dump = Dumper::toText($node, [Dumper::HASH => false, Dumper::DEPTH => 20, Dumper::OBJECT_EXPORTERS => $exporters]);

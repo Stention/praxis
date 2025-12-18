@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Nette\Database\Drivers;
 
 use Nette;
+use function addcslashes, array_values, in_array, preg_match, str_contains, strtoupper, strtr, substr;
 
 
 /**
@@ -127,6 +128,7 @@ class SqliteDriver implements Nette\Database\Driver
 			$tables[] = [
 				'name' => $row['name'],
 				'view' => (bool) $row['view'],
+				'comment' => null,
 			];
 		}
 
@@ -161,6 +163,7 @@ class SqliteDriver implements Nette\Database\Driver
 				'default' => $row['dflt_value'],
 				'autoincrement' => $createSql && preg_match($pattern, $createSql['sql']),
 				'primary' => $row['pk'] > 0,
+				'comment' => null,
 				'vendor' => (array) $row,
 			];
 		}

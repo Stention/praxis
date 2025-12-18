@@ -74,18 +74,31 @@ Assert::match(
 	<<<'XX'
 		%A%
 				$ʟ_tag[0] = '';
-				echo '<';
-				echo $ʟ_tmp = LR\Filters::safeTag(Latte\Essential\Nodes\NTagNode::check('div', 'h' . 1, false)) /* line 1 */;
+				$ʟ_tmp = LR\HtmlHelpers::validateTagChange('h' . 1, 'div');
 				$ʟ_tag[0] = '</' . $ʟ_tmp . '>' . $ʟ_tag[0];
+				echo '<', $ʟ_tmp /* line 1 */;
 				echo ' class="bar" ';
 				if (isset($id)) /* line 1 */ {
 					echo 'id="content"';
 				}
+
 				echo '>';
 				echo $ʟ_tag[0];
 		%A%
 		XX,
 	$latte->compile('<div class="bar" {ifset $id}id="content"{/ifset} n:tag="h . 1"></div>'),
+);
+
+
+Assert::match(
+	<<<'XX'
+		%A%
+				$ʟ_tmp = LR\HtmlHelpers::validateTagChange('b' . 'r', 'img');
+				echo '<', $ʟ_tmp /* line 1 */;
+				echo ' class="bar"></img>';
+		%A%
+		XX,
+	$latte->compile('<img class="bar" n:tag="b . r"></img>'),
 );
 
 
@@ -127,19 +140,19 @@ Assert::exception(
 Assert::exception(
 	fn() => $latte->renderToString('<div n:tag="\'SCRIPT\'"></div>'),
 	Latte\RuntimeException::class,
-	'Forbidden variable tag name <SCRIPT>',
+	'Forbidden: Cannot change element to <SCRIPT>',
 );
 
 
 Assert::exception(
 	fn() => $latte->renderToString('<div n:tag="style"></div>'),
 	Latte\RuntimeException::class,
-	'Forbidden variable tag name <style>',
+	'Forbidden: Cannot change element to <style>',
 );
 
 
 Assert::exception(
 	fn() => $latte->renderToString('<span n:tag="br"></span>'),
 	Latte\RuntimeException::class,
-	'Forbidden tag <span> change to <br>',
+	'Forbidden: Cannot change element to <br>',
 );

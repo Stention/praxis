@@ -12,18 +12,18 @@ use Tester\Assert;
 require __DIR__ . '/../bootstrap.php';
 
 
-test('', function () {
+test('direct content handling and missing template exception', function () {
 	$loader = new StringLoader;
 	Assert::same('content', $loader->getContent('content'));
 
 	Assert::exception(
 		fn() => $loader->getReferredName('inner', 'referrer'),
-		LogicException::class,
+		Latte\TemplateNotFoundException::class,
 		"Missing template 'inner'.",
 	);
 });
 
-test('', function () {
+test('predefined template retrieval and reference resolution', function () {
 	$loader = new StringLoader(['main' => 'maincontent', 'other' => 'othercontent']);
 	Assert::same('maincontent', $loader->getContent('main'));
 	Assert::same('othercontent', $loader->getContent('other'));
