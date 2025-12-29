@@ -35,7 +35,7 @@
 	<link href="{$basePath}/utils/cookie_consent/cookieconsent-3.1.0/dist/cookieconsent.css" rel="stylesheet">
 	<link href="{$basePath}/css/style.css" rel="stylesheet">
 
-	<link rel="canonical" href="{$baseUrl}{if $locale === 'en'}/en{/}/{$presenter->getName()|lower}/" />
+	<link rel="canonical" href="{$presenter->link('//this')}">
 	<link rel="alternate" hreflang="cs" href="{$baseUrl}/{$presenter->getName()|lower}/" />
 	<link rel="alternate" hreflang="en" href="{$baseUrl}/en/{$presenter->getName()|lower}/" />
 	<link rel="alternate" hreflang="x-default" href="{$baseUrl}/" />
@@ -154,7 +154,7 @@
 
 <script src="{$basePath}/utils/cookie_consent/cookieconsent-3.1.0/dist/cookieconsent.umd.js"></script>
 <script>
-	const language = {$language};
+	const language = {$locale};
 </script>
 <script type="module" src="{$basePath}/utils/cookie_consent/cookieconsent-config.js"></script>
 

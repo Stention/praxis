@@ -6,7 +6,6 @@ use Nette\Application\UI\Presenter;
 
 class BaseFrontendPresenter extends Presenter
 {
-	protected string $lang = 'cs';
 
 	const PRAXIS_NAME = 'Zubní Štěpánská';
 

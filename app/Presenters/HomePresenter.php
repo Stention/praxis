@@ -19,15 +19,16 @@ final class HomePresenter extends BaseFrontendPresenter
 		$this->setLayout('layout');
     }
 
-    public function actionDefault(string $language = 'cz'): void
+    public function actionDefault(): void
     {
-		$this->template->title = $language === 'cz' ?
+		$locale = $this->getParameter('locale');
+
+		$this->template->title = $locale === 'cs' ?
 			'MDDr. Eliška Kremlová - Zubní ordinace' :
 			'MDDr. Eliška Kremlová - Dental Clinic';
-		$this->template->metaDescription = $language === 'cz' ?
+		$this->template->metaDescription = $locale === 'cs' ?
 			'Stomatologická péče v příjemném prostředí v centru města' :
 			'Dental care in a pleasant environment in the city center';
-		$this->template->language = $language;
 
 		$this->template->clinicHours = self::CLINIC_HOURS;
     }

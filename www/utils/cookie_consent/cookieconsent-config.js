@@ -1,5 +1,5 @@
 const jsonPath = {};
-if (language === 'cz') {
+if (language === 'cs') {
     jsonPath[language]  = {
         "consentModal": {
             "title": "Nastavení soukromí",

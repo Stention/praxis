@@ -19,15 +19,16 @@ class PricesPresenter extends BaseFrontendPresenter
 		'konzultace' => 570,
 	];
 
-	public function actionDefault(string $language = 'cz'): void
+	public function actionDefault(): void
 	{
-		$this->template->title = $language === 'cz' ?
+		$locale = $this->getParameter('locale');
+
+		$this->template->title = $locale === 'cs' ?
 			'Ceník zubní péče - MDDr. Eliška Kremlová' :
 			'Dental Care Pricing - MDDr. Eliška Kremlová';
-		$this->template->metaDescription = $language === 'cz' ?
+		$this->template->metaDescription = $locale === 'cs' ?
 			'Orientační ceník zubních zákroků a ošetření. Přijímáme platby hotově i kartou. Podrobný ceník na vyžádání v ordinaci.' :
 			'Overview of dental procedure pricing. Payments accepted in cash or by card. Detailed price list available upon request at the clinic.';
-		$this->template->language = $language;
 
 		$this->template->priceList = self::PRICE_LIST;
 	}
