@@ -5,7 +5,7 @@
 {varType string $locale}
 
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="{if $locale === 'en'}en{else}cs{/if}">
 
 <head>
 	<meta charset="utf-8">
@@ -35,12 +35,11 @@
 	<link href="{$basePath}/utils/cookie_consent/cookieconsent-3.1.0/dist/cookieconsent.css" rel="stylesheet">
 	<link href="{$basePath}/css/style.css" rel="stylesheet">
 
-	<link rel="canonical" href="{$presenter->link('//this')}">
-	<link rel="alternate" hreflang="cs" href="{$baseUrl}/{$presenter->getName()|lower}/" />
-	<link rel="alternate" hreflang="en" href="{$baseUrl}/en/{$presenter->getName()|lower}/" />
-	<link rel="alternate" hreflang="x-default" href="{$baseUrl}/" />
+	<link rel="canonical" href="{$canonicalUrl}">
+	<link rel="alternate" hreflang="cs" href="{$hreflangCs}" />
+	<link rel="alternate" hreflang="en" href="{$hreflangEn}" />
+	<link rel="alternate" hreflang="x-default" href="{$hreflangCs}" />
 
-	<meta http-equiv="refresh" content="900">
 </head>
 
 <body>

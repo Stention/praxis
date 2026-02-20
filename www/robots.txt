@@ -1,5 +1,6 @@
 User-agent: *
 Disallow: /admin/
+Disallow: /*?language=
 Allow: /
 
 Sitemap: https://www.zubni-stepanska.cz/sitemap.xml
