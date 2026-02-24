@@ -63,11 +63,15 @@ class BaseFrontendPresenter extends Presenter
 		$language = $httpRequest->getQuery('language');
 
 		if ($language === 'en') {
-			$this->redirectPermanent('Home:default', ['locale' => 'en']);
+			$params = $this->getParameters();
+			$params['locale'] = 'en';
+			$this->redirectPermanent($this->getName() . ':' . $this->getAction(), $params);
 		}
 
 		if ($language === 'cs') {
-			$this->redirectPermanent('Home:default', ['locale' => 'cs']);
+			$params = $this->getParameters();
+			unset($params['locale']);
+			$this->redirectPermanent($this->getName() . ':' . $this->getAction(), $params);
 		}
 
 		$locale = $this->getParameter('locale') ?? 'cs';
