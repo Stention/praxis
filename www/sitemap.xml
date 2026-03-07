@@ -4,71 +4,64 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
-
 
 <url>
-  <loc>https://zubni-stepanska.cz/</loc>
+  <loc>https://www.zubni-stepanska.cz/</loc>
   <lastmod>2025-12-18T10:32:46+00:00</lastmod>
   <priority>1.00</priority>
 </url>
 <url>
-  <loc>https://zubni-stepanska.cz/services/</loc>
+  <loc>https://www.zubni-stepanska.cz/services/</loc>
   <lastmod>2025-12-18T10:32:46+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://zubni-stepanska.cz/prices/</loc>
+  <loc>https://www.zubni-stepanska.cz/prices/</loc>
   <lastmod>2025-12-18T10:32:46+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://zubni-stepanska.cz/insurance/</loc>
+  <loc>https://www.zubni-stepanska.cz/insurance/</loc>
   <lastmod>2025-12-18T10:32:46+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://zubni-stepanska.cz/child-stomatology/</loc>
+  <loc>https://www.zubni-stepanska.cz/child-stomatology/</loc>
   <lastmod>2025-12-18T10:32:46+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://zubni-stepanska.cz/certificates/</loc>
+  <loc>https://www.zubni-stepanska.cz/certificates/</loc>
   <lastmod>2025-12-18T10:32:46+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://zubni-stepanska.cz/en/</loc>
-  <lastmod>2025-12-18T10:32:46+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://zubni-stepanska.cz/files/gdpr.pdf</loc>
+  <loc>https://www.zubni-stepanska.cz/files/gdpr.pdf</loc>
   <lastmod>2025-09-12T19:40:25+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://zubni-stepanska.cz/en/services/</loc>
+  <loc>https://www.zubni-stepanska.cz/en/services/</loc>
   <lastmod>2025-12-18T10:32:46+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://zubni-stepanska.cz/en/prices/</loc>
+  <loc>https://www.zubni-stepanska.cz/en/prices/</loc>
   <lastmod>2025-12-18T10:32:46+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://zubni-stepanska.cz/en/insurance/</loc>
+  <loc>https://www.zubni-stepanska.cz/en/insurance/</loc>
   <lastmod>2025-12-18T10:32:46+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://zubni-stepanska.cz/en/child-stomatology/</loc>
+  <loc>https://www.zubni-stepanska.cz/en/child-stomatology/</loc>
   <lastmod>2025-12-18T10:32:46+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://zubni-stepanska.cz/en/certificates/</loc>
+  <loc>https://www.zubni-stepanska.cz/en/certificates/</loc>
   <lastmod>2025-12-18T10:32:46+00:00</lastmod>
   <priority>0.64</priority>
 </url>
