@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 // Different integer syntaxes
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -14,9 +12,6 @@ $test = <<<'XX'
 	0xCAFE_F00D,
 	0b0101_1111,
 	0137_041,
-
-	/* already a valid constant name */
-	_100,
 	XX;
 
 $node = parseCode($test);
@@ -28,7 +23,7 @@ Assert::same(
 
 __halt_compiler();
 Latte\Compiler\Nodes\Php\Expression\ArrayNode
-   items: array (6)
+   items: array (5)
    |  0 => Latte\Compiler\Nodes\Php\ArrayItemNode
    |  |  value: Latte\Compiler\Nodes\Php\Scalar\FloatNode
    |  |  |  value: 6.674083e-11
@@ -73,15 +68,4 @@ Latte\Compiler\Nodes\Php\Expression\ArrayNode
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 5:1
-   |  5 => Latte\Compiler\Nodes\Php\ArrayItemNode
-   |  |  value: Latte\Compiler\Nodes\Php\Expression\ConstantFetchNode
-   |  |  |  name: Latte\Compiler\Nodes\Php\NameNode
-   |  |  |  |  name: '_100'
-   |  |  |  |  kind: 1
-   |  |  |  |  position: 8:1
-   |  |  |  position: 8:1
-   |  |  key: null
-   |  |  byRef: false
-   |  |  unpack: false
-   |  |  position: 8:1
    position: 1:1

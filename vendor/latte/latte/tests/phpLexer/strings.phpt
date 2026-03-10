@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 // strings
-
-declare(strict_types=1);
 
 use Latte\Compiler\TagLexer;
 use Tester\Assert;
@@ -21,7 +19,6 @@ $test = <<<'XX'
 	"{$a::foo}"
 	"{$b->x }"
 	"{$b?->x}"
-	"{$b??->x}"
 
 	'{$a}'
 	'{ $a}'
@@ -102,16 +99,8 @@ __halt_compiler();
 #11:8  Php_Identifier  'x'
 #11:9  '}'
 #11:10 '\"'
-#11:11 Php_Whitespace  '\n'
-#12:1  '\"'
-#12:2  Php_CurlyOpen   '{'
-#12:3  Php_Variable    '$b'
-#12:5  Php_UndefinedsafeObjectOperator '??->'
-#12:9  Php_Identifier  'x'
-#12:10 '}'
-#12:11 '\"'
-#12:12 Php_Whitespace  '\n\n'
-#14:1  Php_ConstantEncapsedString ''{$a}''
-#14:7  Php_Whitespace  '\n'
-#15:1  Php_ConstantEncapsedString ''{ $a}''
-#15:8  End             ''
+#11:11 Php_Whitespace  '\n\n'
+#13:1  Php_ConstantEncapsedString ''{$a}''
+#13:7  Php_Whitespace  '\n'
+#14:1  Php_ConstantEncapsedString ''{ $a}''
+#14:8  End             ''

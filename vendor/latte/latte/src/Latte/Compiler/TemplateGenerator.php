@@ -1,17 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Latte\Compiler;
 
 use Latte\ContentType;
 use Latte\Engine;
-use function array_filter, compact, implode, is_int, preg_match, str_contains, str_replace, trim;
+use function array_filter, compact, implode, is_int, str_contains, str_replace, trim;
 
 
 /**
@@ -30,45 +28,29 @@ final class TemplateGenerator
 
 
 	/**
-	 * Compiles nodes to PHP file
+	 * Builds template class.
+	 * @param array<string, bool>  $features
 	 */
-	public function generate(
-		Nodes\TemplateNode $node,
-		string $className,
-		?string $templateName = null,
-		bool $strictMode = false,
-	): string
+	public function buildClass(Nodes\TemplateNode $node, array $features = []): void
 	{
-		$context = new PrintContext($node->contentType);
-		$code = $node->main->print($context);
-		$code = self::buildParams($code, [], '$ʟ_args', $context);
-		$this->addMethod('main', $code, 'array $ʟ_args');
+		$context = new PrintContext($node->contentType, $features);
+		$this->generateBase($node, $context);
+		$this->generateBlocks($context);
+	}
 
-		$head = (new NodeTraverser)->traverse($node->head, fn(Node $node) => $node instanceof Nodes\TextNode ? new Nodes\NopNode : $node);
-		$code = $head->print($context);
-		if ($code || $context->paramsExtraction) {
-			$code .= 'return get_defined_vars();';
-			$code = self::buildParams($code, $context->paramsExtraction, '$this->params', $context);
-			$this->addMethod('prepare', $code, '', 'array');
-		}
 
-		if ($node->contentType !== ContentType::Html) {
-			$this->addConstant('ContentType', $node->contentType);
-		}
-
-		if ($templateName !== null && !preg_match('#\n|\?#', $templateName)) {
-			$this->addConstant('Source', $templateName);
-		}
-
-		$this->generateBlocks($context->blocks, $context);
-
+	/**
+	 * Compiles to PHP file
+	 */
+	public function generateCode(string $className, ?string $templateName, bool $strictMode): string
+	{
 		$members = [];
 		foreach ($this->constants as $name => $value) {
-			$members[] = "\tpublic const $name = " . PhpHelpers::dump($value, true) . ';';
+			$members[] = "\tpublic const $name = " . PhpHelpers::dump($value, multiline: true) . ';';
 		}
 
 		foreach ($this->properties as $name => $value) {
-			$members[] = "\tpublic $$name = " . PhpHelpers::dump($value, true) . ';';
+			$members[] = "\tpublic $$name = " . PhpHelpers::dump($value, multiline: true) . ';';
 		}
 
 		foreach (array_filter($this->methods) as $name => $method) {
@@ -94,13 +76,38 @@ final class TemplateGenerator
 	}
 
 
-	/** @param  Block[]  $blocks */
-	private function generateBlocks(array $blocks, PrintContext $context): void
+	private function generateBase(Nodes\TemplateNode $node, PrintContext $context): void
+	{
+		$code = $node->main->print($context);
+		$code = self::buildParams($code, [], '$ʟ_args', $context);
+		$this->addMethod('main', $code, 'array $ʟ_args');
+
+		$head = (new NodeTraverser)->traverse(
+			$node->head,
+			fn(Node $node) => $node instanceof Nodes\TextNode ? new Nodes\NopNode : $node,
+		);
+		$code = $head?->print($context) ?? '';
+		if ($code || $context->paramsExtraction) {
+			$code .= 'return get_defined_vars();';
+			$code = self::buildParams($code, $context->paramsExtraction, '$this->params', $context);
+			$this->addMethod('prepare', $code, '', 'array');
+		}
+
+		if ($node->contentType !== ContentType::Html) {
+			$this->addConstant('ContentType', $node->contentType);
+		}
+	}
+
+
+	private function generateBlocks(PrintContext $context): void
 	{
 		$contentType = $context->getEscaper()->getContentType();
-		foreach ($blocks as $block) {
-			if (!$block->isDynamic()) {
-				$meta[$block->layer][$block->name->value] = $contentType === $block->escaping
+		foreach ($context->blocks as $block) {
+			$name = $block->name;
+			if (!$block->isDynamic()
+				&& ($name instanceof Nodes\Php\Scalar\StringNode || $name instanceof Nodes\Php\Scalar\IntegerNode)
+			) {
+				$meta[$block->layer][$name->value] = $contentType === $block->escaping
 					? $block->method
 					: [$block->method, $block->escaping];
 			}
@@ -126,6 +133,7 @@ final class TemplateGenerator
 	}
 
 
+	/** @param Nodes\Php\ParameterNode[] $params */
 	private function buildParams(string $body, array $params, string $cont, PrintContext $context): string
 	{
 		if (!str_contains($body, '$') && !str_contains($body, 'get_defined_vars()')) {

@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -15,8 +13,7 @@ class Test
 }
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 $latte->setPolicy((new Latte\Sandbox\SecurityPolicy)->allowTags(['=', 'do', 'var', 'parameters']));
 $latte->setSandboxMode();
 
@@ -81,7 +78,7 @@ Assert::exception(
 );
 
 Assert::exception(
-	fn() => $latte->renderToString('{=$obj??->error(123)}', ['obj' => new Test]),
+	fn() => @$latte->renderToString('{=$obj??->error(123)}', ['obj' => new Test]), // deprecated ??->
 	Latte\SecurityViolationException::class,
 	'Calling Test::error() is not allowed.',
 );
@@ -105,7 +102,7 @@ Assert::exception(
 );
 
 Assert::exception(
-	fn() => $latte->renderToString('{=$obj??->error}', ['obj' => new Test]),
+	fn() => @$latte->renderToString('{=$obj??->error}', ['obj' => new Test]), // deprecated ??->
 	Latte\SecurityViolationException::class,
 	"Access to 'error' property on a Test object is not allowed.",
 );

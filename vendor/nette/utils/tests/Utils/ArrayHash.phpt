@@ -117,7 +117,7 @@ test('recursive conversion transforms nested arrays into ArrayHash', function ()
 		'j' => 'Jack',
 		'children' => $list['children'],
 		'c' => 'Jim',
-	], iterator_to_array(new RecursiveIteratorIterator(new RecursiveArrayIterator($list), RecursiveIteratorIterator::SELF_FIRST)));
+	], @iterator_to_array(new RecursiveIteratorIterator(new RecursiveArrayIterator($list), RecursiveIteratorIterator::SELF_FIRST))); // ArrayIterator($object) is deprecated since PHP 8.5
 });
 
 
@@ -128,11 +128,7 @@ test('numeric key handling supports both integer and string offsets', function (
 		$keys[] = $key;
 	}
 
-	if (PHP_VERSION_ID < 70200) {
-		Assert::same(['0', '1'], $keys);
-	} else {
-		Assert::same([0, 1], $keys);
-	}
+	Assert::same([0, 1], $keys);
 
 	Assert::same(1, $row->{0});
 	Assert::same(1, $row->{'0'});
@@ -184,13 +180,13 @@ test('accessing undefined keys triggers a notice or warning', function () {
 	$row = new ArrayHash;
 	Assert::error(
 		fn() => $row->undef,
-		PHP_VERSION_ID < 80000 ? E_NOTICE : E_WARNING,
+		E_WARNING,
 		'Undefined property: Nette\Utils\ArrayHash::$undef',
 	);
 
 	Assert::error(
 		fn() => $row['undef'],
-		PHP_VERSION_ID < 80000 ? E_NOTICE : E_WARNING,
+		E_WARNING,
 		'Undefined property: Nette\Utils\ArrayHash::$undef',
 	);
 });

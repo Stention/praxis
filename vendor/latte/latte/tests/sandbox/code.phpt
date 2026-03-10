@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -8,8 +6,7 @@ require __DIR__ . '/../bootstrap.php';
 require __DIR__ . '/Policy.Logger.php';
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 $latte->setPolicy(new PolicyLogger);
 $latte->setSandboxMode();
 
@@ -113,7 +110,7 @@ $template = <<<'EOD'
 	{=$obj::CONST}
 	{=($obj::CONST)()}
 	{=$obj::CONST[0]()}
-	{=CONST[0]()}
+	{=\CONST[0]()}
 	-
 	EOD;
 
@@ -191,9 +188,7 @@ $template = <<<'EOD'
 	optional chaining
 
 	{=$obj?->prop}
-	{=$obj??->prop}
 	{=$obj?->bar()}
-	{=$obj??->bar()}
 	-
 	EOD;
 

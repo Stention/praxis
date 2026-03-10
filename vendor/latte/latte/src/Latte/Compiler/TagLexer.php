@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Latte\Compiler;
 
@@ -147,6 +145,7 @@ final class TagLexer
 			(?<Php_PowEqual>  \*\*=  )|
 			(?<Php_CoalesceEqual>  \?\?=  )|
 			(?<Php_Coalesce>  \?\?  )|
+			(?<Php_NullsafePipe>  \?\|  )|
 			(?<Php_BooleanOr>  \|\|  )|
 			(?<Php_BooleanAnd>  &&  )|
 			(?<Php_Pipe>  \|>  )|
@@ -210,7 +209,7 @@ final class TagLexer
 				|| isset($m[$type = 'Php_NullsafeObjectOperator'])
 				|| isset($m[$type = 'Php_UndefinedsafeObjectOperator'])
 			) {
-				$this->addToken(constant(Token::class . '::' . $type), $m[$type]);
+				$this->addToken(constant(Token::class . '::' . $type), $m[$type] ?? '');
 				if (isset($m['Php_Whitespace'])) {
 					$this->addToken(Token::Php_Whitespace, $m['Php_Whitespace']);
 				}
@@ -360,8 +359,8 @@ final class TagLexer
 					|| isset($m[$type = 'Php_NullsafeObjectOperator'])
 					|| isset($m[$type = 'Php_UndefinedsafeObjectOperator'])
 				) {
-					$this->addToken(constant(Token::class . '::' . $type), $m[$type]);
-					$this->addToken(Token::Php_Identifier, $m['Php_Identifier']);
+					$this->addToken(constant(Token::class . '::' . $type), $m[$type] ?? '');
+					$this->addToken(Token::Php_Identifier, $m['Php_Identifier'] ?? '');
 
 				} elseif (isset($m['offset'])) {
 					$this->addToken(null, '[');

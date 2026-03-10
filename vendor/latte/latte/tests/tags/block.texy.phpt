@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: Latte\Engine and Texy.
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -20,8 +18,7 @@ class MockTexy
 }
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 $latte->addFilter('texy', [new MockTexy, 'process']);
 
 $params['hello'] = '<i>Hello</i>';

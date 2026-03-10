@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Latte\Runtime\Html;
 use Tester\Assert;
@@ -8,8 +6,7 @@ use Tester\Assert;
 require __DIR__ . '/../bootstrap.php';
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 
 $template = <<<'EOD'
 	{$el}

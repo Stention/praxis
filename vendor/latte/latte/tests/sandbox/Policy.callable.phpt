@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -22,9 +20,8 @@ class MyClass
 }
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
-$latte->setTempDirectory(getTempDir());
+$latte = createLatte();
+$latte->setCacheDirectory(getTempDir());
 
 $policy = new PolicyLogger;
 $latte->setPolicy($policy);

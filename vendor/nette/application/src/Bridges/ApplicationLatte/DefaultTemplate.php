@@ -13,10 +13,7 @@ use Nette;
 
 
 /**
- * Default template for controls and presenters.
- *
- * @method bool isLinkCurrent(string $destination = null, ...$args)
- * @method bool isModuleCurrent(string $module)
+ * Default parameters of Latte templates for controls and presenters.
  */
 #[\AllowDynamicProperties]
 final class DefaultTemplate extends Template

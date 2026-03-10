@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Latte\Compiler\Nodes\Php\ArrayItemNode;
 use Latte\Compiler\Nodes\Php\Expression\ArrayNode;
@@ -56,8 +54,8 @@ test('%dump', function () {
 	);
 
 	Assert::same(
-		"test('hello', null)",
-		format('test(%dump, %dump?)', 'hello', null),
+		"test('hello')",
+		format('test(%dump, %dump?, %dump?)', 'hello', [], null),
 	);
 
 	Assert::match(
@@ -148,8 +146,8 @@ test('%line', function () {
 	);
 
 	Assert::same(
-		'test() /* line 1 */;',
-		format('test() %line;', new Position(1, 0)),
+		'test() /* pos 1:1 */;',
+		format('test() %line;', new Position(1, 1)),
 	);
 });
 
@@ -182,7 +180,7 @@ test('%modifyContent', function () {
 
 test('%escape', function () {
 	Assert::same(
-		'test1(LR\Filters::escapeHtmlText(test()), 123)',
+		'test1(LR\HtmlHelpers::escapeText(test()), 123)',
 		format('test1(%escape(test()), %dump)', 123),
 	);
 });

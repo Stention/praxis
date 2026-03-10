@@ -1,21 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Latte\Loaders;
 
 use Latte;
-use function array_pop, end, explode, file_get_contents, implode, is_file, preg_match, str_starts_with, strtr, time, touch;
+use function array_pop, end, explode, file_get_contents, implode, is_file, preg_match, str_starts_with, strtr;
 use const DIRECTORY_SEPARATOR;
 
 
 /**
- * Template loader.
+ * Loads templates from filesystem.
  */
 class FileLoader implements Latte\Loader
 {
@@ -39,20 +37,14 @@ class FileLoader implements Latte\Loader
 
 		} elseif (!is_file($file)) {
 			throw new Latte\TemplateNotFoundException("Missing template file '$file'.");
-
-		} elseif ($this->isExpired($fileName, time())) {
-			if (@touch($file) === false) {
-				trigger_error("File's modification time is in the future. Cannot update it: " . error_get_last()['message'], E_USER_WARNING);
-			}
 		}
 
-		return file_get_contents($file);
-	}
+		$content = file_get_contents($file);
+		if ($content === false) {
+			throw new Latte\RuntimeException("Unable to read file '$file'.");
+		}
 
-
-	public function isExpired(string $file, int $time): bool
-	{
-		return false;
+		return $content;
 	}
 
 

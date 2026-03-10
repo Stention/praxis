@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * n:tag
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -17,9 +15,9 @@ Assert::match(<<<'XX'
 		Fragment:
 			Element:
 				name: input
-				Auxiliary:
-				Variable:
-					name: var
+				Tag:
+					Variable:
+						name: var
 				Fragment:
 					Text:
 						content: ''

@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 /** @phpversion 8.4 */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -11,7 +9,6 @@ require __DIR__ . '/../bootstrap.php';
 
 class TemplateParamsWithHooks
 {
-	private $private = 'x';
 	public $public { get => $this->private; }
 
 	public $writeOnly {
@@ -19,12 +16,12 @@ class TemplateParamsWithHooks
 			$this->private = $value;
 		}
 	}
+	private $private = 'x';
 }
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
-$latte->setTempDirectory(getTempDir());
+$latte = createLatte();
+$latte->setCacheDirectory(getTempDir());
 
 Assert::same(
 	'x',

@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 // Error suppression
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -23,10 +21,11 @@ __halt_compiler();
 Latte\Compiler\Nodes\Php\Expression\ArrayNode
    items: array (1)
    |  0 => Latte\Compiler\Nodes\Php\ArrayItemNode
-   |  |  value: Latte\Compiler\Nodes\Php\Expression\ErrorSuppressNode
+   |  |  value: Latte\Compiler\Nodes\Php\Expression\UnaryOpNode
    |  |  |  expr: Latte\Compiler\Nodes\Php\Expression\VariableNode
    |  |  |  |  name: 'a'
    |  |  |  |  position: 1:2
+   |  |  |  operator: '@'
    |  |  |  position: 1:1
    |  |  key: null
    |  |  byRef: false

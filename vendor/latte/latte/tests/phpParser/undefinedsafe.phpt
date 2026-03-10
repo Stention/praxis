@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 // Undefined operator
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -16,7 +14,7 @@ $test = <<<'XX'
 	"$a??->b",
 	XX;
 
-$node = parseCode($test);
+$node = @parseCode($test); // deprecated
 
 Assert::same(
 	loadContent(__FILE__, __COMPILER_HALT_OFFSET__),

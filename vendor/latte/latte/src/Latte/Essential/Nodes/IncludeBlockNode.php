@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Latte\Essential\Nodes;
 
@@ -21,11 +19,10 @@ use Latte\Compiler\PrintContext;
 use Latte\Compiler\Tag;
 use Latte\Compiler\TemplateParser;
 use Latte\Runtime\Template;
-use function count;
 
 
 /**
- * {include [block] name [from file] [, args]}
+ * {include #name|parent|this [from 'file.latte']}
  */
 class IncludeBlockNode extends StatementNode
 {
@@ -58,7 +55,6 @@ class IncludeBlockNode extends StatementNode
 		$stream->tryConsume(',');
 		$node->args = $tag->parser->parseArguments();
 		$node->modifier = $tag->parser->parseModifier();
-		$node->modifier->escape = (bool) $node->modifier->filters;
 
 		$node->parent = $tokenName->is('parent');
 		if ($node->parent && $node->modifier->filters) {
@@ -67,15 +63,18 @@ class IncludeBlockNode extends StatementNode
 		} elseif ($node->parent || $tokenName->is('this')) {
 			$item = $tag->closestTag(
 				[BlockNode::class, DefineNode::class],
-				fn($item) => $item->node?->block && !$item->node->block->isDynamic() && $item->node->block->name !== '',
+				fn($item) => ($item->node instanceof BlockNode || $item->node instanceof DefineNode)
+					&& $item->node->block && !$item->node->block->isDynamic(),
 			);
-			if (!$item) {
+			if (!$item || !($item->node instanceof BlockNode || $item->node instanceof DefineNode)) {
 				throw new CompileException("Cannot include $tokenName->text block outside of any block.", $tag->position);
 			}
 
+			assert($item->node->block !== null);
 			$node->name = $item->node->block->name;
 		}
 
+		$node->modifier->escape = !$node->modifier->removeFilter('noescape') && !$node->parent;
 		$node->blocks = &$parser->blocks;
 		$node->layer = $parser->blockLayer;
 		return $node;
@@ -84,13 +83,12 @@ class IncludeBlockNode extends StatementNode
 
 	public function print(PrintContext $context): string
 	{
-		$noEscape = $this->modifier->hasFilter('noescape');
-		$contentFilter = count($this->modifier->filters) > (int) $noEscape
+		$contentFilter = $this->modifier->filters
 			? $context->format(
 				'function ($s, $type) { $ʟ_fi = new LR\FilterInfo($type); return %modifyContent($s); }',
 				$this->modifier,
 			)
-			: ($noEscape || $this->parent ? '' : PhpHelpers::dump($context->getEscaper()->export()));
+			: ($this->modifier->escape ? PhpHelpers::dump($context->getEscaper()->export()) : '');
 
 		return $this->from
 			? $this->printBlockFrom($context, $contentFilter)
@@ -102,7 +100,7 @@ class IncludeBlockNode extends StatementNode
 	{
 		if ($this->name instanceof Scalar\StringNode || $this->name instanceof Scalar\IntegerNode) {
 			$staticName = (string) $this->name->value;
-			$block = $this->blocks[$this->layer][$staticName] ?? $this->blocks[Template::LayerLocal][$staticName] ?? null;
+			$block = ($this->layer !== null ? $this->blocks[$this->layer][$staticName] ?? null : null) ?? $this->blocks[Template::LayerLocal][$staticName] ?? null;
 		}
 
 		return $context->format(
@@ -120,6 +118,7 @@ class IncludeBlockNode extends StatementNode
 
 	private function printBlockFrom(PrintContext $context, string $contentFilter): string
 	{
+		assert($this->from !== null);
 		return $context->format(
 			'$this->createTemplate(%raw, %node? + $this->params, "include")->renderToContentType(%raw, %raw) %line;',
 			$context->ensureString($this->from, 'Template name'),

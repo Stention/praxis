@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Nette\PhpGenerator\Method;
 require __DIR__ . '/../bootstrap.php';
@@ -9,7 +7,7 @@ require __DIR__ . '/../bootstrap.php';
 $method = (new Method('create'))
 	->setBody('return null;');
 
-for ($name = 'a'; $name < 'm'; $name++) {
+for ($name = 'a'; $name < 'm'; PHP_VERSION_ID < 80300 ? $name++ : $name = str_increment($name)) {
 	$method->addParameter($name)->setType('string');
 }
 

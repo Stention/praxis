@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Latte\Loaders;
 
@@ -17,16 +15,10 @@ use Latte;
  */
 class StringLoader implements Latte\Loader
 {
-	/** @var string[]|null  [name => content] */
-	private ?array $templates = null;
-
-
-	/**
-	 * @param  string[]  $templates
-	 */
-	public function __construct(?array $templates = null)
-	{
-		$this->templates = $templates;
+	public function __construct(
+		/** @var array<string, string>|null */
+		private ?array $templates = null,
+	) {
 	}
 
 
@@ -42,12 +34,6 @@ class StringLoader implements Latte\Loader
 		} else {
 			throw new Latte\TemplateNotFoundException("Missing template '$name'.");
 		}
-	}
-
-
-	public function isExpired(string $name, int $time): bool
-	{
-		return false;
 	}
 
 

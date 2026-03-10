@@ -1,20 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: unquoted attributes.
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
 require __DIR__ . '/../bootstrap.php';
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 
 $template = <<<'EOD'
+	<span title=hello></span>
+
 	<span title={$x} class={$x}></span>
 
 	<span title={$x} {$x}></span>

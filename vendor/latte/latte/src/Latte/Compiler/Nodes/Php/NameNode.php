@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Latte\Compiler\Nodes\Php;
 
@@ -15,6 +13,9 @@ use Latte\Compiler\PrintContext;
 use function array_flip, str_starts_with, strtolower, substr;
 
 
+/**
+ * Qualified name for functions, classes, or constants (\Foo\Bar).
+ */
 class NameNode extends Node
 {
 	public const
@@ -35,6 +36,9 @@ class NameNode extends Node
 			$this->kind = self::KindFullyQualified;
 			$this->name = substr($name, 1);
 		} else {
+			if ($kind === -1 && !str_starts_with($name, '__')) {
+				trigger_error("Using unqualified constant '$name' is deprecated. Use '\\$name' with a leading backslash $position", E_USER_DEPRECATED);
+			}
 			$this->kind = self::KindNormal;
 		}
 	}
@@ -45,7 +49,7 @@ class NameNode extends Node
 		static $keywords;
 		$keywords ??= array_flip([ // https://www.php.net/manual/en/reserved.keywords.php
 			'__halt_compiler', '__class__', '__dir__', '__file__', '__function__', '__line__', '__method__', '__namespace__', '__trait__',
-			'abstract', 'and', 'array', 'as', 'break', 'callable', 'case', 'catch', 'class', 'clone', 'const', 'continue', 'declare',
+			'abstract', 'and', 'array', 'as', 'break', 'callable', 'case', 'catch', 'class', 'const', 'continue', 'declare',
 			'default', 'die', 'do', 'echo', 'else', 'elseif', 'empty', 'enddeclare', 'endfor', 'endforeach', 'endif', 'endswitch',
 			'endwhile', 'eval', 'exit', 'extends', 'final', 'finally', 'fn', 'for', 'foreach', 'function', 'global', 'goto', 'if',
 			'implements', 'include', 'include_once', 'instanceof', 'insteadof', 'interface', 'isset', 'list', 'match', 'namespace',

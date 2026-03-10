@@ -1,18 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * n:tag
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
 require __DIR__ . '/../bootstrap.php';
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 
 Assert::match(
 	'<span>Content</span>',
@@ -73,17 +70,18 @@ Assert::match(
 Assert::match(
 	<<<'XX'
 		%A%
-				$ʟ_tag[0] = '';
+				$ʟ_tag = '';
 				$ʟ_tmp = LR\HtmlHelpers::validateTagChange('h' . 1, 'div');
-				$ʟ_tag[0] = '</' . $ʟ_tmp . '>' . $ʟ_tag[0];
-				echo '<', $ʟ_tmp /* line 1 */;
+				$ʟ_tag = '</' . $ʟ_tmp . '>' . $ʟ_tag;
+				echo '<', $ʟ_tmp /* pos 1:1 */;
 				echo ' class="bar" ';
-				if (isset($id)) /* line 1 */ {
+				if (isset($id)) /* pos 1:18 */ {
 					echo 'id="content"';
 				}
 
 				echo '>';
-				echo $ʟ_tag[0];
+				$ʟ_tags[0] = $ʟ_tag;
+				echo $ʟ_tags[0];
 		%A%
 		XX,
 	$latte->compile('<div class="bar" {ifset $id}id="content"{/ifset} n:tag="h . 1"></div>'),
@@ -94,7 +92,7 @@ Assert::match(
 	<<<'XX'
 		%A%
 				$ʟ_tmp = LR\HtmlHelpers::validateTagChange('b' . 'r', 'img');
-				echo '<', $ʟ_tmp /* line 1 */;
+				echo '<', $ʟ_tmp /* pos 1:1 */;
 				echo ' class="bar"></img>';
 		%A%
 		XX,

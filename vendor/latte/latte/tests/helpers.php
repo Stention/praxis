@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Latte\Compiler\Node;
 use Latte\Compiler\Nodes;
@@ -30,12 +28,6 @@ function getTempDir(): string
 	}
 
 	return $dir;
-}
-
-
-function test(string $title, Closure $function): void
-{
-	$function();
 }
 
 
@@ -106,10 +98,10 @@ function loadContent(string $file, int $offset): string
 }
 
 
-function exportAST(Node $node)
+function exportAST(Node $node): string
 {
 	$prop = match (true) {
-		$node instanceof Nodes\TextNode => 'content: ' . var_export($node->content, true),
+		$node instanceof Nodes\TextNode => 'content: ' . var_export($node->content, return: true),
 		$node instanceof Nodes\Html\ElementNode,
 			$node instanceof Nodes\Php\IdentifierNode,
 			$node instanceof Nodes\Php\NameNode => 'name: ' . $node->name,
@@ -138,8 +130,15 @@ function exportAST(Node $node)
 
 function exportTraversing(string $template, ?Latte\Engine $latte = null): string
 {
-	$latte ??= new Latte\Engine;
-	$latte->setLoader(new Latte\Loaders\StringLoader);
+	$latte ??= createLatte();
 	$node = $latte->parse($template);
 	return exportAST($node);
+}
+
+
+function createLatte(): Latte\Engine
+{
+	$latte = new Latte\Engine;
+	$latte->setLoader(new Latte\Loaders\StringLoader);
+	return $latte;
 }

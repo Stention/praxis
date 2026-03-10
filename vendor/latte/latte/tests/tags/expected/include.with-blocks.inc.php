@@ -2,8 +2,6 @@
 %A%
 final class Template%a% extends Latte\Runtime\Template
 {
-	public const Source = 'inc';
-
 	public const Blocks = [
 		['test' => 'blockTest'],
 	];
@@ -23,9 +21,7 @@ final class Template%a% extends Latte\Runtime\Template
 		unset($ʟ_args);
 
 		echo '	Parent: ';
-		echo LR\Filters::escapeHtmlText(basename($this->getReferringTemplate()->getName())) /* line %d% */;
-		echo '/';
-		echo LR\Filters::escapeHtmlText($this->getReferenceType()) /* line %d% */;
+		echo LR\HtmlHelpers::escapeText(($this->global->fn->info)($this, )) /* pos %d%:%d% */;
 		echo "\n";
 	}
 }

@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Latte\Essential\Nodes;
 
@@ -21,11 +19,11 @@ use Latte\Compiler\Tag;
 use Latte\Compiler\TemplateParser;
 use Latte\Compiler\Token;
 use Latte\Runtime\Template;
-use function count;
 
 
 /**
- * {block [local] [name]}
+ * {block [local] name} ... {/block}
+ * {block|filter} ... {/block}  (anonymous filter block)
  */
 class BlockNode extends StatementNode
 {
@@ -34,12 +32,13 @@ class BlockNode extends StatementNode
 	public AreaNode $content;
 
 
-	/** @return \Generator<int, ?array, array{AreaNode, ?Tag}, static|AreaNode> */
+	/** @return \Generator<int, ?list<string>, array{AreaNode, ?Tag}, static> */
 	public static function create(Tag $tag, TemplateParser $parser): \Generator
 	{
 		$tag->outputMode = $tag::OutputRemoveIndentation;
 		$stream = $tag->parser->stream;
 		$node = $tag->node = new static;
+		$name = null;
 
 		if (!$stream->is('|', Token::End)) {
 			$layer = $tag->parser->tryConsumeTokenBeforeUnquotedString('local')
@@ -55,10 +54,11 @@ class BlockNode extends StatementNode
 		}
 
 		$node->modifier = $tag->parser->parseModifier();
-		$node->modifier->escape = (bool) $node->modifier->filters;
-		if ($node->modifier->hasFilter('noescape') && count($node->modifier->filters) === 1) {
+		$noEscape = $node->modifier->removeFilter('noescape');
+		if ($noEscape && !$node->modifier->filters) {
 			throw new CompileException('Filter |noescape is not expected here.', $tag->position);
 		}
+		$node->modifier->escape = $node->modifier->filters && !$noEscape;
 
 		[$node->content, $endTag] = yield;
 
@@ -108,6 +108,7 @@ class BlockNode extends StatementNode
 
 	private function printStatic(PrintContext $context): string
 	{
+		assert($this->block !== null);
 		$this->modifier->escape = $this->modifier->escape || $context->getEscaper()->getState() === Escaper::HtmlAttribute;
 		$context->addBlock($this->block);
 		$this->block->content = $this->content->print($context); // must be compiled after is added
@@ -127,13 +128,14 @@ class BlockNode extends StatementNode
 
 	private function printDynamic(PrintContext $context): string
 	{
+		assert($this->block !== null);
 		$context->addBlock($this->block);
 		$this->block->content = $this->content->print($context); // must be compiled after is added
 		$escaper = $context->getEscaper();
 		$this->modifier->escape = $this->modifier->escape || $escaper->getState() === Escaper::HtmlAttribute;
 
 		return $context->format(
-			'$this->addBlock($ʟ_nm = %raw, %dump, [[$this, %dump]], %dump);
+			'$this->addBlock($ʟ_nm = %raw, %dump, [$this->%raw(...)], %dump);
 			$this->renderBlock($ʟ_nm, get_defined_vars()'
 			. ($this->modifier->filters || $this->modifier->escape
 				? ', function ($s, $type) { $ʟ_fi = new LR\FilterInfo($type); return %modifyContent($s); }'

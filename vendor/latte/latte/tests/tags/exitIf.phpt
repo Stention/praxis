@@ -1,18 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: {exitIf}
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
 require __DIR__ . '/../bootstrap.php';
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 
 Assert::exception(
 	fn() => $latte->compile('{foreach $a as $b}{exitIf true}'),
@@ -36,7 +33,7 @@ Assert::match(
 	<<<'XX'
 		%A%
 			{
-				if (true) /* line 1 */ return;
+				if (true) /* pos 1:1 */ return;
 				echo 'c';
 			}
 		%A%
@@ -59,10 +56,10 @@ Assert::match(
 			{
 				echo 'a
 		';
-				if (true) /* line 2 */ return;
+				if (true) /* pos 2:1 */ return;
 				echo 'b
 		';
-				if (false) /* line 4 */ return;
+				if (false) /* pos 4:1 */ return;
 				echo 'c';
 			}
 		%A%
@@ -87,10 +84,10 @@ Assert::match(
 			{
 				echo '	a
 		';
-				if (true) /* line 3 */ return;
+				if (true) /* pos 3:2 */ return;
 				echo '	b
 		';
-				if (false) /* line 5 */ return;
+				if (false) /* pos 5:2 */ return;
 				echo '	c
 		';
 			}
@@ -116,10 +113,10 @@ Assert::match(
 			{
 				echo '	a
 		';
-				if (true) /* line 3 */ return;
+				if (true) /* pos 3:2 */ return;
 				echo '	b
 		';
-				if (false) /* line 5 */ return;
+				if (false) /* pos 5:2 */ return;
 				echo '	c
 		';
 			}
@@ -138,7 +135,7 @@ Assert::match(
 		%A%
 				echo '<div>';
 				try {
-					if (true) /* line 1 */ return;
+					if (true) /* pos 1:6 */ return;
 				} finally {
 					echo '</div>';
 				}

@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: filters test.
  */
-
-declare(strict_types=1);
 
 use Latte\Runtime\FilterInfo;
 use Tester\Assert;
@@ -42,7 +40,7 @@ $latte->addFilter('h1', [new MyFilter, 'invoke']);
 $latte->addFilter('h2', 'strtoupper');
 $latte->addFilter('translate', fn(FilterInfo $info, $s) => strrev($s));
 $latte->addFilter('types', 'types');
-$latte->addFilterLoader(function ($name) use ($latte) {
+@$latte->addFilterLoader(function ($name) use ($latte) { // deprecated
 	if ($name === 'dynamic') {
 		return fn($val) => "[dynamic $val]";
 	}
@@ -58,13 +56,13 @@ Assert::same('[dynamic aa]', $latte->invokeFilter('dynamic', ['aa']));
 Assert::exception(
 	fn() => $latte->invokeFilter('unknown', ['']),
 	LogicException::class,
-	"Filter 'unknown' is not defined.",
+	"Filter 'unknown' is not defined or not allowed here.",
 );
 
 Assert::exception(
 	fn() => $latte->invokeFilter('h3', ['']),
 	LogicException::class,
-	"Filter 'h3' is not defined, did you mean 'h1'?",
+	"Filter 'h3' is not defined or not allowed here, did you mean 'h1'?",
 );
 
 

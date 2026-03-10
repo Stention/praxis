@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Nette\Schema\Context;
 use Nette\Schema\Expect;
@@ -12,13 +10,9 @@ require __DIR__ . '/../bootstrap.php';
 
 class DynamicParameter implements Nette\Schema\DynamicParameter
 {
-	/** @var string */
-	private $value;
-
-
-	public function __construct(string $value)
-	{
-		$this->value = $value;
+	public function __construct(
+		private string $value,
+	) {
 	}
 }
 

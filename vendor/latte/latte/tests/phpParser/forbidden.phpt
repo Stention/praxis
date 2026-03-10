@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 // Forbidden syntax
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -174,7 +172,7 @@ Assert::exception(
 );
 
 Assert::exception(
-	fn() => parseCode('$this?->foo(...)'),
+	fn() => parseCode('($a|foo(...))'),
 	Latte\CompileException::class,
-	"Unexpected ')' (on line 1 at column 16)",
+	"Unexpected ')' (on line 1 at column 12)",
 );

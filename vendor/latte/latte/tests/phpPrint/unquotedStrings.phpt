@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 // Unquoted strings
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -28,7 +26,7 @@ $test = <<<'XX'
 	foo(aa, bb, cc)
 	XX;
 
-$node = parseCode($test);
+$node = @parseCode($test); // deprecated constants
 $code = printNode($node);
 
 Assert::same(

@@ -1,19 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: Compile errors in strict parsing
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
 require __DIR__ . '/../bootstrap.php';
 
 
-$latte = new Latte\Engine;
-$latte->setStrictParsing();
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
+$latte->setFeature(Latte\Feature::StrictParsing);
 
 Assert::exception(
 	fn() => $latte->compile('{$this}'),

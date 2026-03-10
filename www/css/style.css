@@ -31,7 +31,7 @@
 }
 
 .border-primary-private {
-    color: var(--primary);
+    border-color: var(--primary);
 }
 
 .btn-primary, .btn-primary:active {
@@ -61,6 +61,7 @@ h6,
     font-family: 'Jost', sans-serif;
     font-weight: 600;
     transition: .5s;
+    border-radius: 8px;
 }
 
 .btn-primary,
@@ -125,7 +126,7 @@ h6,
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(9, 30, 62, .85);
+    background: linear-gradient(to bottom, rgba(9, 30, 62, .45) 0%, rgba(9, 30, 62, .72) 100%);
     z-index: 1;
 }
 
@@ -168,6 +169,7 @@ h6,
     right: -55px;
     bottom: 11px;
     background: var(--primary);
+    border-radius: 2px;
 }
 
 .section-title h3::after {
@@ -178,6 +180,7 @@ h6,
     right: -75px;
     bottom: 11px;
     background: var(--secondary);
+    border-radius: 2px;
 }
 
 .service-item img,
@@ -266,4 +269,113 @@ h6,
 }
 .nav-item.active {
     color: var(--primary) !important;
+}
+
+/********** Smooth Scroll **********/
+html {
+    scroll-behavior: smooth;
+}
+
+/********** Sticky Navbar — frosted glass **********/
+.sticky-top.navbar-light {
+    background-color: rgba(255, 255, 255, .92) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/********** Language Toggle **********/
+.lang-toggle {
+    border: 2px solid var(--primary);
+    border-radius: 50%;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px;
+    text-decoration: none;
+    margin-left: 24px;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: border-color .3s;
+}
+
+.lang-toggle:hover {
+    border-color: var(--secondary);
+}
+
+.lang-flag {
+    width: 60px !important;
+    height: 60px !important;
+    object-fit: cover;
+    display: block;
+    flex-shrink: 0;
+}
+
+/********** Hero Carousel Images **********/
+.hero-img {
+    height: 420px;
+    width: auto;
+    max-width: 500px;
+    object-fit: cover;
+}
+
+@media (max-width: 767.98px) {
+    .hero-img {
+        height: 240px;
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+/********** Contact Blocks **********/
+.contact-block {
+    border-radius: 12px;
+}
+
+/********** Announcement Banner **********/
+.announcement-wrap {
+    background: var(--light);
+    border-top: 3px solid var(--primary);
+    border-bottom: 1px solid var(--secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+}
+
+.announcement-banner {
+    margin: 0;
+    padding: 10px 20px;
+    color: var(--primary);
+    text-align: center;
+    font-size: 1.1rem;
+    letter-spacing: 0.04em;
+    font-family: 'Jost', sans-serif;
+    font-weight: 700;
+}
+
+/********** Uniform card images **********/
+.logo-img {
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    padding: 16px;
+    background: #fff;
+    display: block;
+}
+
+.card-img-uniform {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.cert-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
 }

@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: comments HTML test
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -27,7 +25,8 @@ Assert::matchFile(
 
 // no escape
 $latte->setLoader(new Latte\Loaders\StringLoader);
-Assert::match(
-	'<!--  - - > -->',
-	$latte->renderToString('<!-- {="-->"|noescape} -->'),
+Assert::exception(
+	fn() => $latte->renderToString('<!-- {="-->"|noescape} -->'),
+	Latte\CompileException::class,
+	'Using |noescape is not allowed in this context (on line 1 at column 13)',
 );

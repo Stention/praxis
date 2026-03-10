@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: JavaScript in HTML
  */
-
-declare(strict_types=1);
 
 use Latte\Runtime\Html;
 use Tester\Assert;
@@ -12,8 +10,7 @@ use Tester\Assert;
 require __DIR__ . '/../bootstrap.php';
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 
 Assert::match(
 	'<script></script> <div></div>',
@@ -135,13 +132,8 @@ Assert::match(
 
 // attributes
 Assert::match(
-	'<div onclick="&quot;&lt;&gt;&quot;"></div>',
+	'<div onclick="&lt;&gt;"></div>',
 	$latte->renderToString('<div onclick="{="<>"}"></div>'),
-);
-
-Assert::match(
-	'<div onclick="[1,2,3]"></div>',
-	$latte->renderToString('<div onclick="{=[1,2,3]}"></div>'),
 );
 
 // no escape

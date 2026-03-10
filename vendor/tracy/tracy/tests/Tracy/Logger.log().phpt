@@ -1,16 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: Tracy\Logger logging exceptions in log message.
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 use Tracy\Logger;
 
 require __DIR__ . '/../bootstrap.php';
 
+Tester\Helpers::purge(getTempDir());
 
 test('', function () {
 	$e = new Exception('First');

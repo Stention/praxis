@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: {embed block}
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -426,8 +424,7 @@ testTemplate(
 );
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 Assert::exception(
 	fn() => $latte->renderToString('{embed block (null)/}'),
 	InvalidArgumentException::class,

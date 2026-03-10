@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Latte\Essential\Nodes;
 
@@ -17,7 +15,7 @@ use Latte\Compiler\Tag;
 
 
 /**
- * n:class="..."
+ * <div n:class="$isActive ? active, highlight">
  */
 final class NClassNode extends StatementNode
 {
@@ -26,6 +24,7 @@ final class NClassNode extends StatementNode
 
 	public static function create(Tag $tag): static
 	{
+		assert($tag->htmlElement !== null);
 		if ($tag->htmlElement->getAttribute('class')) {
 			throw new CompileException('It is not possible to combine class with n:class.', $tag->position);
 		}
@@ -40,7 +39,7 @@ final class NClassNode extends StatementNode
 	public function print(PrintContext $context): string
 	{
 		return $context->format(
-			'echo ($ʟ_tmp = array_filter(%node)) ? \' class="\' . LR\Filters::escapeHtmlAttr(implode(" ", array_unique($ʟ_tmp))) . \'"\' : "" %line;',
+			'echo ($ʟ_tmp = array_filter(%node)) ? \' class="\' . LR\HtmlHelpers::escapeAttr(implode(" ", array_unique($ʟ_tmp))) . \'"\' : "" %line;',
 			$this->args,
 			$this->position,
 		);

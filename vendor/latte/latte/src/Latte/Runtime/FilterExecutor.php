@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Latte\Runtime;
 
@@ -22,7 +20,7 @@ use function array_column, array_combine, array_keys, array_unshift, strtoupper;
 #[\AllowDynamicProperties]
 class FilterExecutor
 {
-	/** @var callable[] */
+	/** @var array<callable> */
 	private array $_dynamic = [];
 
 	/** @var array<string, array{callable, ?bool}> */
@@ -47,7 +45,7 @@ class FilterExecutor
 
 	/**
 	 * Returns all run-time filters.
-	 * @return callable[]
+	 * @return array<string, callable>
 	 */
 	public function getAll(): array
 	{
@@ -118,7 +116,7 @@ class FilterExecutor
 		$hint = ($t = Helpers::getSuggestion(array_keys($this->_static), $name))
 			? ", did you mean '$t'?"
 			: '.';
-		throw new \LogicException("Filter '$name' is not defined$hint");
+		throw new \LogicException("Filter '$name' is not defined or not allowed here$hint");
 	}
 
 

@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -41,3 +39,29 @@ Assert::match(<<<'XX'
 							name: upper
 				Modifier:
 	XX, exportTraversing('{=($var|trim|upper)}'));
+
+
+Assert::match(<<<'XX'
+	Template:
+		Fragment:
+		Fragment:
+			Element:
+				name: title
+				Fragment:
+					ExpressionAttribute:
+						Variable:
+							name: foo
+						Modifier:
+					Text:
+						content: ' '
+					Attribute:
+						Text:
+							content: 'bar'
+						Fragment:
+							Text:
+								content: ' '
+							Print:
+								Variable:
+									name: bar
+								Modifier:
+	XX, exportTraversing('<title foo="{$foo}" bar=" {$bar}">'));

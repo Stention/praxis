@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Latte\Essential;
 
@@ -14,8 +12,8 @@ use Latte\ContentType;
 use Latte\Runtime\FilterInfo;
 use Latte\Runtime\Html;
 use Stringable;
-use function abs, array_combine, array_fill_keys, array_key_last, array_map, array_rand, array_reverse, array_search, array_slice, base64_encode, ceil, count, end, explode, extension_loaded, finfo_buffer, finfo_open, floor, func_num_args, htmlspecialchars, http_build_query, iconv, iconv_strlen, iconv_substr, implode, is_array, is_int, is_numeric, is_string, iterator_count, iterator_to_array, key, ltrim, max, mb_convert_case, mb_strlen, mb_strtolower, mb_strtoupper, mb_substr, min, nl2br, number_format, preg_last_error, preg_last_error_msg, preg_match, preg_quote, preg_replace, preg_replace_callback, preg_split, reset, round, rtrim, str_contains, str_repeat, str_replace, strftime, strip_tags, strlen, strrev, strtr, substr, trim, uasort, uksort, urlencode, utf8_decode;
-use const ENT_NOQUOTES, ENT_SUBSTITUTE, FILEINFO_MIME_TYPE, MB_CASE_TITLE, PHP_OUTPUT_HANDLER_FINAL, PHP_OUTPUT_HANDLER_START, PHP_VERSION_ID, PREG_SPLIT_NO_EMPTY;
+use function abs, array_combine, array_fill_keys, array_key_last, array_map, array_rand, array_reverse, array_search, array_slice, base64_encode, ceil, count, end, explode, extension_loaded, finfo_buffer, finfo_open, floor, func_num_args, htmlspecialchars, http_build_query, iconv, iconv_strlen, iconv_substr, implode, is_array, is_int, is_numeric, is_string, iterator_count, iterator_to_array, key, ltrim, max, mb_convert_case, mb_strlen, mb_strtolower, mb_strtoupper, mb_substr, min, nl2br, number_format, preg_last_error, preg_last_error_msg, preg_match, preg_quote, preg_replace, preg_replace_callback, preg_split, reset, round, rtrim, str_repeat, str_replace, strip_tags, strlen, strrev, strtr, substr, trim, uasort, uksort, urlencode, utf8_decode;
+use const ENT_NOQUOTES, ENT_SUBSTITUTE, FILEINFO_MIME_TYPE, MB_CASE_TITLE, PHP_OUTPUT_HANDLER_FINAL, PHP_OUTPUT_HANDLER_START, PREG_SPLIT_NO_EMPTY;
 
 
 /**
@@ -30,18 +28,18 @@ final class Filters
 	/**
 	 * Converts HTML to plain text.
 	 */
-	public static function stripHtml(FilterInfo $info, $s): string
+	public static function stripHtml(FilterInfo $info, string|Stringable|null $s): string
 	{
 		$info->validate([null, 'html', 'html/attr', 'xml', 'xml/attr'], __FUNCTION__);
 		$info->contentType = ContentType::Text;
-		return Latte\Runtime\Filters::convertHtmlToText((string) $s);
+		return Latte\Runtime\HtmlHelpers::convertHtmlToText((string) $s);
 	}
 
 
 	/**
 	 * Removes tags from HTML (but remains HTML entities).
 	 */
-	public static function stripTags(FilterInfo $info, $s): string
+	public static function stripTags(FilterInfo $info, string|Stringable|null $s): string
 	{
 		$info->contentType ??= ContentType::Html;
 		$info->validate(['html', 'html/attr', 'xml', 'xml/attr'], __FUNCTION__);
@@ -149,6 +147,7 @@ final class Filters
 
 	/**
 	 * Splits a string by a string.
+	 * @return list<string>
 	 */
 	public static function explode(string $value, string $separator = ''): array
 	{
@@ -161,7 +160,7 @@ final class Filters
 	/**
 	 * Repeats text.
 	 */
-	public static function repeat(FilterInfo $info, $s, int $count): string
+	public static function repeat(FilterInfo $info, string|Stringable|null $s, int $count): string
 	{
 		return str_repeat((string) $s, $count);
 	}
@@ -170,9 +169,11 @@ final class Filters
 	/**
 	 * Date/time formatting.
 	 */
-	public static function date(string|int|\DateTimeInterface|\DateInterval|null $time, ?string $format = null): ?string
+	public static function date(
+		string|int|\DateTimeInterface|\DateInterval|null $time,
+		string $format = "j.\u{a0}n.\u{a0}Y",
+	): ?string
 	{
-		$format ??= Latte\Runtime\Filters::$dateFormat;
 		if ($time == null) { // intentionally ==
 			return null;
 		} elseif ($time instanceof \DateInterval) {
@@ -181,14 +182,6 @@ final class Filters
 			$time = (new \DateTime)->setTimestamp((int) $time);
 		} elseif (!$time instanceof \DateTimeInterface) {
 			$time = new \DateTime($time);
-		}
-
-		if (str_contains($format, '%')) {
-			if (PHP_VERSION_ID >= 80100) {
-				trigger_error("Function strftime() used by filter |date is deprecated since PHP 8.1, use format without % characters like 'Y-m-d'.");
-			}
-
-			return @strftime($format, $time->format('U') + 0);
 		}
 
 		return $time->format($format);
@@ -293,15 +286,16 @@ final class Filters
 
 	/**
 	 * Performs a search and replace.
+	 * @param  string|array<string, string>|array<string>  $search
+	 * @param  string|array<string>|null  $replace
 	 */
 	public static function replace(
 		FilterInfo $info,
-		string|array $subject,
+		string $subject,
 		string|array $search,
 		string|array|null $replace = null,
 	): string
 	{
-		$subject = (string) $subject;
 		if (is_array($search)) {
 			if (is_array($replace)) {
 				return strtr($subject, array_combine($search, $replace));
@@ -322,7 +316,7 @@ final class Filters
 	public static function replaceRe(string $subject, string $pattern, string $replacement = ''): string
 	{
 		$res = preg_replace($pattern, $replacement, $subject);
-		if (preg_last_error()) {
+		if (preg_last_error() || $res === null) {
 			throw new Latte\RuntimeException(preg_last_error_msg());
 		}
 
@@ -335,15 +329,23 @@ final class Filters
 	 */
 	public static function dataStream(string $data, ?string $type = null): string
 	{
-		$type ??= finfo_buffer(finfo_open(FILEINFO_MIME_TYPE), $data);
+		if ($type === null) {
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			if ($finfo) {
+				$type = finfo_buffer($finfo, $data) ?: null;
+			}
+		}
 		return 'data:' . ($type ? "$type;" : '') . 'base64,' . base64_encode($data);
 	}
 
 
+	/**
+	 * Converts newlines to HTML <br> tags.
+	 */
 	public static function breaklines(string|Stringable|null $s): Html
 	{
 		$s = htmlspecialchars((string) $s, ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
-		return new Html(nl2br($s, false));
+		return new Html(nl2br($s, use_xhtml: false));
 	}
 
 
@@ -355,7 +357,7 @@ final class Filters
 		$s = (string) $s;
 		return match (true) {
 			extension_loaded('mbstring') => mb_substr($s, $start, $length, 'UTF-8'),
-			extension_loaded('iconv') => iconv_substr($s, $start, $length, 'UTF-8'),
+			extension_loaded('iconv') => (string) iconv_substr($s, $start, $length, 'UTF-8'),
 			default => throw new Latte\RuntimeException("Filter |substr requires 'mbstring' or 'iconv' extension."),
 		};
 	}
@@ -387,7 +389,7 @@ final class Filters
 	/**
 	 * Convert to lower case.
 	 */
-	public static function lower($s): string
+	public static function lower(string|Stringable|null $s): string
 	{
 		return mb_strtolower((string) $s, 'UTF-8');
 	}
@@ -396,7 +398,7 @@ final class Filters
 	/**
 	 * Convert to upper case.
 	 */
-	public static function upper($s): string
+	public static function upper(string|Stringable|null $s): string
 	{
 		return mb_strtoupper((string) $s, 'UTF-8');
 	}
@@ -405,7 +407,7 @@ final class Filters
 	/**
 	 * Convert first character to lower case.
 	 */
-	public static function firstLower($s): string
+	public static function firstLower(string|Stringable|null $s): string
 	{
 		$s = (string) $s;
 		return self::lower(self::substring($s, 0, 1)) . self::substring($s, 1);
@@ -415,7 +417,7 @@ final class Filters
 	/**
 	 * Convert first character to upper case.
 	 */
-	public static function firstUpper($s): string
+	public static function firstUpper(string|Stringable|null $s): string
 	{
 		$s = (string) $s;
 		return self::upper(self::substring($s, 0, 1)) . self::substring($s, 1);
@@ -425,7 +427,7 @@ final class Filters
 	/**
 	 * Capitalize string.
 	 */
-	public static function capitalize($s): string
+	public static function capitalize(string|Stringable|null $s): string
 	{
 		return mb_convert_case((string) $s, MB_CASE_TITLE, 'UTF-8');
 	}
@@ -433,10 +435,11 @@ final class Filters
 
 	/**
 	 * Returns length of string or iterable.
+	 * @param  array<mixed>|\Countable|\Traversable<mixed>|string  $val
 	 */
 	public static function length(array|\Countable|\Traversable|string $val): int
 	{
-		if (is_array($val) || $val instanceof \Countable) {
+		if (is_countable($val)) {
 			return count($val);
 		} elseif ($val instanceof \Traversable) {
 			return iterator_count($val);
@@ -450,7 +453,7 @@ final class Filters
 	{
 		return match (true) {
 			extension_loaded('mbstring') => mb_strlen($s, 'UTF-8'),
-			extension_loaded('iconv') => iconv_strlen($s, 'UTF-8'),
+			extension_loaded('iconv') => (int) iconv_strlen($s, 'UTF-8'),
 			default => strlen(@utf8_decode($s)), // deprecated
 		};
 	}
@@ -463,7 +466,7 @@ final class Filters
 	{
 		$charlist = preg_quote($charlist, '#');
 		$s = preg_replace('#^[' . $charlist . ']+|[' . $charlist . ']+$#Du', '', (string) $s);
-		if (preg_last_error()) {
+		if (preg_last_error() || $s === null) {
 			throw new Latte\RuntimeException(preg_last_error_msg());
 		}
 
@@ -474,7 +477,7 @@ final class Filters
 	/**
 	 * Pad a string to a certain length with another string.
 	 */
-	public static function padLeft($s, int $length, string $append = ' '): string
+	public static function padLeft(string|Stringable|null $s, int $length, string $append = ' '): string
 	{
 		$s = (string) $s;
 		$length = max(0, $length - self::strLength($s));
@@ -486,7 +489,7 @@ final class Filters
 	/**
 	 * Pad a string to a certain length with another string.
 	 */
-	public static function padRight($s, int $length, string $append = ' '): string
+	public static function padRight(string|Stringable|null $s, int $length, string $append = ' '): string
 	{
 		$s = (string) $s;
 		$length = max(0, $length - self::strLength($s));
@@ -497,23 +500,25 @@ final class Filters
 
 	/**
 	 * Reverses string or array.
+	 * @template K
+	 * @template V
+	 * @param  iterable<K, V>|string  $val
+	 * @return ($val is string ? string : array<K, V>)
 	 */
 	public static function reverse(string|iterable $val, bool $preserveKeys = false): string|array
 	{
-		if (is_array($val)) {
-			return array_reverse($val, $preserveKeys);
-		} elseif ($val instanceof \Traversable) {
-			return array_reverse(iterator_to_array($val), $preserveKeys);
-		} else {
-			return iconv('UTF-32LE', 'UTF-8', strrev(iconv('UTF-8', 'UTF-32BE', (string) $val)));
-		}
+		return is_string($val)
+			? (string) iconv('UTF-32LE', 'UTF-8', strrev((string) iconv('UTF-8', 'UTF-32BE', $val)))
+			: array_reverse(iterator_to_array($val), $preserveKeys);
 	}
 
 
 	/**
 	 * Chunks items by returning an array of arrays with the given number of items.
+	 * @param  iterable<mixed>  $list
+	 * @return \Generator<int, array<mixed>>
 	 */
-	public static function batch(iterable $list, int $length, $rest = null): \Generator
+	public static function batch(iterable $list, int $length, mixed $rest = null): \Generator
 	{
 		$batch = [];
 		foreach ($list as $key => $value) {
@@ -541,6 +546,9 @@ final class Filters
 	 * @template K
 	 * @template V
 	 * @param  iterable<K, V>  $data
+	 * @param  ?(\Closure(V, V): int)  $comparison
+	 * @param  string|int|(\Closure(V): mixed)|null  $by
+	 * @param  string|int|(\Closure(K): mixed)|bool  $byKey
 	 * @return iterable<K, V>
 	 */
 	public function sort(
@@ -593,6 +601,7 @@ final class Filters
 	 * @template K
 	 * @template V
 	 * @param  iterable<K, V>  $data
+	 * @param  string|int|(\Closure(V, K): mixed)  $by
 	 * @return iterable<iterable<K, V>>
 	 */
 	public static function group(iterable $data, string|int|\Closure $by): iterable
@@ -603,7 +612,7 @@ final class Filters
 		foreach ($data as $k => $v) {
 			$groupKey = $fn($v, $k);
 			if (!$groups || $prevKey !== $groupKey) {
-				$index = array_search($groupKey, $keys, true);
+				$index = array_search($groupKey, $keys, strict: true);
 				if ($index === false) {
 					$index = count($keys);
 					$keys[$index] = $groupKey;
@@ -654,6 +663,7 @@ final class Filters
 
 	/**
 	 * Generates URL-encoded query string
+	 * @param  string|array<mixed>  $data
 	 */
 	public static function query(string|array $data): string
 	{
@@ -692,6 +702,8 @@ final class Filters
 
 	/**
 	 * Returns the first element in an array or character in a string, or null if none.
+	 * @param  string|iterable<mixed>  $value
+	 * @return ($value is string ? string : mixed)
 	 */
 	public static function first(string|iterable $value): mixed
 	{
@@ -709,6 +721,8 @@ final class Filters
 
 	/**
 	 * Returns the last element in an array or character in a string, or null if none.
+	 * @param  string|array<mixed>  $value
+	 * @return ($value is string ? string : mixed)
 	 */
 	public static function last(string|array $value): mixed
 	{
@@ -720,6 +734,8 @@ final class Filters
 
 	/**
 	 * Extracts a slice of an array or string.
+	 * @param  string|array<mixed>  $value
+	 * @return ($value is string ? string : array<mixed>)
 	 */
 	public static function slice(
 		string|array $value,
@@ -734,18 +750,27 @@ final class Filters
 	}
 
 
+	/**
+	 * Rounds number to specified precision.
+	 */
 	public static function round(float $value, int $precision = 0): float
 	{
 		return round($value, $precision);
 	}
 
 
+	/**
+	 * Rounds number down to specified precision.
+	 */
 	public static function floor(float $value, int $precision = 0): float
 	{
 		return floor($value * 10 ** $precision) / 10 ** $precision;
 	}
 
 
+	/**
+	 * Rounds number up to specified precision.
+	 */
 	public static function ceil(float $value, int $precision = 0): float
 	{
 		return ceil($value * 10 ** $precision) / 10 ** $precision;
@@ -754,6 +779,8 @@ final class Filters
 
 	/**
 	 * Picks random element/char.
+	 * @param  string|array<mixed>  $values
+	 * @return ($values is string ? string : mixed)
 	 */
 	public static function random(string|array $values): mixed
 	{
@@ -764,5 +791,18 @@ final class Filters
 		return $values
 			? $values[array_rand($values, 1)]
 			: null;
+	}
+
+
+	/**
+	 * Sanitizes string for use inside href attribute.
+	 */
+	public static function checkUrl(mixed $s): string
+	{
+		$s = $s instanceof Latte\Runtime\HtmlStringable
+			? Latte\Runtime\HtmlHelpers::convertHtmlToText((string) $s)
+			: (string) $s;
+
+		return preg_match('~^(?:(?:https?|ftp)://[^@]+(?:/.*)?|(?:mailto|tel|sms):.+|[/?#].*|[^:]+)$~Di', $s) ? $s : '';
 	}
 }

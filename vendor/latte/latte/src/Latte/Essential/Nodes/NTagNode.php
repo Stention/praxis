@@ -1,15 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Latte\Essential\Nodes;
 
 use Latte\CompileException;
+use Latte\Compiler\Nodes\Html\TagNode;
 use Latte\Compiler\Nodes\StatementNode;
 use Latte\Compiler\PrintContext;
 use Latte\Compiler\Tag;
@@ -17,18 +16,21 @@ use function preg_match;
 
 
 /**
- * n:tag="..."
+ * <div n:tag="$useSpan ? span">
  */
 final class NTagNode extends StatementNode
 {
 	public static function create(Tag $tag): void
 	{
+		assert($tag->htmlElement !== null);
 		if (preg_match('(style$|script$)iA', $tag->htmlElement->name)) {
 			throw new CompileException('Attribute n:tag is not allowed in <script> or <style>', $tag->position);
 		}
 
 		$tag->expectArguments();
-		$tag->htmlElement->variableName = $tag->parser->parseExpression();
+		$tag->htmlElement->dynamicTag ??= new TagNode($tag->htmlElement);
+		assert($tag->htmlElement->dynamicTag instanceof TagNode);
+		$tag->htmlElement->dynamicTag->name = $tag->parser->parseExpression();
 	}
 
 

@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Nette\PhpGenerator\Closure;
 
@@ -10,7 +8,7 @@ require __DIR__ . '/../bootstrap.php';
 $function = new Closure;
 $function->setBody('return null;');
 
-for ($name = 'abcde'; $name < 'abcdu'; $name++) {
+for ($name = 'abcde'; $name < 'abcdu'; PHP_VERSION_ID < 80300 ? $name++ : $name = str_increment($name)) {
 	$function->addParameter($name);
 	$function->addUse($name);
 }

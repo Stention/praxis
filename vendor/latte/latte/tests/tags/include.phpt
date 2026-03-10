@@ -1,18 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: {include file}
  */
 
-declare(strict_types=1);
-
+use Latte\Runtime\Template;
 use Tester\Assert;
 
 require __DIR__ . '/../bootstrap.php';
 
 
 $latte = new Latte\Engine;
-$latte->setTempDirectory(getTempDir());
+$latte->setCacheDirectory(getTempDir());
+$latte->addFunction('info', fn(Template $template) => basename($template->getReferringTemplate()->getName()) . '/' . $template->getReferenceType());
 
 Assert::matchFile(
 	__DIR__ . '/expected/include.php',
