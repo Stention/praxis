@@ -1,18 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: Latte\Engine and auto-safe URL.
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
 require __DIR__ . '/../bootstrap.php';
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 $latte->addFilter('datastream', 'Latte\Essential\Filters::dataStream');
 $params['url1'] = 'javascript:alert(1)';
 $params['url2'] = ' javascript:alert(1)';
@@ -74,7 +71,7 @@ Assert::match(
 
 
 Assert::contains(
-	'LR\Filters::escapeHtmlAttr(LR\Filters::safeUrl(($this->filters->upper)($url1)))',
+	'LR\HtmlHelpers::formatAttribute(\' href\', ($this->filters->checkUrl)(($this->filters->upper)($url1)))',
 	$latte->compile('<a href="{$url1|upper}"></a>'),
 );
 
@@ -92,13 +89,13 @@ Assert::match(
 
 // accepts Stringable
 Assert::match(
-	'<img src="&lt;a&gt;">',
+	'<img src="">',
 	$latte->renderToString(
 		'<img src="{$url}">',
 		['url' => new class {
 			public function __toString()
 			{
-				return '<a>';
+				return 'javascript:foo';
 			}
 		}],
 	),

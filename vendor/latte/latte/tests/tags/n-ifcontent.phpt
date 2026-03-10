@@ -1,18 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: Latte\Engine and n:ifcontent.
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
 require __DIR__ . '/../bootstrap.php';
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 
 Assert::match(
 	'<div>Content</div>',
@@ -96,7 +93,7 @@ Assert::match(
 				ob_start(fn() => '');
 				try {
 					echo '<div class="bar" ';
-					if (isset($id)) /* line 1 */ {
+					if (isset($id)) /* pos 1:18 */ {
 						echo 'id="content"';
 					}
 					echo '>';

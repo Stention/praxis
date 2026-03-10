@@ -1,17 +1,17 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: {include ... with blocks}
  */
 
-declare(strict_types=1);
-
+use Latte\Runtime\Template;
 use Tester\Assert;
 
 require __DIR__ . '/../bootstrap.php';
 
 
 $latte = new Latte\Engine;
+$latte->addFunction('info', fn(Template $template) => basename($template->getReferringTemplate()->getName()) . '/' . $template->getReferenceType());
 $latte->setLoader(new Latte\Loaders\StringLoader([
 	'main' => <<<'XX'
 
@@ -24,7 +24,7 @@ $latte->setLoader(new Latte\Loaders\StringLoader([
 	'inc' => <<<'XX'
 
 		{define test}
-			Parent: {basename($this->getReferringTemplate()->getName())}/{$this->getReferenceType()}
+			Parent: {info()}
 		{/define}
 
 		XX,

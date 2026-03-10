@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: {contentType application/xml}
  */
-
-declare(strict_types=1);
 
 use Latte\ContentType;
 use Latte\Runtime\Html;
@@ -13,8 +11,7 @@ use Tester\Assert;
 require __DIR__ . '/../bootstrap.php';
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 
 Assert::same(
 	' &lt;&gt;&quot;&apos;',

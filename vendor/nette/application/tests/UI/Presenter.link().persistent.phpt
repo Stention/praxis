@@ -14,6 +14,13 @@ use Tester\Assert;
 require __DIR__ . '/../bootstrap.php';
 
 
+function sortParams(array $params): array
+{
+	ksort($params);
+	return $params;
+}
+
+
 trait PersistentParam1
 {
 	/** @persistent */
@@ -62,9 +69,13 @@ class TestPresenter extends BasePresenter
 		$this->p2 = 2;
 		$this->t1 = 3;
 		$this->t2 = 4;
-		Assert::same('/index.php?p2=2&p1=1&t1=3&t2=4&action=default&presenter=Test', $this->link('this'));
+		Assert::same(PHP_VERSION_ID < 80500
+			? '/index.php?p2=2&p1=1&t1=3&t2=4&action=default&presenter=Test'
+			: '/index.php?p2=2&t2=4&p1=1&t1=3&action=default&presenter=Test', $this->link('this'));
 		Assert::same('/index.php?p1=1&t1=3&action=default&presenter=Second', $this->link('Second:'));
-		Assert::same('/index.php?p1=1&t1=3&t2=4&action=default&presenter=Third', $this->link('Third:'));
+		Assert::same(PHP_VERSION_ID < 80500
+			? '/index.php?p1=1&t1=3&t2=4&action=default&presenter=Third'
+			: '/index.php?t2=4&p1=1&t1=3&action=default&presenter=Third', $this->link('Third:'));
 
 		$this->p1 = 20;
 		Assert::same('/index.php?t1=3&action=default&presenter=Second', $this->link('Second:'));
@@ -102,52 +113,56 @@ class FourthPresenter extends BasePresenter
 }
 
 
-Assert::same([
-	'p1' => ['def' => null, 'type' => 'scalar', 'since' => 'BasePresenter'],
-	't1' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam1'],
-], BasePresenter::getReflection()->getPersistentParams());
+test('ComponentReflection::getPersistentParams()', function () {
+	Assert::same([
+		'p1' => ['def' => null, 'type' => 'scalar', 'since' => 'BasePresenter'],
+		't1' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam1'],
+	], sortParams(BasePresenter::getReflection()->getPersistentParams()));
 
-Assert::same([
-	'p2' => ['def' => null, 'type' => 'scalar', 'since' => 'TestPresenter'],
-	'p1' => ['def' => null, 'type' => 'scalar', 'since' => 'BasePresenter'],
-	't1' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam1'],
-	't2' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam2A'],
-], TestPresenter::getReflection()->getPersistentParams());
+	Assert::same([
+		'p1' => ['def' => null, 'type' => 'scalar', 'since' => 'BasePresenter'],
+		'p2' => ['def' => null, 'type' => 'scalar', 'since' => 'TestPresenter'],
+		't1' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam1'],
+		't2' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam2A'],
+	], sortParams(TestPresenter::getReflection()->getPersistentParams()));
 
-Assert::same([
-	'p1' => ['def' => 20, 'type' => 'int', 'since' => 'BasePresenter'],
-	'p3' => ['def' => null, 'type' => 'scalar', 'since' => 'SecondPresenter'],
-	't1' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam1'],
-	't3' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam3'],
-], SecondPresenter::getReflection()->getPersistentParams());
+	Assert::same([
+		'p1' => ['def' => 20, 'type' => 'int', 'since' => 'BasePresenter'],
+		'p3' => ['def' => null, 'type' => 'scalar', 'since' => 'SecondPresenter'],
+		't1' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam1'],
+		't3' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam3'],
+	], sortParams(SecondPresenter::getReflection()->getPersistentParams()));
 
-Assert::same([
-	'p1' => ['def' => null, 'type' => 'scalar', 'since' => 'BasePresenter'],
-	't1' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam1'],
-	't2' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam2A'],
-], ThirdPresenter::getReflection()->getPersistentParams());
+	Assert::same([
+		'p1' => ['def' => null, 'type' => 'scalar', 'since' => 'BasePresenter'],
+		't1' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam1'],
+		't2' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam2A'],
+	], sortParams(ThirdPresenter::getReflection()->getPersistentParams()));
 
-Assert::same([
-	'p1' => ['def' => null, 'type' => 'scalar', 'since' => 'BasePresenter'],
-	't1' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam1'],
-], FourthPresenter::getReflection()->getPersistentParams());
+	Assert::same([
+		'p1' => ['def' => null, 'type' => 'scalar', 'since' => 'BasePresenter'],
+		't1' => ['def' => null, 'type' => 'scalar', 'since' => 'PersistentParam1'],
+	], sortParams(FourthPresenter::getReflection()->getPersistentParams()));
+});
 
-$url = new Http\UrlScript('http://localhost/index.php', '/index.php');
+test('Presenter link() with persistent parameters', function () {
+	$url = new Http\UrlScript('http://localhost/index.php', '/index.php');
 
-$presenterFactory = Mockery::mock(Nette\Application\IPresenterFactory::class);
-$presenterFactory->shouldReceive('getPresenterClass')
-	->andReturnUsing(fn($presenter) => $presenter . 'Presenter');
+	$presenterFactory = Mockery::mock(Nette\Application\IPresenterFactory::class);
+	$presenterFactory->shouldReceive('getPresenterClass')
+		->andReturnUsing(fn($presenter) => $presenter . 'Presenter');
 
-$presenter = new TestPresenter;
-$presenter->injectPrimary(
-	new Http\Request($url),
-	new Http\Response,
-	$presenterFactory,
-	new Application\Routers\SimpleRouter,
-);
+	$presenter = new TestPresenter;
+	$presenter->injectPrimary(
+		new Http\Request($url),
+		new Http\Response,
+		$presenterFactory,
+		new Application\Routers\SimpleRouter,
+	);
 
-$presenter->invalidLinkMode = TestPresenter::InvalidLinkWarning;
-$presenter->autoCanonicalize = false;
+	$presenter->invalidLinkMode = TestPresenter::InvalidLinkWarning;
+	$presenter->autoCanonicalize = false;
 
-$request = new Application\Request('Test', Http\Request::Get, []);
-$presenter->run($request);
+	$request = new Application\Request('Test', Http\Request::Get, []);
+	$presenter->run($request);
+});

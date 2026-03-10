@@ -1,18 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * n:attr
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
 require __DIR__ . '/../bootstrap.php';
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 
 $template = <<<'EOD'
 
@@ -28,22 +25,12 @@ Assert::match(
 				echo '
 		<p';
 				$ʟ_tmp = ['title' => 'hello', 'lang' => isset($lang) ? $lang : null];
-				$ʟ_tmp = [$ʟ_tmp[0] ?? null] === $ʟ_tmp ? $ʟ_tmp[0] : $ʟ_tmp;
-				foreach ((array) $ʟ_tmp as $ʟ_an => $ʟ_av) {
-					if ($ʟ_tmp = LR\HtmlHelpers::formatAttribute($ʟ_an, $ʟ_av)) {
-						echo ' ', $ʟ_tmp /* line 2 */;
-					}
-				}
+				echo Latte\Essential\Nodes\NAttrNode::attrs($ʟ_tmp, false) /* pos 2:4 */;
 				echo '> </p>
 
 		<input';
 				$ʟ_tmp = ['checked' => true, 'disabled' => false];
-				$ʟ_tmp = [$ʟ_tmp[0] ?? null] === $ʟ_tmp ? $ʟ_tmp[0] : $ʟ_tmp;
-				foreach ((array) $ʟ_tmp as $ʟ_an => $ʟ_av) {
-					if ($ʟ_tmp = LR\HtmlHelpers::formatAttribute($ʟ_an, $ʟ_av)) {
-						echo ' ', $ʟ_tmp /* line 4 */;
-					}
-				}
+				echo Latte\Essential\Nodes\NAttrNode::attrs($ʟ_tmp, false) /* pos 4:8 */;
 				echo '>
 		';
 		%A%
@@ -67,9 +54,9 @@ Assert::match(
 
 		<p title="hello"> </p>
 
-		<input checked="checked">
+		<input>
 		XX,
-	$latte->renderToString($template),
+	@$latte->renderToString($template),
 );
 $latte->setContentType(Latte\ContentType::Html);
 
@@ -89,14 +76,21 @@ Assert::match(
 );
 
 Assert::match(
-	'<input a=\'<>"\' b="\'">',
+	'<input a="&lt;&gt;&quot;" b="&apos;">',
 	$latte->renderToString('<input n:attr="$attrs">', ['attrs' => ['a' => '<>"', 'b' => "'"]]),
 );
 
-// misuse of
-Assert::match(
-	'<input rowspan=2>',
-	$latte->renderToString('<input n:attr="\'rowspan=2\' => true">'),
+// invalid
+Assert::exception(
+	fn() => $latte->renderToString('<input n:attr="2 => true">'),
+	Latte\RuntimeException::class,
+	'Attribute name must be string, int given',
+);
+
+Assert::exception(
+	fn() => $latte->renderToString('<input n:attr="\'rowspan=2\' => true">'),
+	Latte\RuntimeException::class,
+	"Invalid attribute name 'rowspan=2'",
 );
 
 

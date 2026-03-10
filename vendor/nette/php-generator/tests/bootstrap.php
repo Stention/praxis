@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 // The Nette Tester command-line runner can be
 // invoked through the command: ../vendor/bin/tester .
@@ -30,4 +28,5 @@ function sameFile(string $file, $actual): void
 
 
 Tester\Environment::setup();
+Tester\Environment::setupFunctions();
 date_default_timezone_set('Europe/Prague');

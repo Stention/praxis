@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Latte\Compiler;
 
@@ -26,9 +24,9 @@ final class Block
 
 
 	public function __construct(
-		public /*readonly*/ ExpressionNode $name,
-		public /*readonly*/ int|string $layer,
-		public /*readonly*/ Tag $tag,
+		public readonly ExpressionNode $name,
+		public readonly int|string $layer,
+		public readonly Tag $tag,
 	) {
 	}
 

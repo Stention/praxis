@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -13,10 +11,8 @@ function ws(string $s): string
 }
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
-
-test('{var ...}', function () use ($latte) {
+test('{var ...}', function () {
+	$latte = createLatte();
 	Assert::contains('$var = null; $var2 = null /*', ws($latte->compile('{var $var, $var2,}')));
 	Assert::contains('$var = 123 /*', $latte->compile('{var $var = 123}'));
 	Assert::contains('$var1 = 123; $var2 = \'nette framework\' /*', ws($latte->compile('{var $var1 = 123, $var2 = "nette framework"}')));
@@ -41,36 +37,37 @@ test('{var ...}', function () use ($latte) {
 });
 
 
-test('{default ...}', function () use ($latte) {
+test('{default ...}', function () {
+	$latte = createLatte();
 	Assert::match(<<<'XX'
 		%A%
 				$var ??= array_key_exists('var', get_defined_vars()) ? null : null;
-				$var2 ??= array_key_exists('var2', get_defined_vars()) ? null : null /* line 1 */;
+				$var2 ??= array_key_exists('var2', get_defined_vars()) ? null : null /* pos 1:1 */;
 		%A%
 		XX, $latte->compile('{default $var, $var2}'));
 
 	Assert::contains(
-		'$var ??= array_key_exists(\'var\', get_defined_vars()) ? null : (1 ? 2 : 3) /* line 1 */;',
+		'$var ??= array_key_exists(\'var\', get_defined_vars()) ? null : (1 ? 2 : 3) /* pos 1:1 */;',
 		$latte->compile('{default $var = 1 ? 2 : 3}'),
 	);
 
 	Assert::match(<<<'XX'
 		%A%
 				$var1 ??= array_key_exists('var1', get_defined_vars()) ? null : 123;
-				$var2 ??= array_key_exists('var2', get_defined_vars()) ? null : 'nette framework' /* line 1 */;
+				$var2 ??= array_key_exists('var2', get_defined_vars()) ? null : 'nette framework' /* pos 1:1 */;
 		%A%
 		XX, $latte->compile('{default $var1 = 123, $var2 = "nette framework"}'));
 
 	// types
 	Assert::contains(
-		'$var ??= array_key_exists(\'var\', get_defined_vars()) ? null : 123 /* line 1 */;',
+		'$var ??= array_key_exists(\'var\', get_defined_vars()) ? null : 123 /* pos 1:1 */;',
 		$latte->compile('{default null|int|string[] $var = 123}'),
 	);
 
 	Assert::match(<<<'XX'
 		%A%
 				$var1 ??= array_key_exists('var1', get_defined_vars()) ? null : 123;
-				$var2 ??= array_key_exists('var2', get_defined_vars()) ? null : 'nette framework' /* line 1 */;
+				$var2 ??= array_key_exists('var2', get_defined_vars()) ? null : 'nette framework' /* pos 1:1 */;
 		%A%
 		XX, $latte->compile('{default int|string[] $var1 = 123, ?class $var2 = "nette framework"}'));
 

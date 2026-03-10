@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Latte\Compiler;
 
@@ -16,7 +14,7 @@ use function array_search, in_array;
 
 
 /**
- * Latte tag or n:attribute.
+ * Represents a Latte tag or n:attribute during parsing.
  */
 final class Tag
 {
@@ -34,19 +32,20 @@ final class Tag
 	public int $outputMode = self::OutputNone;
 
 
+	/** @param list<Token> $tokens */
 	public function __construct(
-		public /*readonly*/ string $name,
+		public readonly string $name,
 		array $tokens,
-		public /*readonly*/ Position $position,
-		public /*readonly*/ bool $void = false,
-		public /*readonly*/ bool $closing = false,
-		public /*readonly*/ bool $inHead = false,
-		public /*readonly*/ bool $inTag = false,
-		public /*readonly*/ ?ElementNode $htmlElement = null,
+		public readonly Position $position,
+		public readonly bool $void = false,
+		public readonly bool $closing = false,
+		public readonly bool $inHead = false,
+		public readonly bool $inTag = false,
+		public readonly ?ElementNode $htmlElement = null,
 		public ?self $parent = null,
-		public /*readonly*/ ?string $prefix = null,
+		public readonly ?string $prefix = null,
 		public ?AreaNode $node = null,
-		public ?AreaNode $nAttributeNode = null,
+		public ?AreaNode $nAttribute = null,
 	) {
 		$this->parser = new TagParser($tokens);
 	}
@@ -91,7 +90,7 @@ final class Tag
 	{
 		$tag = $this->parent;
 		while ($tag && (
-			(!in_array($tag->node ? $tag->node::class : null, $classes, true) && !in_array($tag->name, $classes, true))
+			!in_array($tag->node ? $tag->node::class : null, $classes, strict: true)
 			|| ($condition && !$condition($tag))
 		)) {
 			$tag = $tag->parent;
@@ -111,7 +110,8 @@ final class Tag
 
 	public function replaceNAttribute(AreaNode $node): void
 	{
-		$index = array_search($this->nAttributeNode, $this->htmlElement->attributes->children, true);
-		$this->htmlElement->attributes->children[$index] = $this->nAttributeNode = $node;
+		assert($this->htmlElement !== null);
+		$index = array_search($this->nAttribute, $this->htmlElement->attributes->children, strict: true);
+		$this->htmlElement->attributes->children[$index] = $this->nAttribute = $node;
 	}
 }

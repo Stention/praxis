@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: Latte\Engine::warmupCache()
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -14,7 +12,7 @@ test('', function () {
 	$template = __DIR__ . '/templates/block.latte';
 
 	$latte = new Latte\Engine;
-	$latte->setTempDirectory(getTempDir());
+	$latte->setCacheDirectory(getTempDir());
 
 	$cachedFile = $latte->getCacheFile($template);
 	Assert::false(file_exists($cachedFile));

@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: {try} ... {else} {rollback} ... {/try}
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -22,8 +20,7 @@ function error()
 }
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 $latte->setExceptionHandler(function () use (&$args) {
 	$args = func_get_args();
 });

@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: {trace}
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -12,7 +10,7 @@ require __DIR__ . '/../bootstrap.php';
 
 
 $latte = new Latte\Engine;
-$latte->setTempDirectory(getTempDir());
+$latte->setCacheDirectory(getTempDir());
 $latte->setLoader(new Latte\Loaders\StringLoader([
 	'parent' => <<<'X'
 

@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: Nette\PhpGenerator for files.
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 require __DIR__ . '/../bootstrap.php';
@@ -74,16 +72,6 @@ Assert::exception(
 
 Assert::exception(
 	fn() => new Nette\PhpGenerator\ClassType('abc abc'),
-	Nette\InvalidArgumentException::class,
-);
-
-Assert::exception(
-	fn() => new Nette\PhpGenerator\ClassType('abc\abc'),
-	Nette\InvalidArgumentException::class,
-);
-
-Assert::exception(
-	fn() => new Nette\PhpGenerator\ClassType('\abc'),
 	Nette\InvalidArgumentException::class,
 );
 

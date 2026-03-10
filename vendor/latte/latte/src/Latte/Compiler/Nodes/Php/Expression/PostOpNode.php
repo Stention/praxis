@@ -1,28 +1,30 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Latte\Compiler\Nodes\Php\Expression;
 
 use Latte\CompileException;
 use Latte\Compiler\Nodes\Php\ExpressionNode;
+use Latte\Compiler\Nodes\Php\OperatorNode;
 use Latte\Compiler\Position;
 use Latte\Compiler\PrintContext;
 
 
-class PostOpNode extends ExpressionNode
+/**
+ * Postfix increment/decrement ($var++, $var--).
+ */
+class PostOpNode extends ExpressionNode implements OperatorNode
 {
 	private const Ops = ['++' => 1, '--' => 1];
 
 
 	public function __construct(
 		public ExpressionNode $var,
-		public /*readonly*/ string $operator,
+		public string $operator,
 		public ?Position $position = null,
 	) {
 		if (!isset(self::Ops[$this->operator])) {
@@ -35,7 +37,13 @@ class PostOpNode extends ExpressionNode
 	public function print(PrintContext $context): string
 	{
 		$this->validate();
-		return $context->postfixOp($this, $this->var, $this->operator);
+		return $context->parenthesize($this, $this->var, self::AssocLeft) . $this->operator;
+	}
+
+
+	public function getOperatorPrecedence(): array
+	{
+		return [240, self::AssocLeft];
 	}
 
 

@@ -1,23 +1,25 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Latte\Compiler\Nodes\Php\Expression;
 
 use Latte\Compiler\Nodes\Php;
 use Latte\Compiler\Nodes\Php\ExpressionNode;
 use Latte\Compiler\Nodes\Php\NameNode;
+use Latte\Compiler\Nodes\Php\OperatorNode;
 use Latte\Compiler\Position;
 use Latte\Compiler\PrintContext;
 use Latte\Helpers;
 
 
-class NewNode extends ExpressionNode
+/**
+ * Object instantiation (new ClassName or new $expr).
+ */
+class NewNode extends ExpressionNode implements OperatorNode
 {
 	public function __construct(
 		public NameNode|ExpressionNode $class,
@@ -33,6 +35,12 @@ class NewNode extends ExpressionNode
 	{
 		return 'new ' . $context->dereferenceExpr($this->class)
 			. ($this->args ? '(' . $context->implode($this->args) . ')' : '');
+	}
+
+
+	public function getOperatorPrecedence(): array
+	{
+		return [270, self::AssocNone];
 	}
 
 

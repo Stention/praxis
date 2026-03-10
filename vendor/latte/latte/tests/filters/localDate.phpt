@@ -1,11 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: Latte\Essential\Filters::localDate()
- * @phpVersion 8.1
  */
-
-declare(strict_types=1);
 
 use Latte\Essential\Filters;
 use Tester\Assert;
@@ -81,7 +78,7 @@ test('full/long/medium/short', function () {
 	// time format
 	Assert::same('12:13', $filters->localDate('12:13:14', time: 'short'));
 	Assert::same('12:13:14', $filters->localDate('12:13:14', time: 'medium'));
-	Assert::same('12:13:14 PDT', $filters->localDate('12:13:14', time: 'long'));
+	Assert::match('12:13:14 %a%', $filters->localDate('12:13:14', time: 'long'));
 	Assert::match('12:13:14%a%', $filters->localDate('12:13:14', time: 'full'));
 
 	// combined

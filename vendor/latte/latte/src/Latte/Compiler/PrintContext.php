@@ -1,85 +1,42 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Latte\Compiler;
 
 use Latte\Compiler\Nodes\Php as Nodes;
 use Latte\Compiler\Nodes\Php\Expression;
+use Latte\Compiler\Nodes\Php\OperatorNode;
 use Latte\Compiler\Nodes\Php\Scalar;
 use Latte\ContentType;
-use function addcslashes, array_map, array_pop, end, implode, preg_replace, preg_replace_callback, strtolower, substr, trim, ucfirst;
+use Latte\Feature;
+use function addcslashes, array_pop, count, end, implode, preg_replace, preg_replace_callback, strtolower, substr, trim, ucfirst;
 
 
 /**
- * PHP printing helpers and context.
+ * Context for PHP code generation with escaping management.
  */
 final class PrintContext
 {
-	/** associativity */
-	private const
-		Left = -1,
-		None = 0,
-		Right = 1;
-
+	/** @var Nodes\ParameterNode[] */
 	public array $paramsExtraction = [];
+
+	/** @var array<string, Block> */
 	public array $blocks = [];
-
-	private array $operatorPrecedence = [
-		// [precedence, associativity]
-		'new'        => [270, self::None], // also clone
-		'**'         => [250, self::Right],
-		'++x'        => [240, self::Right],
-		'x++'        => [240, self::Left],
-		'~'          => [240, self::Right], // also unary + -
-		'(type)'     => [240, self::Right],
-		'@'          => [240, self::Right],
-		'!'          => [240, self::Right],
-		'instanceof' => [230, self::None],
-		'*'          => [210, self::Left],
-		'/'          => [210, self::Left],
-		'%'          => [210, self::Left],
-		'+'          => [200, self::Left],
-		'-'          => [200, self::Left],
-		'<<'         => [190, self::Left],
-		'>>'         => [190, self::Left],
-		'.'          => [185, self::Left],
-		'|>'         => [183, self::Left],
-		'<'          => [180, self::None],
-		'<='         => [180, self::None],
-		'>'          => [180, self::None],
-		'>='         => [180, self::None],
-		'<=>'        => [180, self::None],
-		'=='         => [170, self::None],
-		'!='         => [170, self::None],
-		'==='        => [170, self::None],
-		'!=='        => [170, self::None],
-		'&'          => [160, self::Left],
-		'^'          => [150, self::Left],
-		'|'          => [140, self::Left],
-		'&&'         => [130, self::Left],
-		'||'         => [120, self::Left],
-		'??'         => [110, self::Right],
-		'?:'         => [100, self::None],
-		'='          => [90,  self::Right],
-		'and'        => [50,  self::Left],
-		'xor'        => [40,  self::Left],
-		'or'         => [30,  self::Left],
-	];
-
 	private int $counter = 0;
 
 	/** @var Escaper[] */
 	private array $escaperStack = [];
 
 
-	public function __construct(string $contentType = ContentType::Html)
-	{
+	public function __construct(
+		string $contentType = ContentType::Html,
+		/** @var array<string, bool> */
+		private array $features = [],
+	) {
 		$this->escaperStack[] = new Escaper($contentType);
 	}
 
@@ -109,7 +66,7 @@ final class PrintContext
 				return match ($fn) {
 					'modify' => $args[$pos]->printSimple($this, $var),
 					'modifyContent' => $args[$pos]->printContentAware($this, $var),
-					'escape' => end($this->escaperStack)->escape($var),
+					'escape' => $this->getEscaper()->escape($var),
 				};
 			},
 			$mask,
@@ -125,15 +82,15 @@ final class PrintContext
 					'dump' => PhpHelpers::dump($arg),
 					'node' => match (true) {
 						!$arg => '',
-						$arg instanceof Nodes\ExpressionNode => $this->parenthesize($arg, $this->operatorPrecedence['='], self::Right),
+						$arg instanceof OperatorNode && $arg->getOperatorPrecedence() < Expression\AssignNode::Precedence => '(' . $arg->print($this) . ')',
 						default => $arg->print($this),
 					},
 					'raw' => (string) $arg,
 					'args' => $this->implode($arg instanceof Expression\ArrayNode ? $arg->toArguments() : $arg),
-					'line' => $arg?->line ? "/* line $arg->line */" : '',
+					'line' => $arg?->line ? "/* pos $arg->line" . ($arg->column ? ":$arg->column" : '') . ' */' : '',
 				};
 
-				if ($cond && ($code === '[]' || $code === '')) {
+				if ($cond && ($code === '[]' || $code === '' || $code === 'null')) {
 					return $right ? $left : $right;
 				}
 
@@ -146,12 +103,18 @@ final class PrintContext
 	}
 
 
+	/**
+	 * Pushes current escaper onto stack.
+	 */
 	public function beginEscape(): Escaper
 	{
 		return $this->escaperStack[] = $this->getEscaper();
 	}
 
 
+	/**
+	 * Restores previous escaper from stack.
+	 */
 	public function restoreEscape(): void
 	{
 		array_pop($this->escaperStack);
@@ -160,7 +123,9 @@ final class PrintContext
 
 	public function getEscaper(): Escaper
 	{
-		return clone end($this->escaperStack);
+		$escaper = end($this->escaperStack);
+		assert($escaper instanceof Escaper);
+		return clone $escaper;
 	}
 
 
@@ -180,9 +145,18 @@ final class PrintContext
 	}
 
 
+	/**
+	 * Generates unique ID for temporary variables.
+	 */
 	public function generateId(): int
 	{
 		return $this->counter++;
+	}
+
+
+	public function hasFeature(Feature $feature): bool
+	{
+		return $this->features[$feature->name] ?? false;
 	}
 
 
@@ -197,75 +171,45 @@ final class PrintContext
 	}
 
 
-	/**
-	 * Prints an infix operation while taking precedence into account.
-	 */
+	#[\Deprecated]
 	public function infixOp(Node $node, Node $leftNode, string $operatorString, Node $rightNode): string
 	{
-		$precedence = $this->getPrecedence($node);
-		return $this->parenthesize($leftNode, $precedence, self::Left)
+		return $this->parenthesize($node, $leftNode, OperatorNode::AssocLeft)
 			. $operatorString
-			. $this->parenthesize($rightNode, $precedence, self::Right);
+			. $this->parenthesize($node, $rightNode, OperatorNode::AssocRight);
 	}
 
 
-	/**
-	 * Prints a prefix operation while taking precedence into account.
-	 */
+	#[\Deprecated]
 	public function prefixOp(Node $node, string $operatorString, Node $expr): string
 	{
-		return $operatorString . $this->parenthesize($expr, $this->getPrecedence($node), self::Right);
+		return $operatorString . $this->parenthesize($node, $expr, OperatorNode::AssocRight);
 	}
 
 
-	/**
-	 * Prints a postfix operation while taking precedence into account.
-	 */
+	#[\Deprecated]
 	public function postfixOp(Node $node, Node $var, string $operatorString): string
 	{
-		return $this->parenthesize($var, $this->getPrecedence($node), self::Left) . $operatorString;
+		return $this->parenthesize($node, $var, OperatorNode::AssocLeft) . $operatorString;
 	}
 
 
 	/**
 	 * Prints an expression node with the least amount of parentheses necessary to preserve the meaning.
 	 */
-	private function parenthesize(Node $node, array $parent, int $childPosition): string
+	public function parenthesize(OperatorNode $parentNode, Node $childNode, int $childPosition): string
 	{
-		[$childPrecedence] = $this->getPrecedence($node);
-		if ($childPrecedence) {
-			[$parentPrecedence, $parentAssociativity] = $parent;
-			if ($childPrecedence < $parentPrecedence
-				|| ($parentPrecedence === $childPrecedence && $parentAssociativity !== $childPosition)
-			) {
-				return '(' . $node->print($this) . ')';
-			}
-		}
-
-		return $node->print($this);
-	}
-
-
-	private function getPrecedence(Node $node): ?array
-	{
-		return $this->operatorPrecedence[match (true) {
-			$node instanceof Expression\BinaryOpNode => $node->operator,
-			$node instanceof Expression\PreOpNode => '++x',
-			$node instanceof Expression\PostOpNode => 'x++',
-			$node instanceof Expression\UnaryOpNode => '~',
-			$node instanceof Expression\CastNode => '(type)',
-			$node instanceof Expression\ErrorSuppressNode => '@',
-			$node instanceof Expression\InstanceofNode => 'instanceof',
-			$node instanceof Expression\NotNode => '!',
-			$node instanceof Expression\TernaryNode => '?:',
-			$node instanceof Expression\AssignNode, $node instanceof Expression\AssignOpNode => '=',
-			default => '',
-		}] ?? null;
+		[$parentPrec, $parentAssoc] = $parentNode->getOperatorPrecedence();
+		[$childPrec] = $childNode instanceof OperatorNode ? $childNode->getOperatorPrecedence() : [null];
+		return $childPrec && ($childPrec < $parentPrec || ($parentPrec === $childPrec && $parentAssoc !== $childPosition))
+			? '(' . $childNode->print($this) . ')'
+			: $childNode->print($this);
 	}
 
 
 	/**
 	 * Prints an array of nodes and implodes the printed values with $glue
+	 * @param  (?Node)[]  $nodes
 	 */
 	public function implode(array $nodes, string $glue = ', '): string
 	{
@@ -307,11 +251,8 @@ final class PrintContext
 			|| $expr instanceof Expression\VariableNode
 			|| $expr instanceof Expression\ArrayAccessNode
 			|| $expr instanceof Expression\FunctionCallNode
-			|| $expr instanceof Expression\FunctionCallableNode
 			|| $expr instanceof Expression\MethodCallNode
-			|| $expr instanceof Expression\MethodCallableNode
 			|| $expr instanceof Expression\StaticMethodCallNode
-			|| $expr instanceof Expression\StaticMethodCallableNode
 			|| $expr instanceof Expression\ArrayNode
 			? $expr->print($this)
 			: '(' . $expr->print($this) . ')';
@@ -329,11 +270,8 @@ final class PrintContext
 			|| $expr instanceof Expression\PropertyFetchNode
 			|| $expr instanceof Expression\StaticPropertyFetchNode
 			|| $expr instanceof Expression\FunctionCallNode
-			|| $expr instanceof Expression\FunctionCallableNode
 			|| $expr instanceof Expression\MethodCallNode
-			|| $expr instanceof Expression\MethodCallableNode
 			|| $expr instanceof Expression\StaticMethodCallNode
-			|| $expr instanceof Expression\StaticMethodCallableNode
 			|| $expr instanceof Expression\ArrayNode
 			|| $expr instanceof Scalar\StringNode
 			|| $expr instanceof Scalar\BooleanNode

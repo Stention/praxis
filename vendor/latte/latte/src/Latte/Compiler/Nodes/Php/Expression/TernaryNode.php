@@ -1,21 +1,23 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Latte\Compiler\Nodes\Php\Expression;
 
 use Latte\Compiler\Nodes\Php\ExpressionNode;
-use Latte\Compiler\Nodes\Php\NameNode;
+use Latte\Compiler\Nodes\Php\OperatorNode;
+use Latte\Compiler\Nodes\Php\Scalar\NullNode;
 use Latte\Compiler\Position;
 use Latte\Compiler\PrintContext;
 
 
-class TernaryNode extends ExpressionNode
+/**
+ * Ternary conditional ($cond ? $then : $else) or elvis operator ($a ?: $b).
+ */
+class TernaryNode extends ExpressionNode implements OperatorNode
 {
 	public function __construct(
 		public ExpressionNode $cond,
@@ -28,12 +30,15 @@ class TernaryNode extends ExpressionNode
 
 	public function print(PrintContext $context): string
 	{
-		return $context->infixOp(
-			$this,
-			$this->cond,
-			' ?' . ($this->if !== null ? ' ' . $this->if->print($context) . ' ' : '') . ': ',
-			$this->else ?? new NameNode('null'),
-		);
+		return $context->parenthesize($this, $this->cond, self::AssocLeft)
+			. ($this->if ? ' ? ' . $this->if->print($context) . ' : ' : ' ?: ')
+			. $context->parenthesize($this, $this->else ?? new NullNode, self::AssocRight);
+	}
+
+
+	public function getOperatorPrecedence(): array
+	{
+		return [100, self::AssocNone];
 	}
 
 

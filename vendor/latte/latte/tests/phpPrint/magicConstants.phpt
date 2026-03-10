@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 // Magic constants
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -23,6 +21,6 @@ Assert::same(
 );
 
 __halt_compiler();
-(is_file(self::Source) ? self::Source : null),
-(is_file(self::Source) ? dirname(self::Source) : null),
+(is_file($this->getName()) ? $this->getName() : null),
+(is_file($this->getName()) ? dirname($this->getName()) : null),
 3

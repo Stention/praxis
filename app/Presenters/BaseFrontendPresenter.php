@@ -15,6 +15,8 @@ class BaseFrontendPresenter extends Presenter
 
 	const ADDRESS = 'Štěpánská 55, Praha 1, 110 00';
 
+	const CANONICAL_BASE = 'https://www.zubni-stepanska.cz';
+
 	public function beforeRender(): void
 	{
 		parent::beforeRender();
@@ -22,37 +24,25 @@ class BaseFrontendPresenter extends Presenter
 		$locale = $this->getParameter('locale') ?? 'cs';
 		$this->template->locale = $locale;
 
-		// Vygeneruj canonical URL s explicitními parametry
 		$presenter = $this->getName();
 		$action = $this->getAction();
 		$params = $this->getParameters();
 
-		// Canonical - aktuální stránka s aktuální locale
-		$canonical = $this->link('//' . $presenter . ':' . $action, $params);
-		// Normalizuj velká písmena
-		$canonical = preg_replace_callback('/\/([A-Z][a-z]+)/', function($matches) {
-			return '/' . lcfirst($matches[1]);
-		}, $canonical);
-		$this->template->canonicalUrl = $canonical;
+		// Canonical - vždy používá pevnou HTTPS doménu, nikoliv dynamické schéma z requestu
+		$canonicalPath = $this->link($presenter . ':' . $action, $params);
+		$this->template->canonicalUrl = self::CANONICAL_BASE . $canonicalPath;
 
-		// Hreflang CS - stejná stránka, ale bez locale (= cs)
+		// Hreflang CS - stejná stránka bez locale parametru (= výchozí cs)
 		$paramsCs = $params;
-		unset($paramsCs['locale']); // Odstranit locale = použije se default cs
-		$hreflangCs = $this->link('//' . $presenter . ':' . $action, $paramsCs);
-		$hreflangCs = preg_replace_callback('/\/([A-Z][a-z]+)/', function($matches) {
-			return '/' . lcfirst($matches[1]);
-		}, $hreflangCs);
+		unset($paramsCs['locale']);
+		$hreflangCsPath = $this->link($presenter . ':' . $action, $paramsCs);
+		$this->template->hreflangCs = self::CANONICAL_BASE . $hreflangCsPath;
 
 		// Hreflang EN - stejná stránka s locale=en
 		$paramsEn = $params;
 		$paramsEn['locale'] = 'en';
-		$hreflangEn = $this->link('//' . $presenter . ':' . $action, $paramsEn);
-		$hreflangEn = preg_replace_callback('/\/([A-Z][a-z]+)/', function($matches) {
-			return '/' . lcfirst($matches[1]);
-		}, $hreflangEn);
-
-		$this->template->hreflangCs = $hreflangCs;
-		$this->template->hreflangEn = $hreflangEn;
+		$hreflangEnPath = $this->link($presenter . ':' . $action, $paramsEn);
+		$this->template->hreflangEn = self::CANONICAL_BASE . $hreflangEnPath;
 	}
 
 	public function startup(): void

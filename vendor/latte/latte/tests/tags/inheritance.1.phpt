@@ -1,17 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: {extends ...} test I.
  */
 
-declare(strict_types=1);
-
+use Latte\Runtime\Template;
 use Tester\Assert;
 
 require __DIR__ . '/../bootstrap.php';
 
 
 $latte = new Latte\Engine;
+$latte->addFunction('info', fn(Template $template) => basename($template->getReferringTemplate()->getName()) . '/' . $template->getReferenceType());
+$latte->addFunction('info2', fn(Template $template) => gettype($template->getReferringTemplate()));
 $latte->setLoader(new Latte\Loaders\StringLoader([
 	'parent' => file_get_contents(__DIR__ . '/templates/parent.latte'),
 
@@ -30,7 +31,7 @@ $latte->setLoader(new Latte\Loaders\StringLoader([
 				<li>{$person}</li>
 			{/foreach}
 			</ul>
-			Parent: {gettype($this->getReferringTemplate())}
+			Parent: {info2()}
 		{/block}
 
 		XX,

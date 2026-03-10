@@ -2,8 +2,6 @@
 %A%
 final class Template%a% extends Latte\Runtime\Template
 {
-	public const Source = 'main';
-
 	public const Blocks = [
 		['content' => 'blockContent', 'title' => 'blockTitle', 'sidebar' => 'blockSidebar'],
 	];
@@ -13,9 +11,9 @@ final class Template%a% extends Latte\Runtime\Template
 	{
 %A%
 		echo "\n";
-		$this->renderBlock('content', get_defined_vars()) /* line %d% */;
+		$this->renderBlock('content', get_defined_vars()) /* pos %d%:%d% */;
 		echo "\n";
-		$this->renderBlock('sidebar', get_defined_vars()) /* line %d% */;
+		$this->renderBlock('sidebar', get_defined_vars()) /* pos %d%:%d% */;
 	}
 
 
@@ -41,14 +39,14 @@ final class Template%a% extends Latte\Runtime\Template
 		unset($ʟ_args);
 
 		echo '	<h1>';
-		$this->renderBlock('title', get_defined_vars()) /* line %d% */;
+		$this->renderBlock('title', get_defined_vars()) /* pos %d%:%d% */;
 		echo '</h1>
 
 	<ul>
 ';
-		foreach ($people as $person) /* line %d% */ {
+		foreach ($people as $person) /* pos %d%:%d% */ {
 			echo '		<li>';
-			echo LR\Filters::escapeHtmlText($person) /* line %d% */;
+			echo LR\HtmlHelpers::escapeText($person) /* pos %d%:%d% */;
 			echo '</li>
 ';
 

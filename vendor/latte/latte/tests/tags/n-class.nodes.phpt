@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * n:class
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -17,7 +15,6 @@ Assert::match(<<<'XX'
 		Fragment:
 			Element:
 				name: input
-				Auxiliary:
 				Fragment:
 					NClass:
 						Array:

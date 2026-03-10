@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Nette\PhpGenerator\Extractor;
 use Tester\Assert;
@@ -19,6 +17,17 @@ $file = (new Extractor(<<<'XX'
 
 Assert::null($file->getComment());
 Assert::same('doc comment', $file->getClasses()['Class1']->getComment());
+
+
+$file = (new Extractor(<<<'XX'
+	<?php declare(strict_types=1);
+
+	/** doc comment */
+
+	namespace Abc;
+	XX))->extractAll();
+
+Assert::same('doc comment', $file->getComment());
 
 
 $file = (new Extractor(<<<'XX'

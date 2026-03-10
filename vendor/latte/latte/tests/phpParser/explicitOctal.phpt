@@ -1,10 +1,6 @@
-<?php
-
-/** @phpversion 8.1 */
+<?php declare(strict_types=1);
 
 // Explicit octal syntax
-
-declare(strict_types=1);
 
 use Tester\Assert;
 

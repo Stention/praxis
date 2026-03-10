@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Tester\Assert;
 use Tester\Expect;
@@ -19,9 +17,8 @@ class MyClass
 }
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
-$latte->setTempDirectory(getTempDir());
+$latte = createLatte();
+$latte->setCacheDirectory(getTempDir());
 
 $policy = new PolicyLogger;
 $latte->setPolicy($policy);
@@ -50,7 +47,6 @@ $template = <<<'EOD'
 	{=[$obj, $method]()}
 
 	{=$obj?->foo()}
-	{=$obj??->foo()}
 	EOD;
 
 // compile-time
@@ -72,7 +68,6 @@ Assert::same(
 	[
 		'functions' => ['trim', 'trim'],
 		'methods' => [
-			['MyClass', 'foo'],
 			['MyClass', 'foo'],
 			['MyClass', 'foo'],
 			['MyClass', 'foo'],

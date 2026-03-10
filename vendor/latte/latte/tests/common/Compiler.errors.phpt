@@ -1,18 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: Compile errors.
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
 require __DIR__ . '/../bootstrap.php';
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 
 Assert::exception(
 	fn() => $latte->compile('{'),
@@ -291,6 +288,18 @@ Assert::exception(
 	'Forbidden variable $ʟ_tmp (on line 1 at column 2)',
 );
 
+Assert::error(
+	fn() => $latte->compile('{$__tmp}'),
+	E_USER_DEPRECATED,
+	'Using the $__tmp variable in the template is deprecated (on line 1 at column 2)',
+);
+
+Assert::error(
+	fn() => $latte->compile('{$this}'),
+	E_USER_DEPRECATED,
+	'Using the $this variable in the template is deprecated (on line 1 at column 2)',
+);
+
 Assert::exception(
 	fn() => $latte->compile('{$GLOBALS}'),
 	Latte\CompileException::class,
@@ -361,4 +370,16 @@ Assert::exception(
 		XX),
 	Latte\CompileException::class,
 	"Unexpected '</li>', expecting </a> for element started on line 2 at column 8 (on line 2 at column 37)",
+);
+
+Assert::exception(
+	fn() => $latte->compile('{0|escape}'),
+	Latte\CompileException::class,
+	"Filter 'escape' is not allowed (on line 1 at column 3)",
+);
+
+Assert::exception(
+	fn() => $latte->compile('{$foo?->foo(...)}'),
+	Latte\CompileException::class,
+	'Cannot combine nullsafe operator with Closure creation (on line 1 at column 2)',
 );

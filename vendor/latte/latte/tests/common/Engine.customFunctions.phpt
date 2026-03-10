@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Tester\Assert;
 
 require __DIR__ . '/../bootstrap.php';
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 
 // global function
 $latte->addFunction('fnc', 'trim');
@@ -59,7 +56,7 @@ Assert::same(
 );
 
 
-// case insensitive
+// case sensitive
 $latte->addFunction('fNC', 'trim');
 Assert::same(
 	'abc',
@@ -67,9 +64,9 @@ Assert::same(
 );
 
 Assert::error(
-	fn() => $latte->compile('{Fnc(123)}'),
-	E_USER_WARNING,
-	"Case mismatch on function name 'Fnc', correct name is 'fNC'.",
+	fn() => $latte->renderToString('{Fnc(123)}'),
+	Error::class,
+	'Call to undefined function Fnc()',
 );
 
 

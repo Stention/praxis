@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Nette\Schema\Expect;
 use Nette\Schema\Helpers;
@@ -308,13 +306,6 @@ test('arrayOf() & keys II.', function () {
 
 	Assert::same(['yek' => 'val'], (new Processor)->process($schema, ['key' => 'val']));
 });
-
-
-testException(
-	'arrayOf() error',
-	fn() => Expect::arrayOf(['a' => Expect::string()]),
-	TypeError::class,
-);
 
 
 test('type[]', function () {

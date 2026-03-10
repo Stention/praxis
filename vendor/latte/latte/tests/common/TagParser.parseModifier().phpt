@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Latte\Compiler\PrintContext;
 use Latte\Compiler\TagLexer;
@@ -49,13 +47,19 @@ test('inline modifiers', function () {
 
 test('FilterInfo aware modifiers', function () {
 	Assert::same('$this->filters->filterContent(\'mod\', $ʟ_fi, @)', format('|mod', true));
-	Assert::same('$this->filters->filterContent(\'escape\', $ʟ_fi, $this->filters->filterContent(\'mod2\', $ʟ_fi, $this->filters->filterContent(\'mod1\', $ʟ_fi, @)))', format('|mod1|mod2|escape', true));
+	Assert::same('$this->filters->filterContent(\'mod3\', $ʟ_fi, $this->filters->filterContent(\'mod2\', $ʟ_fi, $this->filters->filterContent(\'mod1\', $ʟ_fi, @)))', format('|mod1|mod2|mod3', true));
 });
 
 test('depth', function () {
 	Assert::same('($this->filters->mod)(@, 1 ? 2 : 3)', format('|mod:(1?2:3)'));
 });
 
+test('nullsafe filter', function () {
+	Assert::same(
+		'(($ʟ_tmp = (($ʟ_tmp = @) === null ? null : ($this->filters->mod2)(($this->filters->mod1)($ʟ_tmp)))) === null ? null : ($this->filters->mod3)($ʟ_tmp))',
+		format('?|mod1|mod2?|mod3'),
+	);
+});
 
 test('optionalChainingPass', function () {
 	Assert::same(
@@ -64,7 +68,7 @@ test('optionalChainingPass', function () {
 	);
 	Assert::same(
 		'($this->filters->mod)(@, (((($var ?? null)?->prop ?? null)?->elem[1] ?? null)?->call(2) ?? null)?->item)',
-		format('|mod:$var??->prop??->elem[1]??->call(2)??->item'),
+		@format('|mod:$var??->prop??->elem[1]??->call(2)??->item'), // deprecated ??->
 	);
 });
 

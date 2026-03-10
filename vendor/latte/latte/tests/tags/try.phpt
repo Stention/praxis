@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Test: {try} ... {else} {rollback} ... {/try}
  */
-
-declare(strict_types=1);
 
 use Tester\Assert;
 
@@ -17,8 +15,7 @@ function error()
 }
 
 
-$latte = new Latte\Engine;
-$latte->setLoader(new Latte\Loaders\StringLoader);
+$latte = createLatte();
 
 // only try
 Assert::match(

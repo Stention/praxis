@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Latte (https://latte.nette.org)
  * Copyright (c) 2008 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Latte\Bridges\Tracy;
 
@@ -25,11 +23,13 @@ class LattePanel implements Tracy\IBarPanel
 
 	/** @var Template[] */
 	private array $templates = [];
+
+	/** @var \stdClass[] */
 	private array $list;
 	private ?string $name = null;
 
 
-	/** @deprecated use TracyExtension see https://bit.ly/46flfDi */
+	#[\Deprecated('use TracyExtension see https://bit.ly/46flfDi')]
 	public static function initialize(Engine $latte, ?string $name = null, ?Tracy\Bar $bar = null): void
 	{
 		$bar ??= Tracy\Debugger::getBar();
@@ -42,6 +42,7 @@ class LattePanel implements Tracy\IBarPanel
 	{
 		$this->name = $name;
 		if ($latte) {
+			trigger_error('Replace LattePanel with TracyExtension; see https://bit.ly/46flfDi', E_USER_DEPRECATED);
 			$latte->addExtension(
 				new class ($this->templates) extends Extension {
 					public function __construct(
@@ -76,7 +77,8 @@ class LattePanel implements Tracy\IBarPanel
 		}
 
 		return Tracy\Helpers::capture(function () {
-			$name = $this->name ?? basename(reset($this->templates)->getName());
+			$first = reset($this->templates);
+			$name = $this->name ?? ($first ? basename($first->getName()) : '');
 			require __DIR__ . '/dist/tab.phtml';
 		});
 	}

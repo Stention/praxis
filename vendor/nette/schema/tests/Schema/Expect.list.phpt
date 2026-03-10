@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Nette\Schema\Expect;
 use Nette\Schema\Processor;
@@ -97,10 +95,3 @@ test('listOf() & scalar', function () {
 		(new Processor)->process($schema, ['key' => 'val']);
 	}, ['The item expects to be list, array given.']);
 });
-
-
-testException(
-	'listOf() & error',
-	fn() => Expect::listOf(['a' => Expect::string()]),
-	TypeError::class,
-);

@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 // The Nette Tester command-line runner can be
 // invoked through the command: ../vendor/bin/tester .
@@ -11,6 +9,7 @@ require __DIR__ . '/helpers.php';
 
 // configure environment
 Tester\Environment::setup();
+Tester\Environment::setupFunctions();
 date_default_timezone_set('Europe/Prague');
 
 // output buffer level check

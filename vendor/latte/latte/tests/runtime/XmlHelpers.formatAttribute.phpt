@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Latte\Runtime\XmlHelpers;
 use Tester\Assert;
@@ -8,58 +6,66 @@ use Tester\Assert;
 require __DIR__ . '/../bootstrap.php';
 
 
-test('skipped attributes', function () {
-	Assert::null(XmlHelpers::formatAttribute('title', false));
-	Assert::null(XmlHelpers::formatAttribute('placeholder', null));
-});
+class StringObject
+{
+	public function __toString()
+	{
+		return 'one&<br>';
+	}
+}
 
 
-test('regular text attributes', function () {
-	Assert::same(
-		'title="Hello &amp; Welcome"',
-		XmlHelpers::formatAttribute('title', 'Hello & Welcome'),
-	);
-	Assert::same(
-		'title=\'"Hello" &amp; &#39;Welcome&#39;\'',
-		XmlHelpers::formatAttribute('title', '"Hello" & \'Welcome\''),
-	);
+// text
+Assert::same(
+	'title="Hello &amp; Welcome"',
+	XmlHelpers::formatAttribute('title', 'Hello & Welcome'),
+);
+Assert::same(
+	'title="&quot;Hello&quot; &amp; &apos;Welcome&apos;"',
+	XmlHelpers::formatAttribute('title', '"Hello" & \'Welcome\''),
+);
+Assert::same('title=""', XmlHelpers::formatAttribute('title', ''));
+Assert::same('title="1"', XmlHelpers::formatAttribute('title', 1));
+Assert::same('title="0"', XmlHelpers::formatAttribute('title', 0));
+Assert::same('title="one&amp;"', XmlHelpers::formatAttribute('title', new Latte\Runtime\Html('one&amp;<br>')));
+Assert::same('title="one&amp;&lt;br&gt;"', XmlHelpers::formatAttribute('title', new StringObject));
 
-	Assert::same(
-		'placeholder=""',
-		XmlHelpers::formatAttribute('placeholder', ''),
-	);
-});
+// skipped
+Assert::same('', XmlHelpers::formatAttribute('title', null));
+Assert::error(
+	fn() => Assert::same('', XmlHelpers::formatAttribute('title', null, migrationWarnings: true)),
+	E_USER_WARNING,
+	'Behavior change for attribute \'title\' with value null: previously it rendered as title="", now the attribute is omitted.',
+);
 
+// invalid
+Assert::error(
+	fn() => Assert::same('', XmlHelpers::formatAttribute('title', true)),
+	E_USER_WARNING,
+	"Invalid value for attribute 'title': bool is not allowed.",
+);
+Assert::error(
+	fn() => Assert::same('', XmlHelpers::formatAttribute('title', false)),
+	E_USER_WARNING,
+	"Invalid value for attribute 'title': bool is not allowed.",
+);
+Assert::error(
+	fn() => Assert::same('', XmlHelpers::formatAttribute('title', [])),
+	E_USER_WARNING,
+	"Invalid value for attribute 'title': array is not allowed.",
+);
+Assert::error(
+	fn() => Assert::same('', XmlHelpers::formatAttribute('title', (object) [])),
+	E_USER_WARNING,
+	"Invalid value for attribute 'title': stdClass is not allowed.",
+);
 
-test('boolean attributes', function () {
-	Assert::same(
-		'disabled="disabled"',
-		XmlHelpers::formatAttribute('disabled', true),
-	);
-});
-
-
-test('edge cases', function () {
-	Assert::same(
-		'width="0"',
-		XmlHelpers::formatAttribute('width', 0),
-	);
-
-	// invalid UTF-8
-	Assert::same(
-		"a=\"foo \xED\xA0\x80 bar\"",
-		XmlHelpers::formatAttribute('a', "foo \u{D800} bar"),
-	);
-	Assert::same(
-		"a='foo \xE3\x80\" bar'",
-		XmlHelpers::formatAttribute('a', "foo \xE3\x80\x22 bar"),
-	);
-});
-
-
-test('invalid values', function () {
-	Assert::error(
-		fn() => Assert::null(XmlHelpers::formatAttribute('foo', (object) [])),
-		Error::class,
-	);
-});
+// invalid UTF-8
+Assert::same( // invalid codepoint high surrogates
+	"a=\"foo \u{FFFD} bar\"",
+	XmlHelpers::formatAttribute('a', "foo \u{D800} bar"),
+);
+Assert::same( // stripped UTF
+	"a=\"foo \u{FFFD}&quot; bar\"",
+	XmlHelpers::formatAttribute('a', "foo \xE3\x80\x22 bar"),
+);
