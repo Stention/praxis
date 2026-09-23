@@ -2,13 +2,13 @@
 {var $en = $locale === 'en'}
 {var $days = $en ? [
 	'Monday' => ['Monday', null],
-	'Tuesday' => ['Tuesday', 'Only in even weeks'],
+	'Tuesday' => ['Tuesday', null],
 	'Wednesday' => ['Wednesday', null],
 	'Thursday' => ['Thursday', 'Dental hygiene'],
 	'Friday' => ['Friday', null],
 ] : [
 	'Monday' => ['Pondělí', null],
-	'Tuesday' => ['Úterý', 'Pouze v sudé týdny'],
+	'Tuesday' => ['Úterý', null],
 	'Wednesday' => ['Středa', null],
 	'Thursday' => ['Čtvrtek', 'Dentální hygiena'],
 	'Friday' => ['Pátek', null],
@@ -25,9 +25,13 @@
 						<span n:if="$note" class="hours-note">{$note}</span>
 					</div>
 					<div class="hours-time">
-						{foreach explode(' / ', $clinicHours[$key]) as $interval}
-							<span>{$interval}</span>
-						{/foreach}
+						{if $clinicHours[$key] === null}
+							<span>{$en ? 'By appointment' : 'Dle objednání'}</span>
+						{else}
+							{foreach explode(' / ', $clinicHours[$key]) as $interval}
+								<span>{$interval}</span>
+							{/foreach}
+						{/if}
 					</div>
 				</div>
 			</div>
