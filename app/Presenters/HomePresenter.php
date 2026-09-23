@@ -31,5 +31,6 @@ final class HomePresenter extends BaseFrontendPresenter
 			'Dental care in a pleasant environment in the city center';
 
 		$this->template->clinicHours = self::CLINIC_HOURS;
+		$this->template->priceList = PricesPresenter::PRICE_LIST;
     }
 }

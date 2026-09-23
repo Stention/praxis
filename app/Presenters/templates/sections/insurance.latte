@@ -1,0 +1,26 @@
+{var $en = $locale === 'en'}
+{var $companies = [
+	'VZP' => 'logo-vzp.png',
+	'VoZP' => 'logo-vozp.jpeg',
+	'OZP' => 'logo-ozp.png',
+	'ZPMV' => 'logo-zpmv.png',
+	'ČPZP' => 'logo-cpzp.png',
+]}
+<section id="pojistovny" class="section section-tint">
+	<div class="container-xl">
+		<p class="eyebrow">{$en ? 'Insurance companies' : 'Pojišťovny'}</p>
+		<h2 n:tag="$h ?? 'h2'" class="section-title">{$en ? 'Contracted health insurance companies' : 'Smluvní zdravotní pojišťovny'}</h2>
+		<p class="lead-text">
+			{if $en}
+				We cooperate with major health insurance companies including VZP, VoZP, OZP, ZPMV, and ČPZP.
+			{else}
+				Spolupracujeme s hlavními českými zdravotními pojišťovnami – VZP, VoZP, OZP, ZPMV a ČPZP.
+			{/if}
+		</p>
+		<div class="logo-grid">
+			<div n:foreach="$companies as $name => $logo" class="logo-card wow fadeInUp" data-wow-delay="{$iterator->counter0 * 0.05}s">
+				<img src="{$basePath}/img/{$logo}" alt="{$name}" loading="lazy">
+			</div>
+		</div>
+	</div>
+</section>

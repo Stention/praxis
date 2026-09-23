@@ -2,18 +2,30 @@
 
 {block holidayInfoBar}
 
-{if $locale === 'cs'}
-	<div class="container-fluid p-0 py-5 wow text-xl-center" style="font-size: 20px; color: white; background-color: var(--primary)">
-		<p>Vážení klienti, ve dnech 28. 08. 2024 a 30. 08. 2024 čerpám dovolenou. Děkuji Vám za pochopení.</p>
-		<p>V případě akutních problémů se prosím obraťte na Zubní pohotovost, Na Františku 8  (https://www.nnfp.cz/department/zubni-pohotovost/)</p>
-		<p>nebo Zubní pohotovost, Spálená 12 (https://www.prahamp.cz/zubni-pohotovost)</p>
+{var $en = $locale === 'en'}
+<div class="notice-bar">
+	<div class="container-xl notice-inner">
+		<i class="bi bi-calendar-x notice-icon"></i>
+		<div>
+			{if $en}
+				<p class="notice-title">Dear clients, I will be on vacation on August 28, 2024, and August 30, 2024. Thank you for your understanding.</p>
+				<p class="notice-text">
+					In case of urgent issues, please contact the Dental Emergency
+					<a href="https://www.nnfp.cz/department/zubni-pohotovost/" target="_blank" rel="noopener noreferrer">Na Františku 8</a>
+					or the Dental Emergency
+					<a href="https://www.prahamp.cz/zubni-pohotovost" target="_blank" rel="noopener noreferrer">Spálená 12</a>.
+				</p>
+			{else}
+				<p class="notice-title">Vážení klienti, ve dnech 28. 08. 2024 a 30. 08. 2024 čerpám dovolenou. Děkuji Vám za pochopení.</p>
+				<p class="notice-text">
+					V případě akutních problémů se prosím obraťte na Zubní pohotovost
+					<a href="https://www.nnfp.cz/department/zubni-pohotovost/" target="_blank" rel="noopener noreferrer">Na Františku 8</a>
+					nebo Zubní pohotovost
+					<a href="https://www.prahamp.cz/zubni-pohotovost" target="_blank" rel="noopener noreferrer">Spálená 12</a>.
+				</p>
+			{/if}
+		</div>
 	</div>
-{else}
-	<div class="container-fluid p-0 py-5 wow text-xl-center" style="font-size: 20px; color: white; background-color: var(--primary)">
-		<p>Dear clients, I will be on vacation on August 28, 2024, and August 30, 2024. Thank you for your understanding.</p>
-		<p>In case of urgent issues, please contact the Dental Emergency, Na Františku 8 (https://www.nnfp.cz/department/zubni-pohotovost/)</p>
-		<p>or the Dental Emergency, Spálená 12 (https://www.prahamp.cz/zubni-pohotovost)</p>
-	</div>
-{/if}
+</div>
 
 {/block}

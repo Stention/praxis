@@ -1,0 +1,38 @@
+{var $en = $locale === 'en'}
+{var $items = $en ? [
+	['Preventive Care', 'Prevention is key to maintaining healthy teeth in children. Regular check-ups and teaching proper hygiene.'],
+	['Cavity Treatment', 'Effective and gentle methods of treating cavities in children.'],
+	['Primary Teeth Extraction', 'Gentle removal of milk teeth that obstruct the growth of permanent teeth.'],
+	['Professional Tooth Cleaning', 'Using modern techniques, we offer children regular professional tooth cleaning.'],
+] : [
+	['Preventivní péče', 'Prevence je klíčem k udržení zdravých zubů u dětí. Pravidelné prohlídky a výuka správné hygieny.'],
+	['Léčba zubních kazů', 'Efektivní a šetrné metody ošetření zubních kazů u dětí.'],
+	['Extrakce dočasných zubů', 'Šetrné odstranění mléčných zubů, které překážejí růstu stálého chrupu.'],
+	['Profesionální čištění zubů', 'Pomocí moderních technik nabízíme dětem pravidelné profesionální vyčištění zubů.'],
+]}
+<section id="deti" class="section section-tint">
+	<div class="container-xl">
+		<div class="row g-5 align-items-center">
+			<div class="col-lg-5 wow fadeInUp">
+				<img src="{$basePath}/img/pediatric-dentist.jpg" alt="{$en ? 'Pediatric dentistry' : 'Dětská stomatologie'}" class="rounded-img" loading="lazy">
+			</div>
+			<div class="col-lg-7 wow fadeInUp" data-wow-delay="0.1s">
+				<p class="eyebrow">{$en ? 'Pediatric dentistry' : 'Dětská stomatologie'}</p>
+				<h2 n:tag="$h ?? 'h2'" class="section-title">{$en ? 'A gentle and playful approach to children' : 'Citlivý a hravý přístup k dětem'}</h2>
+				<p class="lead-text">
+					{if $en}
+						Pediatric dentistry focuses on the prevention and treatment of dental issues in children, from the earliest age through adolescence.
+					{else}
+						Dětská stomatologie se zaměřuje na prevenci a léčbu zubních problémů u dětí, od nejútlejšího věku až po dospívání.
+					{/if}
+				</p>
+				<ul class="check-list">
+					<li n:foreach="$items as [$name, $text]">
+						<i class="bi bi-check2"></i>
+						<span><strong>{$name}</strong> – {$text}</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</section>
