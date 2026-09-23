@@ -1,0 +1,47 @@
+{var $en = $locale === 'en'}
+<section id="uvod" class="hero">
+	<img src="{$basePath}/img/praxis3.webp" alt="{$en ? 'Dental office' : 'Zubní ordinace'}" class="hero-bg">
+	<div class="container-xl hero-content">
+		<p class="eyebrow">{$en ? 'Štěpánská 55, Prague 1' : 'Štěpánská 55, Praha 1'}</p>
+		<h1 class="hero-title">
+			{if $en}Dental practice of MDDr.&nbsp;Eliška Kremlová{else}Zubní ordinace MDDr.&nbsp;Elišky Kremlové{/if}
+		</h1>
+		<p class="hero-lead">
+			{if $en}
+				Conservative treatment, dental hygiene, endodontics, prosthetics and care for children in the centre of Prague.
+			{else}
+				Konzervativní ošetření, dentální hygiena, endodoncie, protetika i péče o dětské pacienty v centru Prahy.
+			{/if}
+		</p>
+		<div class="hero-actions">
+			<a href="tel:{str_replace(' ', '', $phone)}" class="btn-light-brand"><i class="bi bi-telephone"></i>{$en ? 'Book' : 'Objednat se'}: {$phone}</a>
+			<a href="#sluzby" class="btn-outline-light-brand">{$en ? 'Our services' : 'Naše služby'}</a>
+		</div>
+{*		<p class="badge-soft"><i class="bi bi-check-circle"></i>{$en ? 'We are currently accepting new patients.' : 'Aktuálně přijímáme nové pacienty.'}</p>*}
+	</div>
+</section>
+
+<div class="quick-wrap">
+<div class="container-xl">
+	<div class="quick-cards">
+		<a href="tel:{str_replace(' ', '', $phone)}" class="quick-card">
+			<i class="bi bi-telephone"></i>
+			<h2>{$en ? 'Appointments' : 'Objednání'}</h2>
+			<p>{$en ? 'By phone only, including urgent cases.' : 'Pouze telefonicky, i v akutních případech.'}</p>
+			<span class="quick-link">{$phone}</span>
+		</a>
+		<a href="#hodiny" class="quick-card">
+			<i class="bi bi-clock"></i>
+			<h2>{$en ? 'Office hours' : 'Ordinační hodiny'}</h2>
+			<p>{$en ? 'Monday to Friday.' : 'Pondělí až pátek.'}</p>
+			<span class="quick-link">{$en ? 'Show hours' : 'Zobrazit hodiny'}</span>
+		</a>
+		<a href="#kontakt" class="quick-card">
+			<i class="bi bi-geo-alt"></i>
+			<h2>{$en ? 'Address' : 'Adresa'}</h2>
+			<p>{$address}</p>
+			<span class="quick-link">{$en ? 'Show map' : 'Zobrazit mapu'}</span>
+		</a>
+	</div>
+</div>
+</div>

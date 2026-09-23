@@ -1,0 +1,31 @@
+{var $en = $locale === 'en'}
+{var $services = $en ? [
+	['Conservative Treatment', 'We focus on the prevention and treatment of tooth decay and damage to hard dental tissues. We use modern filling materials that ensure both functionality and aesthetics of your smile.'],
+	['Dental Hygiene', 'Professional teeth cleaning, removal of tartar and stains, and oral hygiene education. Regular dental hygiene is essential for healthy gums and the prevention of periodontitis.'],
+	['Endodontics', 'Root canal treatments using advanced techniques and technologies. Endodontic therapy helps save teeth that would otherwise require extraction.'],
+	['Prosthetics', 'We offer dental restorations including crowns, bridges, and removable dentures. Our goal is to restore both the function of your bite and the natural look of your smile.'],
+	['Aesthetic Dentistry', 'Teeth whitening, aesthetic fillings, and shape corrections. We focus on a beautiful and natural-looking smile, tailored to your individual wishes.'],
+	['Care for Pediatric Patients', 'A gentle and playful approach combined with preventive care. We help children build trust and a positive relationship with the dentist from an early age.'],
+] : [
+	['Konzervativní ošetření', 'Zaměřujeme se na prevenci a léčbu zubního kazu i poškození tvrdých zubních tkání. Používáme moderní výplňové materiály, které zajišťují nejen funkčnost, ale i estetiku vašeho úsměvu.'],
+	['Dentální hygiena', 'Profesionální čištění zubů, odstranění zubního kamene a pigmentací, edukace v ústní hygieně. Pravidelná dentální hygiena je základem pro zdravé dásně a prevenci parodontitídy.'],
+	['Endodoncie', 'Ošetření kořenových kanálků pomocí moderních postupů a technologií. Endodontická léčba umožňuje zachovat zuby, které by jinak musely být extrahovány.'],
+	['Protetika', 'Nabízíme zubní náhrady od korunek po můstky a snímatelné protézy. Pomůžeme vám vrátit nejen funkčnost chrupu, ale i přirozený vzhled vašeho úsměvu.'],
+	['Estetická stomatologie', 'Bělení zubů, estetické výplně a korekce tvaru zubů. Zaměřujeme se na krásný a přirozený vzhled vašeho chrupu – s ohledem na vaše individuální přání.'],
+	['Ošetření dětských pacientů', 'Citlivý a hravý přístup k dětem v kombinaci s preventivní péčí. Pomáháme budovat důvěru a kladný vztah k zubaři už od útlého věku.'],
+]}
+<section id="sluzby" class="section section-white section-pattern">
+	<div class="container-xl">
+		<p class="eyebrow">{$en ? 'Our services' : 'Naše služby'}</p>
+		<h2 n:tag="$h ?? 'h2'" class="section-title">{$en ? 'Dental care from prevention to more demanding treatment' : 'Péče o chrup od prevence po náročnější zákroky'}</h2>
+		<div class="row g-4 mt-2">
+			<div n:foreach="$services as $i => [$name, $text]" class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="{$i % 3 * 0.1}s">
+				<article class="card-soft service-card">
+					<span class="service-num">{sprintf('%02d', $i + 1)}</span>
+					<h3>{$name}</h3>
+					<p>{$text}</p>
+				</article>
+			</div>
+		</div>
+	</div>
+</section>

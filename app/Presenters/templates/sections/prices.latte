@@ -1,0 +1,49 @@
+{varType array $priceList}
+{var $en = $locale === 'en'}
+{var $cur = $en ? 'CZK' : 'Kč'}
+{var $from = $en ? 'from' : 'od'}
+{var $covered = $en ? 'Covered by health insurance' : 'Hrazeno zdravotní pojišťovnou'}
+{var $rows = [
+	[$en ? 'Initial Examination' : 'Vstupní vyšetření', null],
+	[$en ? 'Preventive Check-up' : 'Preventivní prohlídka', null],
+	[$en ? 'Intraoral X-ray / Panoramic X-ray' : 'Intraorální RTG / Panoramatický RTG', null],
+	[$en ? 'Anesthesia' : 'Anestezie', null],
+	[$en ? 'Photocomposite Filling (including anesthesia and use of magnification technology)' : 'Fotokompozitní výplň (včetně anestezie a použití zvětšovací techniky)', $priceList['fotokompozitniVyplnMin'] . ' – ' . $priceList['fotokompozitniVyplnMax'] . ' ' . $cur],
+	[$en ? 'Photocomposite Filling on a Temporary Tooth' : 'Fotokompozitní výplň na dočasném zubu', $priceList['vyplnNaDocasnemZubuMin'] . ' – ' . $priceList['vyplnNaDocasnemZubuMax'] . ' ' . $cur],
+	[$en ? 'Primary Endodontic Treatment' : 'Primární endodontické ošetření', $priceList['primarniEndodontickeOsetreni'] . ' ' . $cur],
+	[$en ? 'Definitive Filling' : 'Definitivní plnění', $priceList['definitivniPlneni'] . ' ' . $cur],
+	[$en ? 'Dental Hygiene (Adult)' : 'Dentální hygiena dospělý', $priceList['dentalniHygiena'] . ' ' . $cur],
+	[$en ? 'Dental Hygiene (Child)' : 'Dentální hygiena dítě', $priceList['dentalniHygienaDiteMin'] . ' – ' . $priceList['dentalniHygienaDiteMax'] . ' ' . $cur],
+	[$en ? 'Metal-Ceramic Crown' : 'Metalokeramická korunka', $from . ' ' . $priceList['korunkaMetalokeramicka'] . ' ' . $cur],
+	[$en ? 'All-Ceramic Crown' : 'Celokeramická korunka', $from . ' ' . $priceList['korunkaCelokeramicka'] . ' ' . $cur],
+	[$en ? 'Consultation' : 'Konzultace', $priceList['konzultace'] . ' ' . $cur],
+]}
+<section id="cenik" class="section">
+	<div class="container-xl">
+		<div class="row g-5">
+			<div class="col-lg-4">
+				<p class="eyebrow">{$en ? 'Price list' : 'Ceník'}</p>
+				<h2 n:tag="$h ?? 'h2'" class="section-title">{$en ? 'What insurance covers and what you pay' : 'Co hradí pojišťovna a co si doplácíte'}</h2>
+				<p class="lead-text">
+					{if $en}
+						Currently, payments can be made in cash or by card at the clinic. A detailed price list is available upon request at the clinic.
+					{else}
+						V ordinaci je v současné době možné platit hotově či kartou. Podrobný ceník je dostupný na vyžádání v ordinaci.
+					{/if}
+				</p>
+			</div>
+			<div class="col-lg-8">
+				<div class="card-soft price-card">
+					<div n:foreach="$rows as [$name, $price]" class="price-row">
+						<span class="price-name">{$name}</span>
+						{if $price}
+							<span class="price-value">{$price}</span>
+						{else}
+							<span class="price-covered">{$covered}</span>
+						{/if}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

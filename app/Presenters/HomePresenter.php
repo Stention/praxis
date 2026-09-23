@@ -6,9 +6,9 @@ final class HomePresenter extends BaseFrontendPresenter
 {
 	const CLINIC_HOURS = [
 		'Monday' => '7:00 – 12:00',
-		'Tuesday' => '7:30 – 12:30',
-		'Wednesday' => '7:30 – 15:00',
-		'Thursday' => '7:00 - 13:00 / 12:00 - 17:00',
+		'Tuesday' => '12:00 – 17:00',
+		'Wednesday' => '7:00 – 14:00',
+		'Thursday' => null, // by appointment
 		'Friday' => '7:00 – 12:00',
 	];
 
@@ -31,5 +31,6 @@ final class HomePresenter extends BaseFrontendPresenter
 			'Dental care in a pleasant environment in the city center';
 
 		$this->template->clinicHours = self::CLINIC_HOURS;
+		$this->template->priceList = PricesPresenter::PRICE_LIST;
     }
 }

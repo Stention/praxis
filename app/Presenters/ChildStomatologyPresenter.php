@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Presenters;
 
@@ -9,11 +9,11 @@ class ChildStomatologyPresenter extends BaseFrontendPresenter
 		$locale = $this->getParameter('locale');
 
 		$this->template->title = $locale === 'cs' ?
-			'Diplomy a certifikace - MDDr. Eliška Kremlová' :
-			'Diplomas and Certifications - MDDr. Eliška Kremlová';
+			'Dětská stomatologie - MDDr. Eliška Kremlová' :
+			'Pediatric Dentistry - MDDr. Eliška Kremlová';
 		$this->template->metaDescription = $locale === 'cs' ?
-			'Přehled certifikátů a diplomů MDDr. Elišky Kremlové, které potvrzují odborné vzdělání a kvalifikaci v oblasti stomatologie.' :
-			'An overview of diplomas and certifications of MDDr. Eliška Kremlová, confirming professional education and qualifications in the field of dentistry.';;
+			'Dětská stomatologie v centru Prahy – preventivní prohlídky, šetrná léčba zubních kazů, extrakce dočasných zubů a profesionální čištění zubů u dětí.' :
+			'Pediatric dentistry in the centre of Prague – preventive check-ups, gentle cavity treatment, primary teeth extraction and professional tooth cleaning for children.';
 	}
 
 }

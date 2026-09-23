@@ -1,0 +1,50 @@
+{varType array $clinicHours}
+{var $en = $locale === 'en'}
+{var $days = $en ? [
+	'Monday' => ['Monday', null],
+	'Tuesday' => ['Tuesday', null],
+	'Wednesday' => ['Wednesday', null],
+	'Thursday' => ['Thursday', 'Dental hygiene'],
+	'Friday' => ['Friday', null],
+] : [
+	'Monday' => ['Pondělí', null],
+	'Tuesday' => ['Úterý', null],
+	'Wednesday' => ['Středa', null],
+	'Thursday' => ['Čtvrtek', 'Dentální hygiena'],
+	'Friday' => ['Pátek', null],
+]}
+<section id="hodiny" class="hours-band" style="background-image: url({$basePath}/img/praxis4.webp)">
+	<div class="container-xl">
+		<div class="hours-card wow fadeInUp">
+			<p class="eyebrow">{$en ? 'Office hours' : 'Ordinační hodiny'}</p>
+			<h2 n:tag="$h ?? 'h2'" class="section-title">{$en ? 'When we are here for you' : 'Kdy jsme tu pro vás'}</h2>
+			<div class="hours-list">
+				<div n:foreach="$days as $key => [$day, $note]" class="hours-row">
+					<div>
+						<span class="hours-day">{$day}</span>
+						<span n:if="$note" class="hours-note">{$note}</span>
+					</div>
+					<div class="hours-time">
+						{if $clinicHours[$key] === null}
+							<span>{$en ? 'By appointment' : 'Dle objednání'}</span>
+						{else}
+							{foreach explode(' / ', $clinicHours[$key]) as $interval}
+								<span>{$interval}</span>
+							{/foreach}
+						{/if}
+					</div>
+				</div>
+			</div>
+			<p class="hours-info">
+				{if $en}
+					Dear clients, please make an appointment by phone even if you need urgent care.
+					We will try to find an appointment for you as soon as possible. Thank you for your understanding.
+				{else}
+					Vážení klienti, objednávejte se prosím telefonicky i v případě, že potřebujete ošetřit akutně.
+					Pokusíme se vám najít termín co nejdříve. Děkujeme vám za pochopení.
+				{/if}
+			</p>
+			<a href="tel:{str_replace(' ', '', $phone)}" class="btn-light-brand"><i class="bi bi-telephone"></i>{$phone}</a>
+		</div>
+	</div>
+</section>
