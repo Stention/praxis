@@ -35,11 +35,22 @@ Assert::exception(
 	'Tag {switch} may only contain one {default} clause (on line 1 at column 18)',
 );
 
+Assert::match( // {switch} without expression compares against true
+	'yes',
+	$latte->renderToString('{switch}{case true}yes{/switch}'),
+);
+
+Assert::match(
+	'def',
+	$latte->renderToString('{switch}{case 1}one{default}def{/switch}'),
+);
+
 
 $template = <<<'EOD'
 
 	{switch 0}
 	{case ''}string
+	{case ...['a']}a
 	{default}def
 	{case 0.0}flot
 	{/switch}

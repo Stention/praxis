@@ -18,10 +18,10 @@ use Latte\Compiler\Nodes\Php\ListNode;
 use Latte\Compiler\Nodes\StatementNode;
 use Latte\Compiler\Nodes\TemplateNode;
 use Latte\Compiler\NodeTraverser;
-use Latte\Compiler\Position;
 use Latte\Compiler\PrintContext;
 use Latte\Compiler\Tag;
 use Latte\Compiler\TagParser;
+use Latte\Feature;
 use function array_map, array_unshift, implode, is_string, preg_match;
 
 
@@ -37,7 +37,6 @@ class ForeachNode extends StatementNode
 	public ExpressionNode|ListNode $value;
 	public AreaNode $content;
 	public ?AreaNode $else = null;
-	public ?Position $elseLine = null;
 	public ?bool $iterator = null;
 	public bool $checkArgs = true;
 
@@ -65,7 +64,6 @@ class ForeachNode extends StatementNode
 
 		[$node->content, $nextTag] = yield ['else'];
 		if ($nextTag?->name === 'else') {
-			$node->elseLine = $nextTag->position;
 			[$node->else] = yield;
 		}
 
@@ -85,46 +83,55 @@ class ForeachNode extends StatementNode
 	public function print(PrintContext $context): string
 	{
 		$content = $this->content->print($context);
-		$iterator = $this->else || ($this->iterator ?? preg_match('#\$iterator\W|\Wget_defined_vars\W#', $content));
+		$useIterator = $this->else || ($this->iterator ?? preg_match('#\$iterator\W|\Wget_defined_vars\W#', $content));
+
+		$code = $context->format(
+			"foreach (%raw as %raw) %line { %raw\n}\n",
+			$useIterator
+				? $context->format('$iterator = $ʟ_it = new Latte\Essential\CachingIterator(%node, $ʟ_it ?? null)', $this->expression)
+				: $this->expression->print($context),
+			$this->printArgs($context),
+			$this->position,
+			$content,
+		);
 
 		if ($this->else) {
-			$content .= $context->format(
-				'} if ($iterator->isEmpty()) %line { ',
-				$this->elseLine,
-			) . $this->else->print($context);
-		}
-
-		if ($iterator) {
-			return $context->format(
-				<<<'XX'
-					foreach ($iterator = $ʟ_it = new Latte\Essential\CachingIterator(%node, $ʟ_it ?? null) as %raw) %line {
-						%raw
-					}
-					$iterator = $ʟ_it = $ʟ_it->getParent();
-
-
-					XX,
-				$this->expression,
-				$this->printArgs($context),
-				$this->position,
-				$content,
-			);
-
-		} else {
-			return $context->format(
-				<<<'XX'
-					foreach (%node as %raw) %line {
-						%raw
-					}
-
-
-					XX,
-				$this->expression,
-				$this->printArgs($context),
-				$this->position,
-				$content,
+			$code .= $context->format(
+				"if (%raw) %line { %node\n}\n",
+				$useIterator ? '$iterator->isEmpty()' : $context->format('empty(%node)', $this->expression),
+				$this->tagRanges[1] ?? null,
+				$this->else,
 			);
 		}
+
+		if ($useIterator) {
+			$code .= '$iterator = $ʟ_it = $ʟ_it->getParent();' . "\n";
+		}
+
+		if (
+			$context->hasFeature(Feature::ScopedLoopVariables)
+			&& !$this->byRef
+			&& ($vars = array_merge($this->key ? $this->collectVariables($this->key) : [], $this->collectVariables($this->value)))
+		) {
+			$backup = '$ʟ_fe_' . $context->generateId();
+			$unsetList = implode(', ', array_map(fn($var) => $var->print($context), $vars));
+			$restoreCode = implode('', array_map(fn($var) => $context->format("if (array_key_exists(%dump, $backup)) { %node = &{$backup}[%0.dump]; }\n", $var->name, $var), $vars));
+			$code = <<<XX
+				try {
+					$backup = get_defined_vars();
+					unset($unsetList);
+
+					$code
+				} finally {
+					unset($unsetList);
+					$restoreCode
+					unset($backup);
+				}
+
+				XX;
+		}
+
+		return $code . "\n";
 	}
 
 
@@ -133,6 +140,24 @@ class ForeachNode extends StatementNode
 		return ($this->key ? $this->key->print($context) . ' => ' : '')
 			. ($this->byRef ? '&' : '')
 			. $this->value->print($context);
+	}
+
+
+	/**
+	 * Recursively collects variable names from a node (handles ListNode destructuring).
+	 * @return VariableNode[]
+	 */
+	private function collectVariables(ExpressionNode|ListNode $node): array
+	{
+		$res = [];
+		if ($node instanceof VariableNode && is_string($node->name)) {
+			$res[] = $node;
+		} elseif ($node instanceof ListNode) {
+			foreach ($node->items as $item) {
+				$res = array_merge($res, $item ? $this->collectVariables($item->value) : []);
+			}
+		}
+		return $res;
 	}
 
 

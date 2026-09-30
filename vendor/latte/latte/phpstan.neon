@@ -3,6 +3,7 @@ parameters:
 
 	paths:
 		- src
+		- bin/latte-lint
 
 	excludePaths:
 		analyse:
@@ -13,126 +14,204 @@ parameters:
 		- phtml
 
 	ignoreErrors:
-		# --- Celý projekt ---
+		# --- Whole project ---
 
-		-	# Factory/derive pattern — new static() je záměrný
-			'#Unsafe usage of new static\(\)#'
+		-	# Factory/derive pattern — new static() is intentional in Node hierarchy
+			message: '#Unsafe usage of new static\(\)#'
+			paths:
+				- src/Latte/Compiler/Nodes/
+				- src/Latte/Essential/Nodes/
+				- src/Latte/Sandbox/Nodes/
 
-		-	# Match s exhaustivním else branchem jako safety net
-			'#Match expression does not handle remaining value.*#'
+		-	# Match with exhaustive else branch as safety net
+			message: '#Match expression does not handle remaining value.*#'
+			path: src/Latte
 
-		-	# Latte callback systém — callable nemá fixní signaturu
-			'#no signature specified for (callable|Closure)#'
+		-	# Latte callback system — callable has no fixed signature
+			message: '#no signature specified for (callable|Closure)#'
+			path: src/Latte
 
-		# --- AST Node třídy: match() výrazy s exhaustivním typováním ---
+		# --- AST Node classes: match() expressions with exhaustive typing ---
 
-		-	# PHPStan vidí redundantní větve v match/ternary na nullable/union properties
+		-	# PHPStan sees redundant branches in match/ternary on nullable/union properties
 			message: '#(Left side of && is always false|Result of && is always false|always evaluate to (true|false)|Ternary operator condition is always true)#'
 			paths:
 				- src/Latte/Compiler/Nodes/
 				- src/Latte/Essential/Nodes/
 
-		-	# getIterator() yield null pro nepovinné child nody
+		-	# getIterator() yields null for optional child nodes
 			message: '#Generator expects value type Latte\\Compiler\\Node, null given#'
 			paths:
 				- src/Latte/Compiler/Nodes/
 				- src/Latte/Essential/Nodes/
 
-		# --- Parsery: lookahead tokeny mohou být null ---
+		# --- Parsers: lookahead tokens can be null ---
 
-		-	# Parser pracuje s nullable tokeny při lookahead/backtrack
-			message: '#Latte\\Compiler\\(Position|Token)\|null#'
+		-	# Parser works with nullable tokens during lookahead/backtrack
+			message: '#Latte\\Compiler\\(Position|Range|Token)\|null#'
 			paths:
 				- src/Latte/Compiler/TagParser.php
 				- src/Latte/Compiler/TemplateParser.php
+				- src/Latte/Compiler/TemplateParserHtml.php
 
-		-	# TemplateParser: nullable Tag při zpracování vnořených tagů
+		-	# TemplateParser: nullable Tag when processing nested tags
 			message: '#on Latte\\Compiler\\Tag\|null#'
 			path: src/Latte/Compiler/TemplateParser.php
 
-		-	# TemplateParser: nullable Closure pro volitelné callbacks
+		-	# TemplateParser: nullable Closure for optional callbacks
 			message: '#Closure\|null given#'
 			path: src/Latte/Compiler/TemplateParser.php
 
-		-	# TemplateParser: dynamický přístup k expression node properties
+		-	# TemplateParser: dynamic access to expression node properties
 			message: '#(undefined property.*ExpressionNode|Variable \$name might not be defined)#'
 			path: src/Latte/Compiler/TemplateParser.php
 
-		-	# TemplateParserHtml: dynamické HTML element objekty a destructuring
+		-	# TemplateParserHtml: dynamic HTML element objects and destructuring
 			message: '#(object\{tag:.*not writable|undefined property.*object\{|has parameter \$elem with no type|array destructuring on list)#'
 			path: src/Latte/Compiler/TemplateParserHtml.php
 
-		# --- TagParser: generovaný trait TagParserData ---
+		# --- TagParser: generated trait TagParserData ---
 
-		-	# Metody volané z generovaného traitu TagParserData (excluded z analýzy)
-			message: '#^(Static method|Method) Latte\\Compiler\\TagParser::(checkFunctionName|handleBuiltinTypes|parseOffset|parseDocString)\(\) is unused\.$#'
+		-	# Methods called from generated trait TagParserData (excluded from analysis)
+			message: '#^(Static method|Method) Latte\\Compiler\\TagParser::(checkFunctionName|handleBuiltinTypes|parseOffset|parseDocString|startPos|endPos)\(\) is unused\.$#'
 			path: src/Latte/Compiler/TagParser.php
 
-		-	# Interní parser state machine — typy z regex výsledků a token operací
+		-	# Internal parser state machine — types from regex results and token operations
 			message: '#^(Cannot access offset 0 on|Cannot use array destructuring on|Instanceof between.*InterpolatedStringPartNode will always evaluate to false|Offset.*might not exist on|Unary operation.*on string results in an error)#'
 			path: src/Latte/Compiler/TagParser.php
 
 		# --- PrintContext::format() — regex-based code generation ---
 
-		-	# Regex skupiny garantují existenci offsetů, PHPStan to nevidí
+		-	# Regex groups guarantee offset existence, PHPStan cannot see this
 			message: '#^Offset [1-5] (does not|might not) exist on array\{#'
 			path: src/Latte/Compiler/PrintContext.php
 
-		-	# OperatorNode je abstract, print() existuje na konkrétních podtřídách
+		-	# OperatorNode is abstract, print() exists on concrete subclasses
 			message: '#(OperatorNode::print\(\)|parenthesize\(\) expects Latte\\Compiler\\Nodes\\Php\\OperatorNode, Latte\\Compiler\\Node given)#'
 			path: src/Latte/Compiler/PrintContext.php
 
 		# --- SecurityPolicy: reference-based caching pattern ---
 
-		-	# $res = &$cache[...] — PHPStan neumí analyzovat auto-vivification a stav reference
+		-	# $res = &$cache[...] — PHPStan cannot analyze auto-vivification and reference state
 			message: '#(always evaluate to (true|false)|Result of \|\| is always true|is never read, only written|Unreachable statement|always exists and is not nullable)#'
 			path: src/Latte/Sandbox/SecurityPolicy.php
 
 		# --- Tracy bridge ---
 
-		-	# Záměrné version_compare() guardy pro kompatibilitu s Tracy
+		-	# Intentional version_compare() guards for Tracy compatibility
 			message: '#side of && is always true#'
 			path: src/Bridges/Tracy/BlueScreenPanel.php
 
-		-	# Anonymní Extension třída pro sběr renderovaných šablon (write-only by design)
+		-	# Anonymous Extension class for collecting rendered templates (write-only by design)
 			message: '#Extension@anonymous.*LattePanel#'
 			path: src/Bridges/Tracy/LattePanel.php
 
-		-	# Compiled phtml šablona — stdClass z Tracy kontextu
+		-	# Compiled phtml template — stdClass from Tracy context
 			message: '#on stdClass\|false#'
 			path: src/Bridges/Tracy/dist/panel.phtml
 
-		# --- Ostatní ---
+		# --- Other ---
 
-		-	# Linter: dynamické načítání Nette bridge extensions
+		-	# Linter: dynamic loading of Nette bridge extensions
 			identifier: class.notFound
 			path: src/Tools/Linter.php
 		-
 			message: '#expects Latte\\Extension, Nette\\#'
 			path: src/Tools/Linter.php
 
-		-	# Blueprint: nullable typ z reflexe
+		-	# NodeTraverser: getIterator() yields references to typed properties,
+			# so `$subnode = $res` can throw TypeError. PHPStan doesn't model
+			# assignment through a reference bound to a typed property.
+			message: '#^Dead catch \- TypeError is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Latte/Compiler/NodeTraverser.php
+
+		-	# Blueprint: nullable type from reflection
 			message: '#expects string, string\|null given#'
 			path: src/Latte/Essential/Blueprint.php
 
-		-	# class_alias pro zpětnou kompatibilitu
+		-	# class_alias for backward compatibility
 			identifier: class.notFound
 			path: src/Latte/Compiler/Nodes/PrintNode.php
 
-		-	# codePointToUtf8: bitové operace ztrácejí range informaci pro chr()
-			# decodeNumber: $str + 0 je standardní PHP idiom pro konverzi stringu na číslo
+		-	# codePointToUtf8: bitwise operations lose range information for chr()
+			# decodeNumber: $str + 0 is a standard PHP idiom for string-to-number conversion
 			message: '#(chr expects int\<0, 255\>|string.*results in an error)#'
 			path: src/Latte/Compiler/PhpHelpers.php
 
-		-	# flock/ftruncate: PHPStan vyžaduje specifičtější int range
+		-	# flock/ftruncate: PHPStan requires more specific int range
 			message: '#(flock expects int\<0, 7\>|ftruncate expects int\<0, max\>)#'
 			path: src/Latte/Runtime/Cache.php
 
-		-	# array_slice() vrací array, ne list
+		-	# array_slice() returns array, not list
 			message: '#expects list<Latte\\Compiler\\Token>, array<Latte\\Compiler\\Token> given#'
 			paths:
 				- src/Latte/Compiler/TemplateParser.php
 				- src/Latte/Compiler/TemplateParserHtml.php
 
-includes:
-	- phpstan-baseline.neon
+		-
+			message: '#^Offset 0 might not exist on array\{\}\|array\{string\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Latte/Compiler/TemplateLexer.php
+
+		-
+			message: '#^Method Latte\\Engine\:\:loadTemplate\(\) should return class\-string\<Latte\\Runtime\\Template\> but returns string\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Latte/Engine.php
+
+		-
+			message: '#^Method Latte\\Essential\\Tracer\:\:generateTrace\(\) should return array\<array\{function\: string, file\: string, line\: int, args\: array\<mixed\>\}\> but returns array\<int\<\-1, max\>, array\<.+\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Latte/Essential/Tracer.php
+
+		-
+			message: '#^Offset int\<min, \-2\>\|int\<0, max\> might not exist on non\-empty\-list\<string\>\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Latte/Helpers.php
+
+		-
+			message: '#^Expression on left side of \?\? is always null\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: src/Latte/Runtime/HtmlHelpers.php
+
+		-
+			message: '#^Result of static method Latte\\Runtime\\HtmlHelpers\:\:triggerInvalidValue\(\) \(void\) is used\.$#'
+			identifier: staticMethod.void
+			count: 1
+			path: src/Latte/Runtime/HtmlHelpers.php
+
+		-
+			message: '#^Variable \$block on left side of \?\?\= always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: src/Latte/Runtime/Template.php
+
+		-
+			message: '#^Expression on left side of \?\? is always null\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: src/Latte/Runtime/XmlHelpers.php
+
+		-
+			message: '#^Result of static method Latte\\Runtime\\HtmlHelpers\:\:triggerInvalidValue\(\) \(void\) is used\.$#'
+			identifier: staticMethod.void
+			count: 1
+			path: src/Latte/Runtime/XmlHelpers.php
+
+		-
+			message: '#^Call to function is_callable\(\) with arguments callable\(\)\: mixed, false and mixed will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Latte/Sandbox/RuntimeChecker.php
+
+		-
+			message: '#^Class Latte\\Sandbox\\Nodes not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Latte/Sandbox/SandboxExtension.php

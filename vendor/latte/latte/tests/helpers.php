@@ -5,6 +5,7 @@ use Latte\Compiler\Nodes;
 use Latte\Compiler\PhpHelpers;
 use Latte\Compiler\Position;
 use Latte\Compiler\PrintContext;
+use Latte\Compiler\Range;
 use Latte\Compiler\TagLexer;
 use Latte\Compiler\Token;
 use Tracy\Dumper;
@@ -53,8 +54,17 @@ function parseCode(string $code): Nodes\Php\Expression\ArrayNode
 function exportNode(Node $node): string
 {
 	$exporters = [
+		// the extent is virtual, so expose the derived values instead of 'unset'
+		Nodes\FragmentNode::class => function (Nodes\FragmentNode $node, Tracy\Dumper\Value $value, Tracy\Dumper\Describer $describer) {
+			$describer->addPropertyTo($value, 'children', $node->children, Tracy\Dumper\Value::PropertyPublic);
+			$describer->addPropertyTo($value, 'position', $node->position, Tracy\Dumper\Value::PropertyPublic);
+			$describer->addPropertyTo($value, 'end', $node->end, Tracy\Dumper\Value::PropertyPublic);
+		},
 		Position::class => function (Position $pos, Tracy\Dumper\Value $value) {
 			$value->value = $pos->line . ':' . $pos->column;
+		},
+		Range::class => function (Range $range, Tracy\Dumper\Value $value) {
+			$value->value = $range->start->line . ':' . $range->start->column . '+' . $range->length;
 		},
 	];
 	$dump = Dumper::toText($node, [Dumper::HASH => false, Dumper::DEPTH => 20, Dumper::OBJECT_EXPORTERS => $exporters]);

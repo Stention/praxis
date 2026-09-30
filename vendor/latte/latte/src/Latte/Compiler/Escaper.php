@@ -18,7 +18,7 @@ use function in_array, is_string, str_starts_with, strtolower;
 /**
  * Context-aware escaping.
  */
-final class Escaper
+class Escaper
 {
 	public const
 		Text = 'text',
@@ -96,6 +96,9 @@ final class Escaper
 	}
 
 
+	/**
+	 * Returns the current escaping state as a string (e.g. "html/attr/js").
+	 */
 	public function export(): string
 	{
 		return $this->state . ($this->subType ? '/' . $this->subType : '');
@@ -114,9 +117,9 @@ final class Escaper
 			$this->state = self::HtmlRawText;
 			if ($el->is('script')) {
 				$type = $el->getAttribute('type');
-				$this->subType = $type === true || $type === null
-					? self::JavaScript
-					: (is_string($type) ? HtmlHelpers::classifyScriptType($type) : '');
+				$this->subType = is_string($type)
+					? HtmlHelpers::classifyScriptType($type)
+					: self::JavaScript; // missing or dynamic type attribute
 			} elseif ($el->is('style')) {
 				$this->subType = self::Css;
 			}
@@ -187,6 +190,7 @@ final class Escaper
 					self::HtmlText => 'LR\HtmlHelpers::escapeRawHtml(' . $str . ')',
 					self::JavaScript => 'LR\Helpers::escapeJs(' . $str . ')',
 					self::Css => 'LR\Helpers::escapeCss(' . $str . ')',
+					default => throw new \LogicException("Unknown raw text subtype '$this->subType'."),
 				},
 				default => throw new \LogicException("Unknown context $this->contentType, $this->state."),
 			},
@@ -207,6 +211,9 @@ final class Escaper
 	}
 
 
+	/**
+	 * Applies mandatory escaping that cannot be suppressed (e.g. quotes in attributes).
+	 */
 	public function escapeMandatory(string $str, ?Position $position = null): string
 	{
 		return match ($this->contentType) {
@@ -229,6 +236,9 @@ final class Escaper
 	}
 
 
+	/**
+	 * Generates code that converts content between content types at runtime using FilterInfo.
+	 */
 	public function escapeContent(string $str): string
 	{
 		return 'LR\Helpers::convertTo($ʟ_fi, '
@@ -238,6 +248,9 @@ final class Escaper
 	}
 
 
+	/**
+	 * Returns a callable that converts content from $source type to $dest type, or null if unsupported.
+	 */
 	public static function getConvertor(string $source, string $dest): ?callable
 	{
 		return match (true) {

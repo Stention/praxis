@@ -13,7 +13,7 @@ Dental clinic website for **Praxis** built with **Nette Framework** (PHP 8.2). S
 cd .docker && ./up.sh
 # Or manually:
 docker-compose -p praxis up -d --build --force-recreate
-docker exec praxis composer update
+docker exec praxis composer install
 ```
 
 **Stop:**

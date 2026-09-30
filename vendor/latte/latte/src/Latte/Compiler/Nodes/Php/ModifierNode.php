@@ -27,6 +27,7 @@ class ModifierNode extends Node
 		public array $filters,
 		public bool $escape = false,
 		public ?Position $position = null,
+		public ?Position $end = null,
 	) {
 		(function (FilterNode ...$args) {})(...$filters);
 	}
@@ -44,6 +45,9 @@ class ModifierNode extends Node
 	}
 
 
+	/**
+	 * Removes and returns the first filter with the given name, or null if not found.
+	 */
 	public function removeFilter(string $name): ?FilterNode
 	{
 		foreach ($this->filters as $i => $filter) {

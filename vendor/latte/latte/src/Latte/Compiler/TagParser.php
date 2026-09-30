@@ -14,7 +14,7 @@ use Latte\Compiler\Nodes\Php\Expression;
 use Latte\Compiler\Nodes\Php\ExpressionNode;
 use Latte\Compiler\Nodes\Php\NameNode;
 use Latte\Compiler\Nodes\Php\Scalar;
-use function count, is_int, ord, preg_match, preg_replace, preg_replace_callback, str_contains, strlen, strtolower, substr;
+use function count, ord, preg_match, preg_replace, preg_replace_callback, str_contains, strlen, strtolower, substr;
 
 
 /**
@@ -111,6 +111,7 @@ final class TagParser
 			Token::Php_Identifier, Token::Php_Constant, Token::Php_Ellipsis, Token::Php_Array, Token::Php_Integer,
 			Token::Php_NameFullyQualified, Token::Php_NameQualified, Token::Php_Null, Token::Php_False, Token::Php_FilterPipe,
 			'(', ')', '<', '>', '[', ']', '|', '&', '{', '}', ':', ',', '=', '?',
+			Token::Php_Sr, // >> in nested generics like array<int, array<string, mixed>>
 		];
 		$res = null;
 		while ($token = $this->stream->tryConsume(...$kind)) {
@@ -139,7 +140,7 @@ final class TagParser
 	{
 		$token = $this->stream->peek();
 		return $token->is(...$kind) // is followed by whitespace
-			&& $this->stream->peek(1)->position->offset > $token->position->offset + strlen($token->text)
+			&& $this->stream->peek(1)->position->offset > $token->end->offset
 			? $this->stream->consume()
 			: null;
 	}
@@ -159,11 +160,29 @@ final class TagParser
 	}
 
 
+	/**
+	 * Consumes the comma separating the tag name from its arguments.
+	 * When $strict is false, a missing comma only triggers E_USER_DEPRECATED,
+	 * which allows tags to phase in the required comma without breaking BC.
+	 */
+	public function consumeCommaBeforeArguments(bool $strict = true): void
+	{
+		if ($this->isEnd() || $this->stream->is(Token::Php_FilterPipe)) {
+			return;
+		} elseif ($strict) {
+			$this->stream->consume(',');
+		} elseif (!$this->stream->tryConsume(',')) {
+			trigger_error("Missing comma before tag arguments {$this->stream->peek()->position}.", E_USER_DEPRECATED);
+		}
+	}
+
+
 	/** @throws Latte\CompileException */
 	private function parse(string $schema, bool $recovery = false): mixed
 	{
 		$symbol = self::SymbolNone; // We start off with no lookahead-token
 		$this->startTokenStack = []; // Keep stack of start token
+		$this->endTokenStack = []; // Keep stack of end token
 		$token = null;
 		$state = 0; // Start off in the initial state and keep a stack of previous states
 		$stateStack = [$state];
@@ -177,7 +196,7 @@ final class TagParser
 			} else {
 				if ($symbol === self::SymbolNone) {
 					$recovery = $recovery
-						? [$this->stream->getIndex(), $state, $stateStack, $stackPos, $this->semValue, $this->semStack, $this->startTokenStack]
+						? [$this->stream->getIndex(), $state, $stateStack, $stackPos, $this->semValue, $this->semStack, $this->startTokenStack, $this->endTokenStack]
 						: null;
 
 
@@ -208,6 +227,7 @@ final class TagParser
 						$stateStack[$stackPos] = $state = $action;
 						$this->semStack[$stackPos] = $token->text;
 						$this->startTokenStack[$stackPos] = $token;
+						$this->endTokenStack[$stackPos] = $token;
 						$symbol = self::SymbolNone;
 						if ($action < self::NumNonLeafStates) {
 							continue;
@@ -228,6 +248,7 @@ final class TagParser
 					return $this->semValue;
 
 				} elseif ($rule !== self::UnexpectedTokenRule) { // reduce
+					$lastEndToken = $this->endTokenStack[$stackPos] ?? $token;
 					$this->reduce($rule, $stackPos);
 
 					// Goto - shift nonterminal
@@ -244,12 +265,13 @@ final class TagParser
 					++$stackPos;
 					$stateStack[$stackPos] = $state;
 					$this->semStack[$stackPos] = $this->semValue;
+					$this->endTokenStack[$stackPos] = $lastEndToken;
 					if ($ruleLength === 0) {
 						$this->startTokenStack[$stackPos] = $token;
 					}
 
 				} elseif ($recovery && $this->isExpectedEof($state)) { // recoverable error
-					[, $state, $stateStack, $stackPos, $this->semValue, $this->semStack, $this->startTokenStack] = $recovery;
+					[, $state, $stateStack, $stackPos, $this->semValue, $this->semStack, $this->startTokenStack, $this->endTokenStack] = $recovery;
 					$this->stream->seek($recovery[0]);
 					$token = new Token(Token::End, '');
 					goto recovery;
@@ -291,6 +313,19 @@ final class TagParser
 	}
 
 
+	private function startPos(int $pos): ?Position
+	{
+		return $this->startTokenStack[$pos]->position;
+	}
+
+
+	private function endPos(int $pos): ?Position
+	{
+		// the end token may be a synthetic one without a position; fall back to the start token
+		return $this->endTokenStack[$pos]->end ?? $this->startTokenStack[$pos]->end;
+	}
+
+
 	public function throwReservedKeywordException(Token $token): never
 	{
 		throw new Latte\CompileException("Keyword '$token->text' cannot be used in Latte.", $token->position);
@@ -326,8 +361,8 @@ final class TagParser
 			return new Scalar\StringNode($str, $position);
 		}
 
-		$num = +$str;
-		if (!is_int($num)) {
+		$num = (int) $str;
+		if ((string) $num !== $str) { // value overflows the integer range
 			return new Scalar\StringNode($str, $position);
 		}
 
@@ -342,16 +377,17 @@ final class TagParser
 		string $endToken,
 		Position $startPos,
 		Position $endPos,
+		Position $errorPos,
 	): Scalar\StringNode|Scalar\InterpolatedStringNode
 	{
 		$hereDoc = !str_contains($startToken, "'");
 		preg_match('/\A[ \t]*/', $endToken, $matches);
 		$indentation = $matches[0];
 		if (str_contains($indentation, ' ') && str_contains($indentation, "\t")) {
-			throw new CompileException('Invalid indentation - tabs and spaces cannot be mixed', $endPos);
+			throw new CompileException('Invalid indentation - tabs and spaces cannot be mixed', $errorPos);
 
 		} elseif (!$parts) {
-			return new Scalar\StringNode('', $startPos);
+			return new Scalar\StringNode('', $startPos, $endPos);
 
 		} elseif (!$parts[0] instanceof Node\InterpolatedStringPartNode) {
 			// If there is no leading encapsed string part, pretend there is an empty one
@@ -376,7 +412,7 @@ final class TagParser
 					$part->value = PhpHelpers::decodeEscapeSequences($part->value, null);
 				}
 				if ($i === 0 && $isLast) {
-					return new Scalar\StringNode($part->value, $startPos);
+					return new Scalar\StringNode($part->value, $startPos, $endPos);
 				}
 				if ($part->value === '') {
 					continue;
@@ -385,7 +421,7 @@ final class TagParser
 			$newParts[] = $part;
 		}
 
-		return new Scalar\InterpolatedStringNode($newParts, $startPos);
+		return new Scalar\InterpolatedStringNode($newParts, $startPos, $endPos);
 	}
 
 

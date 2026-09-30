@@ -40,45 +40,57 @@ Latte\Compiler\Nodes\Php\Expression\ArrayNode
    |  |  |  |  name: 'A'
    |  |  |  |  kind: 1
    |  |  |  |  position: 2:1
+   |  |  |  |  end: 2:2
    |  |  |  name: Latte\Compiler\Nodes\Php\IdentifierNode
    |  |  |  |  name: 'b'
    |  |  |  |  position: 2:4
+   |  |  |  |  end: 2:5
    |  |  |  args: array (0)
    |  |  |  position: 2:1
+   |  |  |  end: 2:7
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 2:1
+   |  |  end: 2:7
    |  1 => Latte\Compiler\Nodes\Php\ArrayItemNode
    |  |  value: Latte\Compiler\Nodes\Php\Expression\StaticMethodCallNode
    |  |  |  class: Latte\Compiler\Nodes\Php\NameNode
    |  |  |  |  name: 'A'
    |  |  |  |  kind: 1
    |  |  |  |  position: 3:1
+   |  |  |  |  end: 3:2
    |  |  |  name: Latte\Compiler\Nodes\Php\Scalar\StringNode
    |  |  |  |  value: 'b'
    |  |  |  |  position: 3:5
+   |  |  |  |  end: 3:8
    |  |  |  args: array (0)
    |  |  |  position: 3:1
+   |  |  |  end: 3:11
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 3:1
+   |  |  end: 3:11
    |  2 => Latte\Compiler\Nodes\Php\ArrayItemNode
    |  |  value: Latte\Compiler\Nodes\Php\Expression\StaticMethodCallNode
    |  |  |  class: Latte\Compiler\Nodes\Php\NameNode
    |  |  |  |  name: 'A'
    |  |  |  |  kind: 1
    |  |  |  |  position: 4:1
+   |  |  |  |  end: 4:2
    |  |  |  name: Latte\Compiler\Nodes\Php\Expression\VariableNode
    |  |  |  |  name: 'b'
    |  |  |  |  position: 4:4
+   |  |  |  |  end: 4:6
    |  |  |  args: array (0)
    |  |  |  position: 4:1
+   |  |  |  end: 4:8
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 4:1
+   |  |  end: 4:8
    |  3 => Latte\Compiler\Nodes\Php\ArrayItemNode
    |  |  value: Latte\Compiler\Nodes\Php\Expression\FunctionCallNode
    |  |  |  name: Latte\Compiler\Nodes\Php\Expression\ArrayAccessNode
@@ -87,20 +99,27 @@ Latte\Compiler\Nodes\Php\Expression\ArrayNode
    |  |  |  |  |  |  name: 'A'
    |  |  |  |  |  |  kind: 1
    |  |  |  |  |  |  position: 5:1
+   |  |  |  |  |  |  end: 5:2
    |  |  |  |  |  name: Latte\Compiler\Nodes\Php\VarLikeIdentifierNode
    |  |  |  |  |  |  name: 'b'
    |  |  |  |  |  |  position: 5:4
+   |  |  |  |  |  |  end: 5:6
    |  |  |  |  |  position: 5:1
+   |  |  |  |  |  end: 5:6
    |  |  |  |  index: Latte\Compiler\Nodes\Php\Scalar\StringNode
    |  |  |  |  |  value: 'c'
    |  |  |  |  |  position: 5:7
+   |  |  |  |  |  end: 5:10
    |  |  |  |  position: 5:1
+   |  |  |  |  end: 5:11
    |  |  |  args: array (0)
    |  |  |  position: 5:1
+   |  |  |  end: 5:13
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 5:1
+   |  |  end: 5:13
    |  4 => Latte\Compiler\Nodes\Php\ArrayItemNode
    |  |  value: Latte\Compiler\Nodes\Php\Expression\FunctionCallNode
    |  |  |  name: Latte\Compiler\Nodes\Php\Expression\ArrayAccessNode
@@ -110,24 +129,33 @@ Latte\Compiler\Nodes\Php\Expression\ArrayNode
    |  |  |  |  |  |  |  name: 'A'
    |  |  |  |  |  |  |  kind: 1
    |  |  |  |  |  |  |  position: 6:1
+   |  |  |  |  |  |  |  end: 6:2
    |  |  |  |  |  |  name: Latte\Compiler\Nodes\Php\VarLikeIdentifierNode
    |  |  |  |  |  |  |  name: 'b'
    |  |  |  |  |  |  |  position: 6:4
+   |  |  |  |  |  |  |  end: 6:6
    |  |  |  |  |  |  position: 6:1
+   |  |  |  |  |  |  end: 6:6
    |  |  |  |  |  index: Latte\Compiler\Nodes\Php\Scalar\StringNode
    |  |  |  |  |  |  value: 'c'
    |  |  |  |  |  |  position: 6:7
+   |  |  |  |  |  |  end: 6:10
    |  |  |  |  |  position: 6:1
+   |  |  |  |  |  end: 6:11
    |  |  |  |  index: Latte\Compiler\Nodes\Php\Scalar\StringNode
    |  |  |  |  |  value: 'd'
    |  |  |  |  |  position: 6:12
+   |  |  |  |  |  end: 6:15
    |  |  |  |  position: 6:1
+   |  |  |  |  end: 6:16
    |  |  |  args: array (0)
    |  |  |  position: 6:1
+   |  |  |  end: 6:18
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 6:1
+   |  |  end: 6:18
    |  5 => Latte\Compiler\Nodes\Php\ArrayItemNode
    |  |  value: Latte\Compiler\Nodes\Php\Expression\ArrayAccessNode
    |  |  |  expr: Latte\Compiler\Nodes\Php\Expression\StaticMethodCallNode
@@ -135,81 +163,107 @@ Latte\Compiler\Nodes\Php\Expression\ArrayNode
    |  |  |  |  |  name: 'A'
    |  |  |  |  |  kind: 1
    |  |  |  |  |  position: 9:1
+   |  |  |  |  |  end: 9:2
    |  |  |  |  name: Latte\Compiler\Nodes\Php\IdentifierNode
    |  |  |  |  |  name: 'b'
    |  |  |  |  |  position: 9:4
+   |  |  |  |  |  end: 9:5
    |  |  |  |  args: array (0)
    |  |  |  |  position: 9:1
+   |  |  |  |  end: 9:7
    |  |  |  index: Latte\Compiler\Nodes\Php\Scalar\StringNode
    |  |  |  |  value: 'c'
    |  |  |  |  position: 9:8
+   |  |  |  |  end: 9:11
    |  |  |  position: 9:1
+   |  |  |  end: 9:12
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 9:1
+   |  |  end: 9:12
    |  6 => Latte\Compiler\Nodes\Php\ArrayItemNode
    |  |  value: Latte\Compiler\Nodes\Php\Expression\StaticMethodCallNode
    |  |  |  class: Latte\Compiler\Nodes\Php\NameNode
    |  |  |  |  name: 'static'
    |  |  |  |  kind: 1
    |  |  |  |  position: 12:1
+   |  |  |  |  end: 12:7
    |  |  |  name: Latte\Compiler\Nodes\Php\IdentifierNode
    |  |  |  |  name: 'b'
    |  |  |  |  position: 12:9
+   |  |  |  |  end: 12:10
    |  |  |  args: array (0)
    |  |  |  position: 12:1
+   |  |  |  end: 12:12
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 12:1
+   |  |  end: 12:12
    |  7 => Latte\Compiler\Nodes\Php\ArrayItemNode
    |  |  value: Latte\Compiler\Nodes\Php\Expression\StaticMethodCallNode
    |  |  |  class: Latte\Compiler\Nodes\Php\Expression\VariableNode
    |  |  |  |  name: 'a'
    |  |  |  |  position: 13:1
+   |  |  |  |  end: 13:3
    |  |  |  name: Latte\Compiler\Nodes\Php\IdentifierNode
    |  |  |  |  name: 'b'
    |  |  |  |  position: 13:5
+   |  |  |  |  end: 13:6
    |  |  |  args: array (0)
    |  |  |  position: 13:1
+   |  |  |  end: 13:8
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 13:1
+   |  |  end: 13:8
    |  8 => Latte\Compiler\Nodes\Php\ArrayItemNode
    |  |  value: Latte\Compiler\Nodes\Php\Expression\StaticMethodCallNode
    |  |  |  class: Latte\Compiler\Nodes\Php\Expression\VariableNode
    |  |  |  |  name: Latte\Compiler\Nodes\Php\Scalar\StringNode
    |  |  |  |  |  value: 'a'
    |  |  |  |  |  position: 14:3
+   |  |  |  |  |  end: 14:6
    |  |  |  |  position: 14:1
+   |  |  |  |  end: 14:7
    |  |  |  name: Latte\Compiler\Nodes\Php\IdentifierNode
    |  |  |  |  name: 'b'
    |  |  |  |  position: 14:9
+   |  |  |  |  end: 14:10
    |  |  |  args: array (0)
    |  |  |  position: 14:1
+   |  |  |  end: 14:12
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 14:1
+   |  |  end: 14:12
    |  9 => Latte\Compiler\Nodes\Php\ArrayItemNode
    |  |  value: Latte\Compiler\Nodes\Php\Expression\StaticMethodCallNode
    |  |  |  class: Latte\Compiler\Nodes\Php\Expression\ArrayAccessNode
    |  |  |  |  expr: Latte\Compiler\Nodes\Php\Expression\VariableNode
    |  |  |  |  |  name: 'a'
    |  |  |  |  |  position: 15:1
+   |  |  |  |  |  end: 15:3
    |  |  |  |  index: Latte\Compiler\Nodes\Php\Scalar\StringNode
    |  |  |  |  |  value: 'b'
    |  |  |  |  |  position: 15:4
+   |  |  |  |  |  end: 15:7
    |  |  |  |  position: 15:1
+   |  |  |  |  end: 15:8
    |  |  |  name: Latte\Compiler\Nodes\Php\IdentifierNode
    |  |  |  |  name: 'c'
    |  |  |  |  position: 15:10
+   |  |  |  |  end: 15:11
    |  |  |  args: array (0)
    |  |  |  position: 15:1
+   |  |  |  end: 15:13
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 15:1
+   |  |  end: 15:13
    position: 2:1
+   end: 15:14

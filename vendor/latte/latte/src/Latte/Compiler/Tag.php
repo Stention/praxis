@@ -10,7 +10,7 @@ namespace Latte\Compiler;
 use Latte\CompileException;
 use Latte\Compiler\Nodes\AreaNode;
 use Latte\Compiler\Nodes\Html\ElementNode;
-use function array_search, in_array;
+use function array_filter, array_search;
 
 
 /**
@@ -37,6 +37,7 @@ final class Tag
 		public readonly string $name,
 		array $tokens,
 		public readonly Position $position,
+		public readonly Position $end,
 		public readonly bool $void = false,
 		public readonly bool $closing = false,
 		public readonly bool $inHead = false,
@@ -69,6 +70,9 @@ final class Tag
 	}
 
 
+	/**
+	 * Returns the tag notation, e.g. {tagName} or n:tagName="...".
+	 */
 	public function getNotation(bool $withArgs = false): string
 	{
 		return $this->isNAttribute()
@@ -84,13 +88,15 @@ final class Tag
 
 
 	/**
+	 * Finds the nearest ancestor tag whose node is an instance of one of the given classes,
+	 * optionally filtered by a condition. Returns null if none is found.
 	 * @param  class-string[]  $classes
 	 */
 	public function closestTag(array $classes, ?callable $condition = null): ?self
 	{
 		$tag = $this->parent;
 		while ($tag && (
-			!in_array($tag->node ? $tag->node::class : null, $classes, strict: true)
+			!array_filter($classes, fn($class) => $tag->node instanceof $class)
 			|| ($condition && !$condition($tag))
 		)) {
 			$tag = $tag->parent;
@@ -100,6 +106,9 @@ final class Tag
 	}
 
 
+	/**
+	 * Throws a CompileException if the tag has no arguments.
+	 */
 	public function expectArguments(string $what = 'arguments'): void
 	{
 		if ($this->parser->isEnd()) {
@@ -108,6 +117,9 @@ final class Tag
 	}
 
 
+	/**
+	 * Replaces the current n:attribute node in the parent HTML element with the given node.
+	 */
 	public function replaceNAttribute(AreaNode $node): void
 	{
 		assert($this->htmlElement !== null);

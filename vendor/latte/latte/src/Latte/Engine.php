@@ -8,8 +8,7 @@
 namespace Latte;
 
 use Latte\Compiler\Nodes\TemplateNode;
-use function array_map, array_merge, class_exists, extension_loaded, get_debug_type, get_object_vars, is_array, preg_match, serialize, substr;
-use const PHP_VERSION_ID;
+use function array_map, array_merge, class_exists, extension_loaded, get_debug_type, preg_match, serialize, substr;
 
 
 /**
@@ -17,8 +16,8 @@ use const PHP_VERSION_ID;
  */
 class Engine
 {
-	public const Version = '3.1.2';
-	public const VersionId = 30102;
+	public const Version = '3.1.6';
+	public const VersionId = 30106;
 
 	/** @deprecated use Engine::Version */
 	public const
@@ -61,7 +60,7 @@ class Engine
 	private ?Policy $policy = null;
 	private bool $sandboxed = false;
 	private ?string $phpBinary = null;
-	private ?string $configurationHash;
+	private ?string $configurationHash = null;
 	private ?string $locale = null;
 	private ?string $syntax = null;
 
@@ -72,8 +71,7 @@ class Engine
 		$this->filters = new Runtime\FilterExecutor;
 		$this->functions = new Runtime\FunctionExecutor;
 		$this->providers = new \stdClass;
-		$this->addExtension(new Essential\CoreExtension);
-		$this->addExtension(new Sandbox\SandboxExtension);
+		$this->addDefaultExtensions();
 	}
 
 
@@ -83,7 +81,7 @@ class Engine
 	 */
 	public function render(string $name, object|array $params = [], ?string $block = null): void
 	{
-		$template = $this->createTemplate($name, $this->processParams($params));
+		$template = $this->createTemplate($name, Helpers::resolveParams($this, $params));
 		$template->global->coreCaptured = false;
 		$template->render($block);
 	}
@@ -95,7 +93,7 @@ class Engine
 	 */
 	public function renderToString(string $name, object|array $params = [], ?string $block = null): string
 	{
-		$template = $this->createTemplate($name, $this->processParams($params));
+		$template = $this->createTemplate($name, Helpers::resolveParams($this, $params));
 		$template->global->coreCaptured = true;
 		return $template->capture(fn() => $template->render($block));
 	}
@@ -160,6 +158,7 @@ class Engine
 		$parser = new Compiler\TemplateParser;
 		$parser->getLexer()->setSyntax($this->syntax);
 		$parser->strict = $this->hasFeature(Feature::StrictParsing);
+		$parser->dedent = $this->hasFeature(Feature::Dedent);
 
 		foreach ($this->extensions as $extension) {
 			$extension->beforeCompile($this);
@@ -174,7 +173,7 @@ class Engine
 
 
 	/**
-	 * Calls node visitors.
+	 * Runs all registered compiler passes over the AST.
 	 */
 	public function applyPasses(TemplateNode &$node): void
 	{
@@ -226,8 +225,10 @@ class Engine
 			$this->cache->loadOrCreate($this, $name);
 		} else {
 			$compiled = $this->compile($name);
-			if (@eval(substr($compiled, 5)) === false) { // @ is escalated to exception, substr removes <?php
-				throw (new CompileException('Error in template: ' . (error_get_last()['message'] ?? '')))
+			try {
+				eval(substr($compiled, 5)); // substr removes <?php
+			} catch (\ParseError $e) {
+				throw (new CompileException('Error in template: ' . $e->getMessage(), previous: $e))
 					->setSource($compiled, "$name (compiled)");
 			}
 		}
@@ -260,9 +261,9 @@ class Engine
 	 */
 	public function generateTemplateHash(string $name): string
 	{
-		$hash = $this->configurationHash ?? hash('xxh128', serialize($this->generateConfigurationSignature()));
+		$hash = $this->configurationHash ??= hash('xxh128', serialize($this->generateConfigurationSignature()));
 		$hash .= $this->getLoader()->getUniqueId($name);
-		return substr(hash('xxh128', $hash), 0, 10);
+		return substr(hash('xxh128', $hash), 0, 16); // 64 bits, a collision would silently render a different template
 	}
 
 
@@ -295,6 +296,7 @@ class Engine
 		}
 
 		$this->filters->add($name, $callback);
+		$this->configurationHash = null;
 		return $this;
 	}
 
@@ -319,7 +321,7 @@ class Engine
 
 
 	/**
-	 * Call a run-time filter.
+	 * Calls a run-time filter.
 	 * @param  mixed[]  $args
 	 */
 	public function invokeFilter(string $name, array $args): mixed
@@ -345,6 +347,8 @@ class Engine
 		foreach ($extension->getProviders() as $name => $value) {
 			$this->providers->$name = $value;
 		}
+
+		$this->configurationHash = null;
 		return $this;
 	}
 
@@ -366,12 +370,13 @@ class Engine
 		}
 
 		$this->functions->add($name, $callback);
+		$this->configurationHash = null;
 		return $this;
 	}
 
 
 	/**
-	 * Call a run-time function.
+	 * Calls a run-time function.
 	 * @param  mixed[]  $args
 	 */
 	public function invokeFunction(string $name, array $args): mixed
@@ -381,6 +386,7 @@ class Engine
 
 
 	/**
+	 * Returns all run-time functions.
 	 * @return array<string, callable>
 	 */
 	public function getFunctions(): array
@@ -416,6 +422,7 @@ class Engine
 	public function setPolicy(?Policy $policy): static
 	{
 		$this->policy = $policy;
+		$this->configurationHash = null;
 		return $this;
 	}
 
@@ -428,6 +435,9 @@ class Engine
 	}
 
 
+	/**
+	 * Sets a handler called when an exception occurs during template rendering.
+	 */
 	public function setExceptionHandler(callable $handler): static
 	{
 		$this->providers->coreExceptionHandler = $handler(...);
@@ -438,6 +448,7 @@ class Engine
 	public function setSandboxMode(bool $state = true): static
 	{
 		$this->sandboxed = $state;
+		$this->configurationHash = null;
 		return $this;
 	}
 
@@ -445,6 +456,7 @@ class Engine
 	public function setContentType(string $type): static
 	{
 		$this->contentType = $type;
+		$this->configurationHash = null;
 		return $this;
 	}
 
@@ -482,6 +494,7 @@ class Engine
 	public function setFeature(Feature $feature, bool $state = true): static
 	{
 		$this->features[$feature->name] = $state;
+		$this->configurationHash = null;
 		return $this;
 	}
 
@@ -528,6 +541,7 @@ class Engine
 			throw new RuntimeException("Setting a locale requires the 'intl' extension to be installed.");
 		}
 		$this->locale = $locale;
+		$this->configurationHash = null;
 		return $this;
 	}
 
@@ -551,6 +565,9 @@ class Engine
 	}
 
 
+	/**
+	 * Validates compiled PHP code using the given PHP binary. Pass null to disable.
+	 */
 	public function enablePhpLinter(?string $phpBinary): static
 	{
 		$this->phpBinary = $phpBinary;
@@ -564,6 +581,7 @@ class Engine
 	public function setSyntax(string $syntax): static
 	{
 		$this->syntax = $syntax;
+		$this->configurationHash = null;
 		return $this;
 	}
 
@@ -575,38 +593,9 @@ class Engine
 	}
 
 
-	/**
-	 * @param  object|mixed[]  $params
-	 * @return array<string, mixed>
-	 */
-	private function processParams(object|array $params): array
+	protected function addDefaultExtensions(): void
 	{
-		if (is_array($params)) {
-			return $params;
-		}
-
-		$rc = new \ReflectionClass($params);
-		$methods = $rc->getMethods(\ReflectionMethod::IS_PUBLIC);
-		foreach ($methods as $method) {
-			if ($method->getAttributes(Attributes\TemplateFilter::class)) {
-				$this->addFilter($method->name, $method->getClosure($params));
-			}
-
-			if ($method->getAttributes(Attributes\TemplateFunction::class)) {
-				$this->addFunction($method->name, $method->getClosure($params));
-			}
-		}
-
-		$res = get_object_vars($params);
-		if (PHP_VERSION_ID >= 80400) {
-			foreach ($rc->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
-				if ($property->isVirtual() && $property->hasHook(\PropertyHookType::Get)) {
-					$name = $property->getName();
-					$res[$name] = $params->$name;
-				}
-			}
-		}
-
-		return $res;
+		$this->addExtension(new Essential\CoreExtension);
+		$this->addExtension(new Sandbox\SandboxExtension);
 	}
 }

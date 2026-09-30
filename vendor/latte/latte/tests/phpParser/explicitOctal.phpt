@@ -28,34 +28,43 @@ Latte\Compiler\Nodes\Php\Expression\ArrayNode
    |  |  |  value: 83
    |  |  |  kind: 8
    |  |  |  position: 1:1
+   |  |  |  end: 1:6
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 1:1
+   |  |  end: 1:6
    |  1 => Latte\Compiler\Nodes\Php\ArrayItemNode
    |  |  value: Latte\Compiler\Nodes\Php\Scalar\IntegerNode
    |  |  |  value: 83
    |  |  |  kind: 8
    |  |  |  position: 2:1
+   |  |  |  end: 2:6
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 2:1
+   |  |  end: 2:6
    |  2 => Latte\Compiler\Nodes\Php\ArrayItemNode
    |  |  value: Latte\Compiler\Nodes\Php\Scalar\IntegerNode
    |  |  |  value: 83
    |  |  |  kind: 8
    |  |  |  position: 3:1
+   |  |  |  end: 3:8
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 3:1
+   |  |  end: 3:8
    |  3 => Latte\Compiler\Nodes\Php\ArrayItemNode
    |  |  value: Latte\Compiler\Nodes\Php\Scalar\FloatNode
    |  |  |  value: 9.223372036854776e+18
    |  |  |  position: 4:1
+   |  |  |  end: 4:25
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 4:1
+   |  |  end: 4:25
    position: 1:1
+   end: 4:26

@@ -7,6 +7,8 @@
 
 namespace Latte\Compiler;
 
+use function sprintf;
+
 
 /**
  * Traverses and transforms AST nodes using visitor pattern.
@@ -27,6 +29,8 @@ final class NodeTraverser
 
 
 	/**
+	 * Traverses the AST, calling $enter before and $leave after visiting each node's children.
+	 * The callable may return a replacement Node, or one of the class constants to control traversal.
 	 * @param ?(callable(Node): (Node|int|void|null))  $enter
 	 * @param ?(callable(Node): (Node|int|void|null))  $leave
 	 */
@@ -61,7 +65,18 @@ final class NodeTraverser
 
 		if ($children) {
 			foreach ($node as &$subnode) {
-				$subnode = $this->traverseNode($subnode);
+				$res = $this->traverseNode($subnode);
+				if ($res !== $subnode) {
+					try {
+						$subnode = $res;
+					} catch (\TypeError $e) {
+						throw new \LogicException(sprintf(
+							'Cannot %s child node of %s during traversal, its slot does not allow that.',
+							$res === null ? 'remove' : 'replace',
+							$node::class,
+						), 0, $e);
+					}
+				}
 				if ($this->stop) {
 					break;
 				}

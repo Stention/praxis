@@ -74,7 +74,7 @@ abstract class Extension
 
 
 	/**
-	 * Returns a value to distinguish multiple versions of the template.
+	 * Returns a value that invalidates the template cache when the extension configuration changes.
 	 */
 	public function getCacheKey(Engine $engine): mixed
 	{
@@ -86,6 +86,15 @@ abstract class Extension
 	 * Initializes before template is rendered.
 	 */
 	public function beforeRender(Runtime\Template $template): void
+	{
+	}
+
+
+	/**
+	 * Cleans up after template is rendered. Called even when rendering ends early via {exitIf}
+	 * or is interrupted by an exception.
+	 */
+	public function afterRender(Runtime\Template $template): void
 	{
 	}
 

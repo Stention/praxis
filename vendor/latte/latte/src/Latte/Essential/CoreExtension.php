@@ -123,6 +123,8 @@ final class CoreExtension extends Latte\Extension
 			'ceil' => $this->filters->ceil(...),
 			'checkUrl' => $this->filters->checkUrl(...),
 			'clamp' => $this->filters->clamp(...),
+			'column' => $this->filters->column(...),
+			'commas' => $this->filters->commas(...),
 			'dataStream' => $this->filters->dataStream(...),
 			'datastream' => $this->filters->dataStream(...),
 			'date' => $this->filters->date(...),
@@ -150,10 +152,12 @@ final class CoreExtension extends Latte\Extension
 			'join' => $this->filters->implode(...),
 			'last' => $this->filters->last(...),
 			'length' => $this->filters->length(...),
+			'limit' => fn(string|iterable $value, int $length) => Filters::slice($value, 0, $length, preserveKeys: true),
 			'localDate' => $this->filters->localDate(...),
 			'lower' => extension_loaded('mbstring')
 				? $this->filters->lower(...)
 				: fn() => throw new RuntimeException('Filter |lower requires mbstring extension.'),
+			'map' => $this->filters->map(...),
 			'number' => $this->filters->number(...),
 			'padLeft' => $this->filters->padLeft(...),
 			'padRight' => $this->filters->padRight(...),
@@ -167,9 +171,9 @@ final class CoreExtension extends Latte\Extension
 			'round' => $this->filters->round(...),
 			'slice' => $this->filters->slice(...),
 			'sort' => $this->filters->sort(...),
-			'spaceless' => $this->filters->strip(...),
+			'spaceless' => $this->filters->spaceless(...),
 			'split' => $this->filters->explode(...),
-			'strip' => $this->filters->strip(...), // obsolete
+			'strip' => $this->filters->spaceless(...), // obsolete
 			'stripHtml' => $this->filters->stripHtml(...),
 			'striphtml' => $this->filters->stripHtml(...),
 			'stripTags' => $this->filters->stripTags(...),
@@ -210,8 +214,13 @@ final class CoreExtension extends Latte\Extension
 		return [
 			'internalVariables' => $passes->forbiddenVariablesPass(...),
 			'checkUrls' => $passes->checkUrlsPass(...),
-			'overwrittenVariables' => Nodes\ForeachNode::overwrittenVariablesPass(...),
+			'overwrittenVariables' => function (Latte\Compiler\Nodes\TemplateNode $node): void {
+				if (!$this->engine->hasFeature(Latte\Feature::ScopedLoopVariables)) {
+					Nodes\ForeachNode::overwrittenVariablesPass($node);
+				}
+			},
 			'customFunctions' => $passes->customFunctionsPass(...),
+			'firstLastSep' => Nodes\FirstLastSepNode::outsideForeachPass(...),
 			'moveTemplatePrintToHead' => Nodes\TemplatePrintNode::moveToHeadPass(...),
 			'nElse' => Nodes\NElseNode::processPass(...),
 			'scriptTagQuotes' => $passes->scriptTagQuotesPass(...),
@@ -276,7 +285,7 @@ final class CoreExtension extends Latte\Extension
 	{
 		try {
 			$name = $this->engine->getLoader()->getReferredName($name, $referringName);
-			$this->engine->createTemplate($name, [], clearCache: false);
+			$this->engine->createTemplate($name, clearCache: false);
 			return true;
 		} catch (Latte\TemplateNotFoundException) {
 			return false;
