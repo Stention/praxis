@@ -28,6 +28,7 @@ final class TemplateParser
 	public int $blockLayer = Template::LayerTop;
 	public bool $inHead = true;
 	public bool $strict = false;
+	public bool $dedent = false;
 	public ?Nodes\TextNode $lastIndentation = null;
 
 	/** @var array<string, \Closure(Tag, self): (Node|\Generator|void)> */
@@ -83,6 +84,12 @@ final class TemplateParser
 			$this->stream->throwUnexpectedException();
 		}
 
+		(new NodeTraverser)->traverse($node, leave: function (Node $child): void {
+			if ($child instanceof FragmentNode) { // extent spans the children, computable only once the tree is built
+				$child->updateExtent();
+			}
+		});
+
 		return $node;
 	}
 
@@ -114,6 +121,9 @@ final class TemplateParser
 	}
 
 
+	/**
+	 * Resolves the next node in plain text context (text, indentation, Latte tag, or comment).
+	 */
 	public function inTextResolve(): ?Node
 	{
 		$token = $this->stream->peek();
@@ -128,19 +138,22 @@ final class TemplateParser
 	}
 
 
+	/**
+	 * Consumes a text token and returns a TextNode.
+	 */
 	public function parseText(): Nodes\TextNode
 	{
 		$token = $this->stream->consume(Token::Text, Token::Html_Name);
 		$this->inHead = $this->inHead && trim($token->text) === '';
 		$this->lastIndentation = null;
-		return new Nodes\TextNode($token->text, $token->position);
+		return new Nodes\TextNode($token->text, $token->position, $token->end);
 	}
 
 
 	private function parseIndentation(): Nodes\TextNode
 	{
 		$token = $this->stream->consume(Token::Indentation);
-		return $this->lastIndentation = new Nodes\TextNode($token->text, $token->position);
+		return $this->lastIndentation = new Nodes\TextNode($token->text, $token->position, $token->end);
 	}
 
 
@@ -148,15 +161,18 @@ final class TemplateParser
 	{
 		$token = $this->stream->consume(Token::Newline);
 		if ($this->lastIndentation) { // drop indentation & newline
-			$this->lastIndentation->content = '';
+			$this->lastIndentation->clear();
 			$this->lastIndentation = null;
 			return new Nodes\NopNode;
 		} else {
-			return new Nodes\TextNode($token->text, $token->position);
+			return new Nodes\TextNode($token->text, $token->position, $token->end);
 		}
 	}
 
 
+	/**
+	 * Consumes a Latte comment and returns a NopNode.
+	 */
 	public function parseLatteComment(): Nodes\NopNode
 	{
 		if (str_ends_with($this->stream->tryPeek(-1)->text ?? "\n", "\n")) {
@@ -164,7 +180,7 @@ final class TemplateParser
 		}
 		$openToken = $this->stream->consume(Token::Latte_CommentOpen);
 		$this->lexer->pushState(TemplateLexer::StateLatteComment);
-		$this->stream->consume(Token::Text);
+		$this->stream->tryConsume(Token::Text);
 		$this->stream->tryConsume(Token::Latte_CommentClose) || $this->stream->throwUnexpectedException([Token::Latte_CommentClose], addendum: " started $openToken->position");
 		$this->lexer->popState();
 		return new Nodes\NopNode;
@@ -184,6 +200,7 @@ final class TemplateParser
 
 		$token = $this->stream->peek();
 		$startTag = $this->pushTag($this->parseLatteTag());
+		$tagRanges = [new Range($startTag->position, $startTag->end)];
 
 		$parser = $this->getTagParser($startTag->name, $token->position);
 		$res = $parser($startTag, $this);
@@ -203,6 +220,9 @@ final class TemplateParser
 				while ($res->valid()) {
 					$this->lookFor[$startTag] = $res->current() ?: null;
 					$content = $this->parseFragment($resolver ?? $this->lastResolver);
+					if ($this->dedent) {
+						Dedent::apply($content, $startTag);
+					}
 
 					if (!$this->stream->is(Token::Latte_TagOpen)) {
 						$this->checkEndTag($startTag, null);
@@ -218,10 +238,12 @@ final class TemplateParser
 
 					if ($tag->closing) {
 						$this->checkEndTag($startTag, $tag);
+						$tagRanges[] = new Range($tag->position, $tag->end);
 						$res->send([$content, $tag]);
 						$this->ensureIsConsumed($tag);
 						break;
 					} elseif (in_array($tag->name, $this->lookFor[$startTag] ?? [], strict: true)) {
+						$tagRanges[] = new Range($tag->position, $tag->end);
 						$this->pushTag($tag);
 						$res->send([$content, $tag]);
 						$this->ensureIsConsumed($tag);
@@ -258,6 +280,14 @@ final class TemplateParser
 		$this->popTag();
 
 		$node->position = $startTag->position;
+		$node->end ??= isset($tag) && $tag->closing
+			? $tag->end
+			: $startTag->end;
+
+		if ($node instanceof Nodes\StatementNode) {
+			$node->tagRanges = $tagRanges;
+		}
+
 		return $node;
 	}
 
@@ -274,23 +304,29 @@ final class TemplateParser
 		$this->lexer->pushState(TemplateLexer::StateLatteTag);
 		$closing = (bool) $stream->tryConsume(Token::Slash);
 		$nameToken = $stream->tryConsume(Token::Latte_Name);
+		$tokens = $this->consumeTag();
+		$void = (bool) $stream->tryConsume(Token::Slash);
+		$closeToken = $stream->tryConsume(Token::Latte_TagClose) ?? $stream->throwUnexpectedException([Token::Latte_TagClose], addendum: " started $openToken->position");
 		$tag = new Tag(
 			position: $openToken->position,
+			end: $closeToken->end,
 			closing: $closing,
 			name: $nameToken ? $nameToken->text : ($closing ? '' : '='),
-			tokens: $this->consumeTag(),
-			void: (bool) $stream->tryConsume(Token::Slash),
+			tokens: $tokens,
+			void: $void,
 			inHead: $this->inHead,
 			inTag: $inTag,
 			htmlElement: $this->html->getElement(),
 		);
-		$stream->tryConsume(Token::Latte_TagClose) || $stream->throwUnexpectedException([Token::Latte_TagClose], addendum: " started $openToken->position");
 		$this->lexer->popState();
 		return $tag;
 	}
 
 
-	/** @return Token[] */
+	/**
+	 * Consumes all PHP tokens of the current tag body and returns them.
+	 * @return Token[]
+	 */
 	public function consumeTag(): array
 	{
 		$res = [];
@@ -374,6 +410,9 @@ final class TemplateParser
 	}
 
 
+	/**
+	 * Throws if the tag parser has not consumed all tokens.
+	 */
 	public function ensureIsConsumed(Tag $tag): void
 	{
 		if (!$tag->parser->isEnd()) {
@@ -383,6 +422,9 @@ final class TemplateParser
 	}
 
 
+	/**
+	 * Validates that the block name is valid and not already declared, then registers it.
+	 */
 	public function checkBlockIsUnique(Block $block): void
 	{
 		if ($block->isDynamic() || !preg_match('#^[a-z]#iD', $name = (string) $block->name->value)) {
@@ -436,6 +478,9 @@ final class TemplateParser
 	}
 
 
+	/**
+	 * Returns the currently parsed tag, or null if no tag is being parsed.
+	 */
 	public function peekTag(): ?Tag
 	{
 		return $this->tag;
@@ -456,6 +501,9 @@ final class TemplateParser
 	}
 
 
+	/**
+	 * Generates a unique integer ID for use in compiled output.
+	 */
 	public function generateId(): int
 	{
 		return $this->counter++;

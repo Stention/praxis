@@ -11,13 +11,13 @@ use Latte;
 
 
 /**
- * Template loader.
+ * Loads templates from strings or an in-memory array.
  */
 class StringLoader implements Latte\Loader
 {
 	public function __construct(
 		/** @var array<string, string>|null */
-		private ?array $templates = null,
+		private readonly ?array $templates = null,
 	) {
 	}
 

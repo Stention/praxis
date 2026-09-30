@@ -1,7 +1,5 @@
 #!/usr/bin/env php
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 if (
 	!(is_file($file = __DIR__ . '/../vendor/autoload.php') && include $file) &&
@@ -17,7 +15,10 @@ Latte linter
 ------------
 ';
 
-if ($argc < 2) {
+/** @var list<string> $argv */
+$argv = $_SERVER['argv'] ?? [];
+
+if (count($argv) < 2) {
 	echo "Usage: latte-lint <path>\n";
 	exit(1);
 }

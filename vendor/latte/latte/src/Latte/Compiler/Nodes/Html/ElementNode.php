@@ -36,6 +36,7 @@ class ElementNode extends AreaNode
 	public function __construct(
 		public readonly string $name,
 		public ?Position $position = null,
+		public ?Position $end = null,
 		public readonly ?self $parent = null,
 		public string $contentType = ContentType::Html,
 	) {
@@ -43,6 +44,9 @@ class ElementNode extends AreaNode
 	}
 
 
+	/**
+	 * Returns the attribute value: plain string if static, Node if dynamic, true if it is a boolean or n:attribute, null if not found.
+	 */
 	public function getAttribute(string $name): string|Node|bool|null
 	{
 		foreach ($this->attributes->children as $child) {
@@ -62,6 +66,9 @@ class ElementNode extends AreaNode
 	}
 
 
+	/**
+	 * Checks whether the element has the given tag name (case-insensitive in HTML, case-sensitive in XML).
+	 */
 	public function is(string $name): bool
 	{
 		return $this->matchesIdentifier($this->name, $name);
@@ -76,6 +83,9 @@ class ElementNode extends AreaNode
 	}
 
 
+	/**
+	 * Checks whether the element contains raw text (i.e., is a <script> or <style> element).
+	 */
 	public function isRawText(): bool
 	{
 		return $this->contentType === ContentType::Html

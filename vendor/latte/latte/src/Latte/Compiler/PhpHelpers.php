@@ -62,7 +62,7 @@ final class PhpHelpers
 					$res .= $token;
 
 				} elseif ($name === T_OPEN_TAG) {
-					$res .= "<?php\n";
+					$res .= $next[0] === T_DECLARE ? '<?php ' : "<?php\n";
 
 				} elseif ($name === T_CLOSE_TAG) {
 					throw new \LogicException('Unexpected token');
@@ -188,6 +188,10 @@ final class PhpHelpers
 	}
 
 
+	/**
+	 * Decodes PHP string escape sequences (e.g. \n, \x1B, \u{1F600}).
+	 * Pass $quote to also unescape the given quote character.
+	 */
 	public static function decodeEscapeSequences(string $str, ?string $quote): string
 	{
 		if ($quote !== null) {
@@ -195,7 +199,7 @@ final class PhpHelpers
 		}
 
 		return preg_replace_callback(
-			'~\\\([\\\$nrtfve]|[xX][0-9a-fA-F]{1,2}|[0-7]{1,3}|u\{([0-9a-fA-F]+)\})~',
+			'~\\\([\\\$nrtfve]|[xX][0-9a-fA-F]{1,2}|[0-7]{1,3}|u\{[0-9a-fA-F]+\})~',
 			function ($matches) {
 				$ch = $matches[1];
 				$replacements = [
@@ -213,7 +217,7 @@ final class PhpHelpers
 				} elseif ($ch[0] === 'x' || $ch[0] === 'X') {
 					return chr((int) hexdec(substr($ch, 1)));
 				} elseif ($ch[0] === 'u') {
-					return self::codePointToUtf8((int) hexdec($matches[2]));
+					return self::codePointToUtf8((int) hexdec(substr($ch, 2, -1)));
 				} else {
 					$num = (int) octdec($ch);
 					if ($num > 255) {
@@ -240,10 +244,14 @@ final class PhpHelpers
 	}
 
 
+	/**
+	 * Validates the generated PHP code using the given PHP binary as a linter.
+	 * Throws CompileException if the code contains syntax errors.
+	 */
 	public static function checkCode(string $phpBinary, string $code, string $name): void
 	{
 		$process = proc_open(
-			$phpBinary . ' -l -n',
+			[$phpBinary, '-l', '-n'],
 			[['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']],
 			$pipes,
 			null,

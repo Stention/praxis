@@ -3,7 +3,7 @@
         'name' => 'nette/web-project',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '6536a475765d0e4a1b7a9c7cc39412dd6880d33b',
+        'reference' => 'eb788e207ae204cc6adb602163511c3b62179e0f',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'latte/latte' => array(
-            'pretty_version' => 'v3.1.2',
-            'version' => '3.1.2.0',
-            'reference' => '734ab908c17b28bd75b9331debd1901bec2f23ef',
+            'pretty_version' => 'v3.1.6',
+            'version' => '3.1.6.0',
+            'reference' => 'adccfac3d5d7bff441a0e5ae85978f448787f5d4',
             'type' => 'library',
             'install_path' => __DIR__ . '/../latte/latte',
             'aliases' => array(),
@@ -157,7 +157,7 @@
         'nette/web-project' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '6536a475765d0e4a1b7a9c7cc39412dd6880d33b',
+            'reference' => 'eb788e207ae204cc6adb602163511c3b62179e0f',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

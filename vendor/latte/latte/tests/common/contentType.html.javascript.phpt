@@ -115,6 +115,23 @@ Assert::match(
 	$latte->renderToString('<script type>{ foo:{="<>"} }</script>'),
 );
 
+// whitespace around type is ignored like in browsers
+Assert::match(
+	'<script type=" text/javascript ">"<>"</script>',
+	$latte->renderToString('<script type=" text/javascript ">{="<>"}</script>'),
+);
+
+// dynamic type attribute is treated as JavaScript
+Assert::match(
+	'<script type="text/javascript">"<>"</script>',
+	$latte->renderToString('<script type="{$type}">{="<>"}</script>', ['type' => 'text/javascript']),
+);
+
+Assert::match(
+	'<script type="a-b">"<>"</script>',
+	$latte->renderToString('<script type="a-{$x}">{="<>"}</script>', ['x' => 'b']),
+);
+
 // trim inside <script>
 Assert::match(
 	'<script>123;</script>',

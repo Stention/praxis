@@ -10,7 +10,7 @@ namespace Latte\Runtime;
 use Latte;
 use Latte\ContentType;
 use Nette;
-use function get_debug_type, html_entity_decode, htmlspecialchars, in_array, is_array, is_bool, is_float, is_int, is_string, ord, preg_match, preg_replace, preg_replace_callback, str_replace, strip_tags, strtolower, strtr;
+use function get_debug_type, html_entity_decode, htmlspecialchars, in_array, is_array, is_bool, is_float, is_int, is_string, ord, preg_match, preg_replace, preg_replace_callback, str_replace, strip_tags, strtolower, strtr, trim;
 use const ENT_HTML5, ENT_NOQUOTES, ENT_QUOTES, ENT_SUBSTITUTE, JSON_INVALID_UTF8_SUBSTITUTE, JSON_THROW_ON_ERROR, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE;
 
 
@@ -147,7 +147,7 @@ final class HtmlHelpers
 
 
 	/**
-	 * Converts HTML attribute to HTML text. The < > chars need to be escaped.
+	 * Converts an HTML attribute value back to HTML text with re-encoded special characters.
 	 */
 	public static function convertAttrToHtml(string $s): string
 	{
@@ -165,6 +165,9 @@ final class HtmlHelpers
 	}
 
 
+	/**
+	 * Returns the type category of an HTML attribute: 'bool', 'list', 'data', 'aria', 'style', or ''.
+	 */
 	public static function classifyAttributeType(string $name): string
 	{
 		$name = strtolower($name);
@@ -194,7 +197,7 @@ final class HtmlHelpers
 		return match (true) {
 			is_string($value), is_int($value), is_float($value), $value instanceof \Stringable => $namePart . '="' . self::escapeAttr($value) . '"',
 			$value === null => '',
-			default => self::triggerInvalidValue(trim($namePart), $value),
+			default => self::triggerInvalidValue(trim($namePart), $value) ?? '',
 		};
 	}
 
@@ -240,14 +243,23 @@ final class HtmlHelpers
 		if ($migrationWarnings && (is_bool($value) || $value === null)) {
 			self::triggerMigrationWarning(trim($namePart), $value);
 		}
-		$escape = fn($value) => str_contains($value, '"')
-			? "'" . str_replace(['&', "'"], ['&amp;', '&apos;'], $value) . "'"
-			: '"' . str_replace(['&', '"'], ['&amp;', '&quot;'], $value) . '"';
 		return match (true) {
 			is_bool($value) => $namePart . '="' . ($value ? 'true' : 'false') . '"',
-			is_array($value) || $value instanceof \stdClass => $namePart . '=' . $escape(json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR)),
+			is_array($value) || $value instanceof \stdClass => self::formatJsonAttribute($namePart, $value),
 			default => self::formatAttribute($namePart, $value),
 		};
+	}
+
+
+	/**
+	 * Formats HTML attribute with JSON-encoded value.
+	 */
+	public static function formatJsonAttribute(string $namePart, mixed $value): string
+	{
+		$json = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR);
+		return $namePart . '=' . (str_contains($json, '"')
+			? "'" . str_replace(['&', "'"], ['&amp;', '&apos;'], $json) . "'"
+			: '"' . str_replace(['&', '"'], ['&amp;', '&quot;'], $json) . '"');
 	}
 
 
@@ -280,15 +292,20 @@ final class HtmlHelpers
 	}
 
 
-	public static function triggerInvalidValue(string $name, mixed $value): string
+	/**
+	 * Triggers an E_USER_WARNING for an invalid attribute value type.
+	 */
+	public static function triggerInvalidValue(string $name, mixed $value): void
 	{
 		$source = Latte\Helpers::guessTemplatePosition();
 		$type = get_debug_type($value);
 		trigger_error("Invalid value for attribute '$name': $type is not allowed" . ($source ? " ($source)" : '.'), E_USER_WARNING);
-		return '';
 	}
 
 
+	/**
+	 * Triggers an E_USER_WARNING about a behavior change in attribute rendering.
+	 */
 	public static function triggerMigrationWarning(string $name, mixed $value): void
 	{
 		$source = Latte\Helpers::guessTemplatePosition();
@@ -321,7 +338,7 @@ final class HtmlHelpers
 	public static function isUrlAttribute(string $tag, string $attr): bool
 	{
 		$attr = strtolower($attr);
-		return in_array($attr, ['href', 'src', 'action', 'formaction'], strict: true)
+		return in_array($attr, ['href', 'src', 'action', 'formaction', 'xlink:href'], strict: true)
 			|| ($attr === 'data' && strtolower($tag) === 'object');
 	}
 
@@ -331,6 +348,7 @@ final class HtmlHelpers
 	 */
 	public static function classifyScriptType(string $type): string
 	{
+		$type = trim($type, " \t\n\f\r"); // browsers strip ASCII whitespace before matching
 		if (preg_match('#((application|text)/(((x-)?java|ecma|j|live)script|json)|application/.+\+json|text/plain|module|importmap|)$#Ai', $type)) {
 			return ContentType::JavaScript;
 
@@ -362,6 +380,9 @@ final class HtmlHelpers
 	}
 
 
+	/**
+	 * Validates that the HTML attribute name contains only allowed characters.
+	 */
 	public static function validateAttributeName(mixed $name): void
 	{
 		if (!is_string($name)) {

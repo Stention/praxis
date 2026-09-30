@@ -10,16 +10,25 @@ namespace Latte\Compiler;
 use function strlen, strrpos, substr_count;
 
 
+/**
+ * Source position (line, column, byte offset) within a template.
+ */
 final readonly class Position
 {
 	public function __construct(
+		/** 1-based line number */
 		public int $line = 1,
+		/** 1-based column number, counted in bytes */
 		public int $column = 1,
+		/** 0-based offset, counted in bytes */
 		public int $offset = 0,
 	) {
 	}
 
 
+	/**
+	 * Returns a new position advanced by the length of the given string.
+	 */
 	public function advance(string $str): self
 	{
 		if ($lines = substr_count($str, "\n")) {

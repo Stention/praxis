@@ -235,12 +235,16 @@ final readonly class Token
 		self::Php_False => "'false'",
 	];
 
+	public ?Position $end;
+
 
 	public function __construct(
 		public int $type,
 		public string $text,
 		public ?Position $position = null,
+		?Position $end = null,
 	) {
+		$this->end = $position ? $end ?? $position->advance($text) : null;
 	}
 
 
@@ -257,6 +261,9 @@ final readonly class Token
 	}
 
 
+	/**
+	 * Checks whether the token is a PHP expression token (not a structural delimiter).
+	 */
 	public function isPhpKind(): bool
 	{
 		return $this->type > 0 && $this->type < 10000;

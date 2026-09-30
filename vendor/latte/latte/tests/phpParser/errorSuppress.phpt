@@ -25,10 +25,14 @@ Latte\Compiler\Nodes\Php\Expression\ArrayNode
    |  |  |  expr: Latte\Compiler\Nodes\Php\Expression\VariableNode
    |  |  |  |  name: 'a'
    |  |  |  |  position: 1:2
+   |  |  |  |  end: 1:4
    |  |  |  operator: '@'
    |  |  |  position: 1:1
+   |  |  |  end: 1:4
    |  |  key: null
    |  |  byRef: false
    |  |  unpack: false
    |  |  position: 1:1
+   |  |  end: 1:4
    position: 1:1
+   end: 1:5

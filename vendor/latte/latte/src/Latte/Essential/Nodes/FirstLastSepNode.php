@@ -7,10 +7,12 @@
 
 namespace Latte\Essential\Nodes;
 
+use Latte\Compiler\Node;
 use Latte\Compiler\Nodes\AreaNode;
 use Latte\Compiler\Nodes\Php\ExpressionNode;
 use Latte\Compiler\Nodes\StatementNode;
-use Latte\Compiler\Position;
+use Latte\Compiler\Nodes\TemplateNode;
+use Latte\Compiler\NodeTraverser;
 use Latte\Compiler\PrintContext;
 use Latte\Compiler\Tag;
 
@@ -25,7 +27,6 @@ class FirstLastSepNode extends StatementNode
 	public ?ExpressionNode $width;
 	public AreaNode $then;
 	public ?AreaNode $else = null;
-	public ?Position $elseLine = null;
 
 
 	/** @return \Generator<int, ?list<string>, array{AreaNode, ?Tag}, static> */
@@ -37,7 +38,6 @@ class FirstLastSepNode extends StatementNode
 
 		[$node->then, $nextTag] = yield ['else'];
 		if ($nextTag?->name === 'else') {
-			$node->elseLine = $nextTag->position;
 			[$node->else] = yield;
 		}
 
@@ -59,7 +59,7 @@ class FirstLastSepNode extends StatementNode
 			$this->width,
 			$this->position,
 			$this->then,
-			$this->elseLine,
+			$this->tagRanges[1] ?? null,
 			$this->else,
 		);
 	}
@@ -74,5 +74,20 @@ class FirstLastSepNode extends StatementNode
 		if ($this->else) {
 			yield $this->else;
 		}
+	}
+
+
+	/**
+	 * Warns when {first}, {last} or {sep} is used outside {foreach}. Becomes an error in Latte 3.2.
+	 */
+	public static function outsideForeachPass(TemplateNode $node): void
+	{
+		(new NodeTraverser)->traverse($node, function (Node $node) {
+			if ($node instanceof ForeachNode) { // everything below is inside a loop
+				return NodeTraverser::DontTraverseChildren;
+			} elseif ($node instanceof self) {
+				trigger_error("Tag {{$node->name}} outside {foreach} is deprecated ($node->position)", E_USER_DEPRECATED);
+			}
+		});
 	}
 }

@@ -13,7 +13,7 @@ use Latte\Compiler\Nodes\Php\OperatorNode;
 use Latte\Compiler\Nodes\Php\Scalar;
 use Latte\ContentType;
 use Latte\Feature;
-use function addcslashes, array_pop, count, end, implode, preg_replace, preg_replace_callback, strtolower, substr, trim, ucfirst;
+use function addcslashes, array_pop, end, implode, preg_replace, preg_replace_callback, strtolower, substr, trim, ucfirst;
 
 
 /**
@@ -35,9 +35,10 @@ final class PrintContext
 	public function __construct(
 		string $contentType = ContentType::Html,
 		/** @var array<string, bool> */
-		private array $features = [],
+		private readonly array $features = [],
+		?Escaper $escaper = null,
 	) {
-		$this->escaperStack[] = new Escaper($contentType);
+		$this->escaperStack[] = $escaper ?? new Escaper($contentType);
 	}
 
 
@@ -62,12 +63,15 @@ final class PrintContext
 			function ($m) use ($args) {
 				[, $pos, $fn, $var] = $m;
 				$var = substr($var, 1, -1);
-				/** @var Nodes\ModifierNode[] $args */
-				return match ($fn) {
-					'modify' => $args[$pos]->printSimple($this, $var),
-					'modifyContent' => $args[$pos]->printContentAware($this, $var),
-					'escape' => $this->getEscaper()->escape($var),
-				};
+				if ($fn === 'escape') {
+					return $this->getEscaper()->escape($var);
+				}
+
+				$arg = $args[$pos];
+				assert($arg instanceof Nodes\ModifierNode);
+				return $fn === 'modify'
+					? $arg->printSimple($this, $var)
+					: $arg->printContentAware($this, $var);
 			},
 			$mask,
 		);
@@ -87,7 +91,9 @@ final class PrintContext
 					},
 					'raw' => (string) $arg,
 					'args' => $this->implode($arg instanceof Expression\ArrayNode ? $arg->toArguments() : $arg),
-					'line' => $arg?->line ? "/* pos $arg->line" . ($arg->column ? ":$arg->column" : '') . ' */' : '',
+					'line' => ($pos = $arg instanceof Range ? $arg->start : $arg)?->line
+						? "/* pos $pos->line" . ($pos->column ? ":$pos->column" : '') . ' */'
+						: '',
 				};
 
 				if ($cond && ($code === '[]' || $code === '' || $code === 'null')) {
@@ -104,7 +110,7 @@ final class PrintContext
 
 
 	/**
-	 * Pushes current escaper onto stack.
+	 * Saves the current escaping context and returns it. Call restoreEscape() to revert.
 	 */
 	public function beginEscape(): Escaper
 	{
@@ -113,7 +119,7 @@ final class PrintContext
 
 
 	/**
-	 * Restores previous escaper from stack.
+	 * Restores the escaping context saved by beginEscape().
 	 */
 	public function restoreEscape(): void
 	{
@@ -121,6 +127,9 @@ final class PrintContext
 	}
 
 
+	/**
+	 * Returns a clone of the current escaping context.
+	 */
 	public function getEscaper(): Escaper
 	{
 		$escaper = end($this->escaperStack);
@@ -163,6 +172,9 @@ final class PrintContext
 	// PHP helpers
 
 
+	/**
+	 * Encodes a string as a PHP string literal using single or double quotes.
+	 */
 	public function encodeString(string $str, string $quote = "'"): string
 	{
 		return $quote === "'"
@@ -226,6 +238,9 @@ final class PrintContext
 	}
 
 
+	/**
+	 * Prints a property or method name as a PHP identifier or a dynamic expression in braces.
+	 */
 	public function objectProperty(Node $node): string
 	{
 		return $node instanceof Nodes\NameNode || $node instanceof Nodes\IdentifierNode
@@ -234,6 +249,9 @@ final class PrintContext
 	}
 
 
+	/**
+	 * Prints a property or method name as a quoted PHP string or a dynamic expression.
+	 */
 	public function memberAsString(Node $node): string
 	{
 		return $node instanceof Nodes\NameNode || $node instanceof Nodes\IdentifierNode
@@ -284,6 +302,7 @@ final class PrintContext
 
 
 	/**
+	 * Converts a list of argument nodes to a PHP array literal string.
 	 * @param  Nodes\ArgumentNode[]  $args
 	 */
 	public function argumentsAsArray(array $args): string
