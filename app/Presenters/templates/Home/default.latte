@@ -11,15 +11,12 @@
 
 {block content}
 	<div class="notice-bar">
-		<div class="container-xl notice-inner">
+		<div class="container-xl notice-inner align-items-center">
 			<i class="bi bi-person-plus notice-icon"></i>
-			<div>
-				<p class="notice-title">{$locale === 'en' ? 'We are currently accepting new patients.' : 'Aktuálně přijímáme nové pacienty.'}</p>
-				<p class="notice-text">
-					{$locale === 'en' ? 'Book by phone:' : 'Objednejte se telefonicky:'}
-					<a href="tel:{str_replace(' ', '', $phone)}">{$phone}</a>
-				</p>
-			</div>
+			<p class="notice-title m-0">
+				{$locale === 'en' ? 'We are currently accepting new patients. Book by phone:' : 'Aktuálně přijímáme nové pacienty. Objednejte se telefonicky:'}
+				<a href="tel:{str_replace(' ', '', $phone)}">{$phone}</a>
+			</p>
 		</div>
 	</div>
 	{include '../sections/hero.latte'}
