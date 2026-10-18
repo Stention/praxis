@@ -10,6 +10,18 @@
 
 
 {block content}
+	<div class="notice-bar">
+		<div class="container-xl notice-inner">
+			<i class="bi bi-person-plus notice-icon"></i>
+			<div>
+				<p class="notice-title">{$locale === 'en' ? 'We are currently accepting new patients.' : 'Aktuálně přijímáme nové pacienty.'}</p>
+				<p class="notice-text">
+					{$locale === 'en' ? 'Book by phone:' : 'Objednejte se telefonicky:'}
+					<a href="tel:{str_replace(' ', '', $phone)}">{$phone}</a>
+				</p>
+			</div>
+		</div>
+	</div>
 	{include '../sections/hero.latte'}
 	{include '../sections/services.latte'}
 	{include '../sections/children.latte'}
